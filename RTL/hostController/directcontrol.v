@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/directcontrol.v
-// Generated   : 10/06/06 19:35:24
+// Generated   : 10/15/06 20:31:18
 // From        : ../RTL/hostController/directcontrol.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -99,66 +99,66 @@ reg [2:0] NextState_drctCntl;
 //----------------------------------
 always @ (directControlLineState or directControlEn or HCTxPortGnt or HCTxPortRdy or HCTxPortReq or HCTxPortWEn or HCTxPortData or HCTxPortCntl or CurrState_drctCntl)
 begin : drctCntl_NextState
-	NextState_drctCntl <= CurrState_drctCntl;
-	// Set default values for outputs and signals
-	next_HCTxPortReq <= HCTxPortReq;
-	next_HCTxPortWEn <= HCTxPortWEn;
-	next_HCTxPortData <= HCTxPortData;
-	next_HCTxPortCntl <= HCTxPortCntl;
-	case (CurrState_drctCntl)
-		`START_DC:
-			NextState_drctCntl <= `CHK_DRCT_CNTL;
-		`CHK_DRCT_CNTL:
-			if (directControlEn == 1'b1)	
-			begin
-				NextState_drctCntl <= `DRCT_CNTL_WAIT_GNT;
-				next_HCTxPortReq <= 1'b1;
-			end
-			else
-			begin
-				NextState_drctCntl <= `IDLE_WAIT_GNT;
-				next_HCTxPortReq <= 1'b1;
-			end
-		`DRCT_CNTL_WAIT_GNT:
-			if (HCTxPortGnt == 1'b1)	
-				NextState_drctCntl <= `DRCT_CNTL_WAIT_RDY;
-		`DRCT_CNTL_CHK_LOOP:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			if (directControlEn == 1'b0)	
-			begin
-				NextState_drctCntl <= `CHK_DRCT_CNTL;
-				next_HCTxPortReq <= 1'b0;
-			end
-			else
-				NextState_drctCntl <= `DRCT_CNTL_WAIT_RDY;
-		end
-		`DRCT_CNTL_WAIT_RDY:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_drctCntl <= `DRCT_CNTL_CHK_LOOP;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= {6'b000000, directControlLineState};
-				next_HCTxPortCntl <= `TX_DIRECT_CONTROL;
-			end
-		`IDLE_FIN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			next_HCTxPortReq <= 1'b0;
-			NextState_drctCntl <= `CHK_DRCT_CNTL;
-		end
-		`IDLE_WAIT_GNT:
-			if (HCTxPortGnt == 1'b1)	
-				NextState_drctCntl <= `IDLE_WAIT_RDY;
-		`IDLE_WAIT_RDY:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_drctCntl <= `IDLE_FIN;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= 8'h00;
-				next_HCTxPortCntl <= `TX_IDLE;
-			end
-	endcase
+  NextState_drctCntl <= CurrState_drctCntl;
+  // Set default values for outputs and signals
+  next_HCTxPortReq <= HCTxPortReq;
+  next_HCTxPortWEn <= HCTxPortWEn;
+  next_HCTxPortData <= HCTxPortData;
+  next_HCTxPortCntl <= HCTxPortCntl;
+  case (CurrState_drctCntl)
+    `START_DC:
+      NextState_drctCntl <= `CHK_DRCT_CNTL;
+    `CHK_DRCT_CNTL:
+      if (directControlEn == 1'b1)	
+      begin
+        NextState_drctCntl <= `DRCT_CNTL_WAIT_GNT;
+        next_HCTxPortReq <= 1'b1;
+      end
+      else
+      begin
+        NextState_drctCntl <= `IDLE_WAIT_GNT;
+        next_HCTxPortReq <= 1'b1;
+      end
+    `DRCT_CNTL_WAIT_GNT:
+      if (HCTxPortGnt == 1'b1)	
+        NextState_drctCntl <= `DRCT_CNTL_WAIT_RDY;
+    `DRCT_CNTL_CHK_LOOP:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      if (directControlEn == 1'b0)	
+      begin
+        NextState_drctCntl <= `CHK_DRCT_CNTL;
+        next_HCTxPortReq <= 1'b0;
+      end
+      else
+        NextState_drctCntl <= `DRCT_CNTL_WAIT_RDY;
+    end
+    `DRCT_CNTL_WAIT_RDY:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_drctCntl <= `DRCT_CNTL_CHK_LOOP;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= {6'b000000, directControlLineState};
+        next_HCTxPortCntl <= `TX_DIRECT_CONTROL;
+      end
+    `IDLE_FIN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      next_HCTxPortReq <= 1'b0;
+      NextState_drctCntl <= `CHK_DRCT_CNTL;
+    end
+    `IDLE_WAIT_GNT:
+      if (HCTxPortGnt == 1'b1)	
+        NextState_drctCntl <= `IDLE_WAIT_RDY;
+    `IDLE_WAIT_RDY:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_drctCntl <= `IDLE_FIN;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= 8'h00;
+        next_HCTxPortCntl <= `TX_IDLE;
+      end
+  endcase
 end
 
 //----------------------------------
@@ -166,10 +166,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : drctCntl_CurrentState
-	if (rst)	
-		CurrState_drctCntl <= `START_DC;
-	else
-		CurrState_drctCntl <= NextState_drctCntl;
+  if (rst)	
+    CurrState_drctCntl <= `START_DC;
+  else
+    CurrState_drctCntl <= NextState_drctCntl;
 end
 
 //----------------------------------
@@ -177,20 +177,20 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : drctCntl_RegOutput
-	if (rst)	
-	begin
-		HCTxPortCntl <= 8'h00;
-		HCTxPortData <= 8'h00;
-		HCTxPortWEn <= 1'b0;
-		HCTxPortReq <= 1'b0;
-	end
-	else 
-	begin
-		HCTxPortCntl <= next_HCTxPortCntl;
-		HCTxPortData <= next_HCTxPortData;
-		HCTxPortWEn <= next_HCTxPortWEn;
-		HCTxPortReq <= next_HCTxPortReq;
-	end
+  if (rst)	
+  begin
+    HCTxPortCntl <= 8'h00;
+    HCTxPortData <= 8'h00;
+    HCTxPortWEn <= 1'b0;
+    HCTxPortReq <= 1'b0;
+  end
+  else 
+  begin
+    HCTxPortCntl <= next_HCTxPortCntl;
+    HCTxPortData <= next_HCTxPortData;
+    HCTxPortWEn <= next_HCTxPortWEn;
+    HCTxPortReq <= next_HCTxPortReq;
+  end
 end
 
 endmodule

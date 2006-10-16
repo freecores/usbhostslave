@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/sendpacketarbiter.v
-// Generated   : 10/06/06 19:35:26
+// Generated   : 10/15/06 20:31:19
 // From        : ../RTL/hostController/sendpacketarbiter.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -113,40 +113,40 @@ end
 //----------------------------------
 always @ (HCTxReq or SOFTxReq or HCTxGnt or SOFTxGnt or muxSOFNotHC or CurrState_sendPktArb)
 begin : sendPktArb_NextState
-	NextState_sendPktArb <= CurrState_sendPktArb;
-	// Set default values for outputs and signals
-	next_HCTxGnt <= HCTxGnt;
-	next_SOFTxGnt <= SOFTxGnt;
-	next_muxSOFNotHC <= muxSOFNotHC;
-	case (CurrState_sendPktArb)
-		`HC_ACT:
-			if (HCTxReq == 1'b0)	
-			begin
-				NextState_sendPktArb <= `SARB_WAIT_REQ;
-				next_HCTxGnt <= 1'b0;
-			end
-		`SOF_ACT:
-			if (SOFTxReq == 1'b0)	
-			begin
-				NextState_sendPktArb <= `SARB_WAIT_REQ;
-				next_SOFTxGnt <= 1'b0;
-			end
-		`SARB_WAIT_REQ:
-			if (SOFTxReq == 1'b1)	
-			begin
-				NextState_sendPktArb <= `SOF_ACT;
-				next_SOFTxGnt <= 1'b1;
-				next_muxSOFNotHC <= 1'b1;
-			end
-			else if (HCTxReq == 1'b1)	
-			begin
-				NextState_sendPktArb <= `HC_ACT;
-				next_HCTxGnt <= 1'b1;
-				next_muxSOFNotHC <= 1'b0;
-			end
-		`START_SARB:
-			NextState_sendPktArb <= `SARB_WAIT_REQ;
-	endcase
+  NextState_sendPktArb <= CurrState_sendPktArb;
+  // Set default values for outputs and signals
+  next_HCTxGnt <= HCTxGnt;
+  next_SOFTxGnt <= SOFTxGnt;
+  next_muxSOFNotHC <= muxSOFNotHC;
+  case (CurrState_sendPktArb)
+    `HC_ACT:
+      if (HCTxReq == 1'b0)	
+      begin
+        NextState_sendPktArb <= `SARB_WAIT_REQ;
+        next_HCTxGnt <= 1'b0;
+      end
+    `SOF_ACT:
+      if (SOFTxReq == 1'b0)	
+      begin
+        NextState_sendPktArb <= `SARB_WAIT_REQ;
+        next_SOFTxGnt <= 1'b0;
+      end
+    `SARB_WAIT_REQ:
+      if (SOFTxReq == 1'b1)	
+      begin
+        NextState_sendPktArb <= `SOF_ACT;
+        next_SOFTxGnt <= 1'b1;
+        next_muxSOFNotHC <= 1'b1;
+      end
+      else if (HCTxReq == 1'b1)	
+      begin
+        NextState_sendPktArb <= `HC_ACT;
+        next_HCTxGnt <= 1'b1;
+        next_muxSOFNotHC <= 1'b0;
+      end
+    `START_SARB:
+      NextState_sendPktArb <= `SARB_WAIT_REQ;
+  endcase
 end
 
 //----------------------------------
@@ -154,10 +154,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sendPktArb_CurrentState
-	if (rst)	
-		CurrState_sendPktArb <= `START_SARB;
-	else
-		CurrState_sendPktArb <= NextState_sendPktArb;
+  if (rst)	
+    CurrState_sendPktArb <= `START_SARB;
+  else
+    CurrState_sendPktArb <= NextState_sendPktArb;
 end
 
 //----------------------------------
@@ -165,18 +165,18 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sendPktArb_RegOutput
-	if (rst)	
-	begin
-		muxSOFNotHC <= 1'b0;
-		SOFTxGnt <= 1'b0;
-		HCTxGnt <= 1'b0;
-	end
-	else 
-	begin
-		muxSOFNotHC <= next_muxSOFNotHC;
-		SOFTxGnt <= next_SOFTxGnt;
-		HCTxGnt <= next_HCTxGnt;
-	end
+  if (rst)	
+  begin
+    muxSOFNotHC <= 1'b0;
+    SOFTxGnt <= 1'b0;
+    HCTxGnt <= 1'b0;
+  end
+  else 
+  begin
+    muxSOFNotHC <= next_muxSOFNotHC;
+    SOFTxGnt <= next_SOFTxGnt;
+    HCTxGnt <= next_HCTxGnt;
+  end
 end
 
 endmodule

@@ -1,6 +1,6 @@
 
 // File        : ../RTL/slaveController/slaveSendpacket.v
-// Generated   : 10/06/06 19:35:33
+// Generated   : 10/15/06 20:31:24
 // From        : ../RTL/slaveController/slaveSendpacket.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -121,96 +121,96 @@ end
 //----------------------------------
 always @ (PIDNotPID or fifoData or sendPacketWEn or SCTxPortGnt or SCTxPortRdy or PID or fifoEmpty or sendPacketRdy or SCTxPortReq or SCTxPortWEn or SCTxPortData or SCTxPortCntl or fifoReadEn or CurrState_slvSndPkt)
 begin : slvSndPkt_NextState
-	NextState_slvSndPkt <= CurrState_slvSndPkt;
-	// Set default values for outputs and signals
-	next_sendPacketRdy <= sendPacketRdy;
-	next_SCTxPortReq <= SCTxPortReq;
-	next_SCTxPortWEn <= SCTxPortWEn;
-	next_SCTxPortData <= SCTxPortData;
-	next_SCTxPortCntl <= SCTxPortCntl;
-	next_fifoReadEn <= fifoReadEn;
-	case (CurrState_slvSndPkt)
-		`START_SP1:
-			NextState_slvSndPkt <= `SP_WAIT_ENABLE;
-		`SP_WAIT_ENABLE:
-			if (sendPacketWEn == 1'b1)	
-			begin
-				NextState_slvSndPkt <= `SP1_WAIT_GNT;
-				next_sendPacketRdy <= 1'b0;
-				next_SCTxPortReq <= 1'b1;
-			end
-		`SP1_WAIT_GNT:
-			if (SCTxPortGnt == 1'b1)	
-				NextState_slvSndPkt <= `SP_SEND_PID_WAIT_RDY;
-		`FIN_SP1:
-		begin
-			NextState_slvSndPkt <= `SP_WAIT_ENABLE;
-			next_sendPacketRdy <= 1'b1;
-			next_SCTxPortReq <= 1'b0;
-		end
-		`SP_NOT_DATA:
-			NextState_slvSndPkt <= `FIN_SP1;
-		`SP_SEND_PID_WAIT_RDY:
-			if (SCTxPortRdy == 1'b1)	
-			begin
-				NextState_slvSndPkt <= `SP_SEND_PID_FIN;
-				next_SCTxPortWEn <= 1'b1;
-				next_SCTxPortData <= PIDNotPID;
-				next_SCTxPortCntl <= `TX_PACKET_START;
-			end
-		`SP_SEND_PID_FIN:
-		begin
-			next_SCTxPortWEn <= 1'b0;
-			if (PID == `DATA0 || PID == `DATA1)	
-				NextState_slvSndPkt <= `SP_D0_D1_FIFO_EMPTY;
-			else
-				NextState_slvSndPkt <= `SP_NOT_DATA;
-		end
-		`SP_D0_D1_READ_FIFO:
-		begin
-			next_SCTxPortWEn <= 1'b1;
-			next_SCTxPortData <= fifoData;
-			next_SCTxPortCntl <= `TX_PACKET_STREAM;
-			NextState_slvSndPkt <= `SP_D0_D1_CLR_WEN;
-		end
-		`SP_D0_D1_WAIT_READ_FIFO:
-			if (SCTxPortRdy == 1'b1)	
-			begin
-				NextState_slvSndPkt <= `SP_D0_D1_CLR_REN;
-				next_fifoReadEn <= 1'b1;
-			end
-		`SP_D0_D1_FIFO_EMPTY:
-			if (fifoEmpty == 1'b0)	
-				NextState_slvSndPkt <= `SP_D0_D1_WAIT_READ_FIFO;
-			else
-				NextState_slvSndPkt <= `SP_D0_D1_TERM_BYTE;
-		`SP_D0_D1_FIN:
-		begin
-			next_SCTxPortWEn <= 1'b0;
-			NextState_slvSndPkt <= `FIN_SP1;
-		end
-		`SP_D0_D1_TERM_BYTE:
-			if (SCTxPortRdy == 1'b1)	
-			begin
-				NextState_slvSndPkt <= `SP_D0_D1_FIN;
-				//Last byte is not valid data,
-				//but the 'TX_PACKET_STOP' flag is required
-				//by the SIE state machine to detect end of data packet
-				next_SCTxPortWEn <= 1'b1;
-				next_SCTxPortData <= 8'h00;
-				next_SCTxPortCntl <= `TX_PACKET_STOP;
-			end
-		`SP_D0_D1_CLR_WEN:
-		begin
-			next_SCTxPortWEn <= 1'b0;
-			NextState_slvSndPkt <= `SP_D0_D1_FIFO_EMPTY;
-		end
-		`SP_D0_D1_CLR_REN:
-		begin
-			next_fifoReadEn <= 1'b0;
-			NextState_slvSndPkt <= `SP_D0_D1_READ_FIFO;
-		end
-	endcase
+  NextState_slvSndPkt <= CurrState_slvSndPkt;
+  // Set default values for outputs and signals
+  next_sendPacketRdy <= sendPacketRdy;
+  next_SCTxPortReq <= SCTxPortReq;
+  next_SCTxPortWEn <= SCTxPortWEn;
+  next_SCTxPortData <= SCTxPortData;
+  next_SCTxPortCntl <= SCTxPortCntl;
+  next_fifoReadEn <= fifoReadEn;
+  case (CurrState_slvSndPkt)
+    `START_SP1:
+      NextState_slvSndPkt <= `SP_WAIT_ENABLE;
+    `SP_WAIT_ENABLE:
+      if (sendPacketWEn == 1'b1)	
+      begin
+        NextState_slvSndPkt <= `SP1_WAIT_GNT;
+        next_sendPacketRdy <= 1'b0;
+        next_SCTxPortReq <= 1'b1;
+      end
+    `SP1_WAIT_GNT:
+      if (SCTxPortGnt == 1'b1)	
+        NextState_slvSndPkt <= `SP_SEND_PID_WAIT_RDY;
+    `FIN_SP1:
+    begin
+      NextState_slvSndPkt <= `SP_WAIT_ENABLE;
+      next_sendPacketRdy <= 1'b1;
+      next_SCTxPortReq <= 1'b0;
+    end
+    `SP_NOT_DATA:
+      NextState_slvSndPkt <= `FIN_SP1;
+    `SP_SEND_PID_WAIT_RDY:
+      if (SCTxPortRdy == 1'b1)	
+      begin
+        NextState_slvSndPkt <= `SP_SEND_PID_FIN;
+        next_SCTxPortWEn <= 1'b1;
+        next_SCTxPortData <= PIDNotPID;
+        next_SCTxPortCntl <= `TX_PACKET_START;
+      end
+    `SP_SEND_PID_FIN:
+    begin
+      next_SCTxPortWEn <= 1'b0;
+      if (PID == `DATA0 || PID == `DATA1)	
+        NextState_slvSndPkt <= `SP_D0_D1_FIFO_EMPTY;
+      else
+        NextState_slvSndPkt <= `SP_NOT_DATA;
+    end
+    `SP_D0_D1_READ_FIFO:
+    begin
+      next_SCTxPortWEn <= 1'b1;
+      next_SCTxPortData <= fifoData;
+      next_SCTxPortCntl <= `TX_PACKET_STREAM;
+      NextState_slvSndPkt <= `SP_D0_D1_CLR_WEN;
+    end
+    `SP_D0_D1_WAIT_READ_FIFO:
+      if (SCTxPortRdy == 1'b1)	
+      begin
+        NextState_slvSndPkt <= `SP_D0_D1_CLR_REN;
+        next_fifoReadEn <= 1'b1;
+      end
+    `SP_D0_D1_FIFO_EMPTY:
+      if (fifoEmpty == 1'b0)	
+        NextState_slvSndPkt <= `SP_D0_D1_WAIT_READ_FIFO;
+      else
+        NextState_slvSndPkt <= `SP_D0_D1_TERM_BYTE;
+    `SP_D0_D1_FIN:
+    begin
+      next_SCTxPortWEn <= 1'b0;
+      NextState_slvSndPkt <= `FIN_SP1;
+    end
+    `SP_D0_D1_TERM_BYTE:
+      if (SCTxPortRdy == 1'b1)	
+      begin
+        NextState_slvSndPkt <= `SP_D0_D1_FIN;
+        //Last byte is not valid data,
+        //but the 'TX_PACKET_STOP' flag is required
+        //by the SIE state machine to detect end of data packet
+        next_SCTxPortWEn <= 1'b1;
+        next_SCTxPortData <= 8'h00;
+        next_SCTxPortCntl <= `TX_PACKET_STOP;
+      end
+    `SP_D0_D1_CLR_WEN:
+    begin
+      next_SCTxPortWEn <= 1'b0;
+      NextState_slvSndPkt <= `SP_D0_D1_FIFO_EMPTY;
+    end
+    `SP_D0_D1_CLR_REN:
+    begin
+      next_fifoReadEn <= 1'b0;
+      NextState_slvSndPkt <= `SP_D0_D1_READ_FIFO;
+    end
+  endcase
 end
 
 //----------------------------------
@@ -218,10 +218,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : slvSndPkt_CurrentState
-	if (rst)	
-		CurrState_slvSndPkt <= `START_SP1;
-	else
-		CurrState_slvSndPkt <= NextState_slvSndPkt;
+  if (rst)	
+    CurrState_slvSndPkt <= `START_SP1;
+  else
+    CurrState_slvSndPkt <= NextState_slvSndPkt;
 end
 
 //----------------------------------
@@ -229,24 +229,24 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : slvSndPkt_RegOutput
-	if (rst)	
-	begin
-		sendPacketRdy <= 1'b1;
-		SCTxPortReq <= 1'b0;
-		SCTxPortWEn <= 1'b0;
-		SCTxPortData <= 8'h00;
-		SCTxPortCntl <= 8'h00;
-		fifoReadEn <= 1'b0;
-	end
-	else 
-	begin
-		sendPacketRdy <= next_sendPacketRdy;
-		SCTxPortReq <= next_SCTxPortReq;
-		SCTxPortWEn <= next_SCTxPortWEn;
-		SCTxPortData <= next_SCTxPortData;
-		SCTxPortCntl <= next_SCTxPortCntl;
-		fifoReadEn <= next_fifoReadEn;
-	end
+  if (rst)	
+  begin
+    sendPacketRdy <= 1'b1;
+    SCTxPortReq <= 1'b0;
+    SCTxPortWEn <= 1'b0;
+    SCTxPortData <= 8'h00;
+    SCTxPortCntl <= 8'h00;
+    fifoReadEn <= 1'b0;
+  end
+  else 
+  begin
+    sendPacketRdy <= next_sendPacketRdy;
+    SCTxPortReq <= next_SCTxPortReq;
+    SCTxPortWEn <= next_SCTxPortWEn;
+    SCTxPortData <= next_SCTxPortData;
+    SCTxPortCntl <= next_SCTxPortCntl;
+    fifoReadEn <= next_fifoReadEn;
+  end
 end
 
 endmodule

@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/sendpacket.v
-// Generated   : 10/06/06 19:35:25
+// Generated   : 10/15/06 20:31:19
 // From        : ../RTL/hostController/sendpacket.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -139,169 +139,169 @@ end
 //----------------------------------
 always @ (PIDNotPID or TxEndP or TxAddr or frameNum or fifoData or sendPacketWEn or HCTxPortGnt or PID or fullSpeedPolarity or HCTxPortRdy or fifoEmpty or sendPacketRdy or HCTxPortReq or HCTxPortWEn or HCTxPortData or HCTxPortCntl or fifoReadEn or CurrState_sndPkt)
 begin : sndPkt_NextState
-	NextState_sndPkt <= CurrState_sndPkt;
-	// Set default values for outputs and signals
-	next_sendPacketRdy <= sendPacketRdy;
-	next_HCTxPortReq <= HCTxPortReq;
-	next_HCTxPortWEn <= HCTxPortWEn;
-	next_HCTxPortData <= HCTxPortData;
-	next_HCTxPortCntl <= HCTxPortCntl;
-	next_frameNum <= frameNum;
-	next_fifoReadEn <= fifoReadEn;
-	case (CurrState_sndPkt)
-		`START_SP:
-			NextState_sndPkt <= `WAIT_ENABLE;
-		`WAIT_ENABLE:
-			if (sendPacketWEn == 1'b1)	
-			begin
-				NextState_sndPkt <= `SP_WAIT_GNT;
-				next_sendPacketRdy <= 1'b0;
-				next_HCTxPortReq <= 1'b1;
-			end
-		`SP_WAIT_GNT:
-			if ((HCTxPortGnt == 1'b1) && (PID == `SOF && fullSpeedPolarity == 1'b0))	
-				NextState_sndPkt <= `LS_EOP_WAIT_RDY;
-			else if (HCTxPortGnt == 1'b1)	
-				NextState_sndPkt <= `SEND_PID_WAIT_RDY;
-		`FIN_SP:
-		begin
-			NextState_sndPkt <= `WAIT_ENABLE;
-			next_sendPacketRdy <= 1'b1;
-			next_HCTxPortReq <= 1'b0;
-		end
-		`SEND_PID_WAIT_RDY:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `SEND_PID_FIN;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= PIDNotPID;
-				next_HCTxPortCntl <= `TX_PACKET_START;
-			end
-		`SEND_PID_FIN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			if (PID == `DATA0 || PID == `DATA1)	
-				NextState_sndPkt <= `DATA0_DATA1_FIFO_EMPTY;
-			else if (PID == `SOF)	
-				NextState_sndPkt <= `SEND_SOF_WAIT_RDY3;
-			else if (PID == `OUT || 
-				PID == `IN || 
-				PID == `SETUP)	
-				NextState_sndPkt <= `OUT_IN_SETUP_WAIT_RDY1;
-			else
-				NextState_sndPkt <= `FIN_SP;
-		end
-		`OUT_IN_SETUP_WAIT_RDY1:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `OUT_IN_SETUP_CLR_WEN1;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= {TxEndP[0], TxAddr[6:0]};
-				next_HCTxPortCntl <= `TX_PACKET_STREAM;
-			end
-		`OUT_IN_SETUP_WAIT_RDY2:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `OUT_IN_SETUP_FIN;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= {5'b00000, TxEndP[3:1]};
-				next_HCTxPortCntl <= `TX_PACKET_STREAM;
-			end
-		`OUT_IN_SETUP_FIN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `FIN_SP;
-		end
-		`OUT_IN_SETUP_CLR_WEN1:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `OUT_IN_SETUP_WAIT_RDY2;
-		end
-		`SEND_SOF_FIN1:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			next_frameNum <= frameNum + 1'b1;
-			NextState_sndPkt <= `FIN_SP;
-		end
-		`SEND_SOF_WAIT_RDY3:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `SEND_SOF_CLR_WEN1;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= frameNum[7:0];
-				next_HCTxPortCntl <= `TX_PACKET_STREAM;
-			end
-		`SEND_SOF_WAIT_RDY4:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `SEND_SOF_FIN1;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= {5'b00000, frameNum[10:8]};
-				next_HCTxPortCntl <= `TX_PACKET_STREAM;
-			end
-		`SEND_SOF_CLR_WEN1:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `SEND_SOF_WAIT_RDY4;
-		end
-		`DATA0_DATA1_READ_FIFO:
-		begin
-			next_HCTxPortWEn <= 1'b1;
-			next_HCTxPortData <= fifoData;
-			next_HCTxPortCntl <= `TX_PACKET_STREAM;
-			NextState_sndPkt <= `DATA0_DATA1_CLR_WEN;
-		end
-		`DATA0_DATA1_WAIT_READ_FIFO:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `DATA0_DATA1_CLR_REN;
-				next_fifoReadEn <= 1'b1;
-			end
-		`DATA0_DATA1_FIFO_EMPTY:
-			if (fifoEmpty == 1'b0)	
-				NextState_sndPkt <= `DATA0_DATA1_WAIT_READ_FIFO;
-			else
-				NextState_sndPkt <= `DATA0_DATA1_TERM_BYTE;
-		`DATA0_DATA1_FIN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `FIN_SP;
-		end
-		`DATA0_DATA1_TERM_BYTE:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `DATA0_DATA1_FIN;
-				//Last byte is not valid data,
-				//but the 'TX_PACKET_STOP' flag is required
-				//by the SIE state machine to detect end of data packet
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= 8'h00;
-				next_HCTxPortCntl <= `TX_PACKET_STOP;
-			end
-		`DATA0_DATA1_CLR_WEN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `DATA0_DATA1_FIFO_EMPTY;
-		end
-		`DATA0_DATA1_CLR_REN:
-		begin
-			next_fifoReadEn <= 1'b0;
-			NextState_sndPkt <= `DATA0_DATA1_READ_FIFO;
-		end
-		`LS_EOP_WAIT_RDY:
-			if (HCTxPortRdy == 1'b1)	
-			begin
-				NextState_sndPkt <= `LS_EOP_FIN;
-				next_HCTxPortWEn <= 1'b1;
-				next_HCTxPortData <= 8'h00;
-				next_HCTxPortCntl <= `TX_LS_KEEP_ALIVE;
-			end
-		`LS_EOP_FIN:
-		begin
-			next_HCTxPortWEn <= 1'b0;
-			NextState_sndPkt <= `FIN_SP;
-		end
-	endcase
+  NextState_sndPkt <= CurrState_sndPkt;
+  // Set default values for outputs and signals
+  next_sendPacketRdy <= sendPacketRdy;
+  next_HCTxPortReq <= HCTxPortReq;
+  next_HCTxPortWEn <= HCTxPortWEn;
+  next_HCTxPortData <= HCTxPortData;
+  next_HCTxPortCntl <= HCTxPortCntl;
+  next_frameNum <= frameNum;
+  next_fifoReadEn <= fifoReadEn;
+  case (CurrState_sndPkt)
+    `START_SP:
+      NextState_sndPkt <= `WAIT_ENABLE;
+    `WAIT_ENABLE:
+      if (sendPacketWEn == 1'b1)	
+      begin
+        NextState_sndPkt <= `SP_WAIT_GNT;
+        next_sendPacketRdy <= 1'b0;
+        next_HCTxPortReq <= 1'b1;
+      end
+    `SP_WAIT_GNT:
+      if ((HCTxPortGnt == 1'b1) && (PID == `SOF && fullSpeedPolarity == 1'b0))	
+        NextState_sndPkt <= `LS_EOP_WAIT_RDY;
+      else if (HCTxPortGnt == 1'b1)	
+        NextState_sndPkt <= `SEND_PID_WAIT_RDY;
+    `FIN_SP:
+    begin
+      NextState_sndPkt <= `WAIT_ENABLE;
+      next_sendPacketRdy <= 1'b1;
+      next_HCTxPortReq <= 1'b0;
+    end
+    `SEND_PID_WAIT_RDY:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `SEND_PID_FIN;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= PIDNotPID;
+        next_HCTxPortCntl <= `TX_PACKET_START;
+      end
+    `SEND_PID_FIN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      if (PID == `DATA0 || PID == `DATA1)	
+        NextState_sndPkt <= `DATA0_DATA1_FIFO_EMPTY;
+      else if (PID == `SOF)	
+        NextState_sndPkt <= `SEND_SOF_WAIT_RDY3;
+      else if (PID == `OUT || 
+        PID == `IN || 
+        PID == `SETUP)	
+        NextState_sndPkt <= `OUT_IN_SETUP_WAIT_RDY1;
+      else
+        NextState_sndPkt <= `FIN_SP;
+    end
+    `OUT_IN_SETUP_WAIT_RDY1:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `OUT_IN_SETUP_CLR_WEN1;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= {TxEndP[0], TxAddr[6:0]};
+        next_HCTxPortCntl <= `TX_PACKET_STREAM;
+      end
+    `OUT_IN_SETUP_WAIT_RDY2:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `OUT_IN_SETUP_FIN;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= {5'b00000, TxEndP[3:1]};
+        next_HCTxPortCntl <= `TX_PACKET_STREAM;
+      end
+    `OUT_IN_SETUP_FIN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `FIN_SP;
+    end
+    `OUT_IN_SETUP_CLR_WEN1:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `OUT_IN_SETUP_WAIT_RDY2;
+    end
+    `SEND_SOF_FIN1:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      next_frameNum <= frameNum + 1'b1;
+      NextState_sndPkt <= `FIN_SP;
+    end
+    `SEND_SOF_WAIT_RDY3:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `SEND_SOF_CLR_WEN1;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= frameNum[7:0];
+        next_HCTxPortCntl <= `TX_PACKET_STREAM;
+      end
+    `SEND_SOF_WAIT_RDY4:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `SEND_SOF_FIN1;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= {5'b00000, frameNum[10:8]};
+        next_HCTxPortCntl <= `TX_PACKET_STREAM;
+      end
+    `SEND_SOF_CLR_WEN1:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `SEND_SOF_WAIT_RDY4;
+    end
+    `DATA0_DATA1_READ_FIFO:
+    begin
+      next_HCTxPortWEn <= 1'b1;
+      next_HCTxPortData <= fifoData;
+      next_HCTxPortCntl <= `TX_PACKET_STREAM;
+      NextState_sndPkt <= `DATA0_DATA1_CLR_WEN;
+    end
+    `DATA0_DATA1_WAIT_READ_FIFO:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `DATA0_DATA1_CLR_REN;
+        next_fifoReadEn <= 1'b1;
+      end
+    `DATA0_DATA1_FIFO_EMPTY:
+      if (fifoEmpty == 1'b0)	
+        NextState_sndPkt <= `DATA0_DATA1_WAIT_READ_FIFO;
+      else
+        NextState_sndPkt <= `DATA0_DATA1_TERM_BYTE;
+    `DATA0_DATA1_FIN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `FIN_SP;
+    end
+    `DATA0_DATA1_TERM_BYTE:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `DATA0_DATA1_FIN;
+        //Last byte is not valid data,
+        //but the 'TX_PACKET_STOP' flag is required
+        //by the SIE state machine to detect end of data packet
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= 8'h00;
+        next_HCTxPortCntl <= `TX_PACKET_STOP;
+      end
+    `DATA0_DATA1_CLR_WEN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `DATA0_DATA1_FIFO_EMPTY;
+    end
+    `DATA0_DATA1_CLR_REN:
+    begin
+      next_fifoReadEn <= 1'b0;
+      NextState_sndPkt <= `DATA0_DATA1_READ_FIFO;
+    end
+    `LS_EOP_WAIT_RDY:
+      if (HCTxPortRdy == 1'b1)	
+      begin
+        NextState_sndPkt <= `LS_EOP_FIN;
+        next_HCTxPortWEn <= 1'b1;
+        next_HCTxPortData <= 8'h00;
+        next_HCTxPortCntl <= `TX_LS_KEEP_ALIVE;
+      end
+    `LS_EOP_FIN:
+    begin
+      next_HCTxPortWEn <= 1'b0;
+      NextState_sndPkt <= `FIN_SP;
+    end
+  endcase
 end
 
 //----------------------------------
@@ -309,10 +309,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sndPkt_CurrentState
-	if (rst)	
-		CurrState_sndPkt <= `START_SP;
-	else
-		CurrState_sndPkt <= NextState_sndPkt;
+  if (rst)	
+    CurrState_sndPkt <= `START_SP;
+  else
+    CurrState_sndPkt <= NextState_sndPkt;
 end
 
 //----------------------------------
@@ -320,26 +320,26 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sndPkt_RegOutput
-	if (rst)	
-	begin
-		sendPacketRdy <= 1'b1;
-		HCTxPortReq <= 1'b0;
-		HCTxPortWEn <= 1'b0;
-		HCTxPortData <= 8'h00;
-		HCTxPortCntl <= 8'h00;
-		frameNum <= 11'h000;
-		fifoReadEn <= 1'b0;
-	end
-	else 
-	begin
-		sendPacketRdy <= next_sendPacketRdy;
-		HCTxPortReq <= next_HCTxPortReq;
-		HCTxPortWEn <= next_HCTxPortWEn;
-		HCTxPortData <= next_HCTxPortData;
-		HCTxPortCntl <= next_HCTxPortCntl;
-		frameNum <= next_frameNum;
-		fifoReadEn <= next_fifoReadEn;
-	end
+  if (rst)	
+  begin
+    sendPacketRdy <= 1'b1;
+    HCTxPortReq <= 1'b0;
+    HCTxPortWEn <= 1'b0;
+    HCTxPortData <= 8'h00;
+    HCTxPortCntl <= 8'h00;
+    frameNum <= 11'h000;
+    fifoReadEn <= 1'b0;
+  end
+  else 
+  begin
+    sendPacketRdy <= next_sendPacketRdy;
+    HCTxPortReq <= next_HCTxPortReq;
+    HCTxPortWEn <= next_HCTxPortWEn;
+    HCTxPortData <= next_HCTxPortData;
+    HCTxPortCntl <= next_HCTxPortCntl;
+    frameNum <= next_frameNum;
+    fifoReadEn <= next_fifoReadEn;
+  end
 end
 
 endmodule

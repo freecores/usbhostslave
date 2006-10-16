@@ -1,6 +1,6 @@
 
 // File        : ../RTL/slaveController/slaveDirectcontrol.v
-// Generated   : 10/06/06 19:35:33
+// Generated   : 10/15/06 20:31:24
 // From        : ../RTL/slaveController/slaveDirectcontrol.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -100,66 +100,66 @@ reg [2:0] NextState_slvDrctCntl;
 //----------------------------------
 always @ (directControlLineState or directControlEn or SCTxPortGnt or SCTxPortRdy or SCTxPortReq or SCTxPortWEn or SCTxPortData or SCTxPortCntl or CurrState_slvDrctCntl)
 begin : slvDrctCntl_NextState
-	NextState_slvDrctCntl <= CurrState_slvDrctCntl;
-	// Set default values for outputs and signals
-	next_SCTxPortReq <= SCTxPortReq;
-	next_SCTxPortWEn <= SCTxPortWEn;
-	next_SCTxPortData <= SCTxPortData;
-	next_SCTxPortCntl <= SCTxPortCntl;
-	case (CurrState_slvDrctCntl)
-		`START_SDC:
-			NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
-		`CHK_DRCT_CNTL:
-			if (directControlEn == 1'b1)	
-			begin
-				NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_GNT;
-				next_SCTxPortReq <= 1'b1;
-			end
-			else
-			begin
-				NextState_slvDrctCntl <= `IDLE_WAIT_GNT;
-				next_SCTxPortReq <= 1'b1;
-			end
-		`DRCT_CNTL_WAIT_GNT:
-			if (SCTxPortGnt == 1'b1)	
-				NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_RDY;
-		`DRCT_CNTL_CHK_LOOP:
-		begin
-			next_SCTxPortWEn <= 1'b0;
-			if (directControlEn == 1'b0)	
-			begin
-				NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
-				next_SCTxPortReq <= 1'b0;
-			end
-			else
-				NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_RDY;
-		end
-		`DRCT_CNTL_WAIT_RDY:
-			if (SCTxPortRdy == 1'b1)	
-			begin
-				NextState_slvDrctCntl <= `DRCT_CNTL_CHK_LOOP;
-				next_SCTxPortWEn <= 1'b1;
-				next_SCTxPortData <= {6'b000000, directControlLineState};
-				next_SCTxPortCntl <= `TX_DIRECT_CONTROL;
-			end
-		`IDLE_FIN:
-		begin
-			next_SCTxPortWEn <= 1'b0;
-			next_SCTxPortReq <= 1'b0;
-			NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
-		end
-		`IDLE_WAIT_GNT:
-			if (SCTxPortGnt == 1'b1)	
-				NextState_slvDrctCntl <= `IDLE_WAIT_RDY;
-		`IDLE_WAIT_RDY:
-			if (SCTxPortRdy == 1'b1)	
-			begin
-				NextState_slvDrctCntl <= `IDLE_FIN;
-				next_SCTxPortWEn <= 1'b1;
-				next_SCTxPortData <= 8'h00;
-				next_SCTxPortCntl <= `TX_IDLE;
-			end
-	endcase
+  NextState_slvDrctCntl <= CurrState_slvDrctCntl;
+  // Set default values for outputs and signals
+  next_SCTxPortReq <= SCTxPortReq;
+  next_SCTxPortWEn <= SCTxPortWEn;
+  next_SCTxPortData <= SCTxPortData;
+  next_SCTxPortCntl <= SCTxPortCntl;
+  case (CurrState_slvDrctCntl)
+    `START_SDC:
+      NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
+    `CHK_DRCT_CNTL:
+      if (directControlEn == 1'b1)	
+      begin
+        NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_GNT;
+        next_SCTxPortReq <= 1'b1;
+      end
+      else
+      begin
+        NextState_slvDrctCntl <= `IDLE_WAIT_GNT;
+        next_SCTxPortReq <= 1'b1;
+      end
+    `DRCT_CNTL_WAIT_GNT:
+      if (SCTxPortGnt == 1'b1)	
+        NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_RDY;
+    `DRCT_CNTL_CHK_LOOP:
+    begin
+      next_SCTxPortWEn <= 1'b0;
+      if (directControlEn == 1'b0)	
+      begin
+        NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
+        next_SCTxPortReq <= 1'b0;
+      end
+      else
+        NextState_slvDrctCntl <= `DRCT_CNTL_WAIT_RDY;
+    end
+    `DRCT_CNTL_WAIT_RDY:
+      if (SCTxPortRdy == 1'b1)	
+      begin
+        NextState_slvDrctCntl <= `DRCT_CNTL_CHK_LOOP;
+        next_SCTxPortWEn <= 1'b1;
+        next_SCTxPortData <= {6'b000000, directControlLineState};
+        next_SCTxPortCntl <= `TX_DIRECT_CONTROL;
+      end
+    `IDLE_FIN:
+    begin
+      next_SCTxPortWEn <= 1'b0;
+      next_SCTxPortReq <= 1'b0;
+      NextState_slvDrctCntl <= `CHK_DRCT_CNTL;
+    end
+    `IDLE_WAIT_GNT:
+      if (SCTxPortGnt == 1'b1)	
+        NextState_slvDrctCntl <= `IDLE_WAIT_RDY;
+    `IDLE_WAIT_RDY:
+      if (SCTxPortRdy == 1'b1)	
+      begin
+        NextState_slvDrctCntl <= `IDLE_FIN;
+        next_SCTxPortWEn <= 1'b1;
+        next_SCTxPortData <= 8'h00;
+        next_SCTxPortCntl <= `TX_IDLE;
+      end
+  endcase
 end
 
 //----------------------------------
@@ -167,10 +167,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : slvDrctCntl_CurrentState
-	if (rst)	
-		CurrState_slvDrctCntl <= `START_SDC;
-	else
-		CurrState_slvDrctCntl <= NextState_slvDrctCntl;
+  if (rst)	
+    CurrState_slvDrctCntl <= `START_SDC;
+  else
+    CurrState_slvDrctCntl <= NextState_slvDrctCntl;
 end
 
 //----------------------------------
@@ -178,20 +178,20 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : slvDrctCntl_RegOutput
-	if (rst)	
-	begin
-		SCTxPortCntl <= 8'h00;
-		SCTxPortData <= 8'h00;
-		SCTxPortWEn <= 1'b0;
-		SCTxPortReq <= 1'b0;
-	end
-	else 
-	begin
-		SCTxPortCntl <= next_SCTxPortCntl;
-		SCTxPortData <= next_SCTxPortData;
-		SCTxPortWEn <= next_SCTxPortWEn;
-		SCTxPortReq <= next_SCTxPortReq;
-	end
+  if (rst)	
+  begin
+    SCTxPortCntl <= 8'h00;
+    SCTxPortData <= 8'h00;
+    SCTxPortWEn <= 1'b0;
+    SCTxPortReq <= 1'b0;
+  end
+  else 
+  begin
+    SCTxPortCntl <= next_SCTxPortCntl;
+    SCTxPortData <= next_SCTxPortData;
+    SCTxPortWEn <= next_SCTxPortWEn;
+    SCTxPortReq <= next_SCTxPortReq;
+  end
 end
 
 endmodule

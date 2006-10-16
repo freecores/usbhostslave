@@ -1,6 +1,6 @@
 
 // File        : ../RTL/serialInterfaceEngine/SIETransmitter.v
-// Generated   : 10/06/06 19:35:31
+// Generated   : 10/15/06 20:31:22
 // From        : ../RTL/serialInterfaceEngine/SIETransmitter.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -193,460 +193,460 @@ reg [5:0] NextState_SIETx;
 //----------------------------------
 always @ (SIEPortDataIn or SIEPortCtrlIn or fullSpeedRateIn or i or SIEPortData or CRC16Result or CRC5Result or KBit or resumeCnt or JBit or SIEPortCtrl or SIEPortWEn or USBWireGnt or USBWireRdy or processTxByteRdy or CRC16UpdateRdy or CRC5UpdateRdy or processTxByteWEn or TxByteOut or TxByteOutCtrl or USBWireData or USBWireCtrl or USBWireReq or USBWireWEn or rstCRC or CRCData or CRC5En or CRC5_8Bit or CRC16En or SIEPortTxRdy or TxByteOutFullSpeedRate or USBWireFullSpeedRate or CurrState_SIETx)
 begin : SIETx_NextState
-	NextState_SIETx <= CurrState_SIETx;
-	// Set default values for outputs and signals
-	next_processTxByteWEn <= processTxByteWEn;
-	next_TxByteOut <= TxByteOut;
-	next_TxByteOutCtrl <= TxByteOutCtrl;
-	next_USBWireData <= USBWireData;
-	next_USBWireCtrl <= USBWireCtrl;
-	next_USBWireReq <= USBWireReq;
-	next_USBWireWEn <= USBWireWEn;
-	next_rstCRC <= rstCRC;
-	next_CRCData <= CRCData;
-	next_CRC5En <= CRC5En;
-	next_CRC5_8Bit <= CRC5_8Bit;
-	next_CRC16En <= CRC16En;
-	next_SIEPortTxRdy <= SIEPortTxRdy;
-	next_SIEPortData <= SIEPortData;
-	next_SIEPortCtrl <= SIEPortCtrl;
-	next_i <= i;
-	next_resumeCnt <= resumeCnt;
-	next_TxByteOutFullSpeedRate <= TxByteOutFullSpeedRate;
-	next_USBWireFullSpeedRate <= USBWireFullSpeedRate;
-	case (CurrState_SIETx)
-		`IDLE:
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		`START_SIETX:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			next_TxByteOut <= 8'h00;
-			next_TxByteOutCtrl <= 8'h00;
-			next_USBWireData <= 2'b00;
-			next_USBWireCtrl <= `TRI_STATE;
-			next_USBWireReq <= 1'b0;
-			next_USBWireWEn <= 1'b0;
-			next_rstCRC <= 1'b0;
-			next_CRCData <= 8'h00;
-			next_CRC5En <= 1'b0;
-			next_CRC5_8Bit <= 1'b0;
-			next_CRC16En <= 1'b0;
-			next_SIEPortTxRdy <= 1'b0;
-			next_SIEPortData <= 8'h00;
-			next_SIEPortCtrl <= 8'h00;
-			next_i <= 3'h0;
-			next_resumeCnt <= 16'h0000;
-			next_TxByteOutFullSpeedRate <= 1'b0;
-			next_USBWireFullSpeedRate <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`STX_CHK_ST:
-			if ((SIEPortCtrl == `TX_PACKET_START) && (SIEPortData[3:0] == `SOF || SIEPortData[3:0] == `PREAMBLE))	
-			begin
-				NextState_SIETx <= `PKT_ST_WAIT_RDY_PKT;
-				next_TxByteOutFullSpeedRate <= 1'b1;
-				//SOF and PRE always at full speed
-			end
-			else if (SIEPortCtrl == `TX_PACKET_START)	
-				NextState_SIETx <= `PKT_ST_WAIT_RDY_PKT;
-			else if (SIEPortCtrl == `TX_LS_KEEP_ALIVE)	
-			begin
-				NextState_SIETx <= `TX_LS_EOP_WAIT_GNT1;
-				next_USBWireReq <= 1'b1;
-			end
-			else if (SIEPortCtrl == `TX_DIRECT_CONTROL)	
-			begin
-				NextState_SIETx <= `DIR_CTL_WAIT_GNT;
-				next_USBWireReq <= 1'b1;
-			end
-			else if (SIEPortCtrl == `TX_IDLE)	
-				NextState_SIETx <= `IDLE;
-			else if (SIEPortCtrl == `TX_RESUME_START)	
-			begin
-				NextState_SIETx <= `RES_ST_WAIT_GNT;
-				next_USBWireReq <= 1'b1;
-				next_resumeCnt <= 16'h0000;
-				next_USBWireFullSpeedRate <= 1'b0;
-				//resume always uses low speed timing
-			end
-		`STX_WAIT_BYTE:
-		begin
-			next_SIEPortTxRdy <= 1'b1;
-			if (SIEPortWEn == 1'b1)	
-			begin
-				NextState_SIETx <= `STX_CHK_ST;
-				next_SIEPortData <= SIEPortDataIn;
-				next_SIEPortCtrl <= SIEPortCtrlIn;
-				next_SIEPortTxRdy <= 1'b0;
-				next_TxByteOutFullSpeedRate <= fullSpeedRateIn;
-				next_USBWireFullSpeedRate <= fullSpeedRateIn;
-			end
-		end
-		`DIR_CTL_CHK_FIN:
-		begin
-			next_USBWireWEn <= 1'b0;
-			next_i <= i + 1'b1;
-			if (i == 3'h7)	
-			begin
-				NextState_SIETx <= `STX_WAIT_BYTE;
-				next_USBWireReq <= 1'b0;
-			end
-			else
-				NextState_SIETx <= `DIR_CTL_DELAY;
-		end
-		`DIR_CTL_WAIT_GNT:
-		begin
-			next_i <= 3'h0;
-			if (USBWireGnt == 1'b1)	
-				NextState_SIETx <= `DIR_CTL_WAIT_RDY;
-		end
-		`DIR_CTL_WAIT_RDY:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `DIR_CTL_CHK_FIN;
-				next_USBWireData <= SIEPortData[1:0];
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`DIR_CTL_DELAY:
-			NextState_SIETx <= `DIR_CTL_WAIT_RDY;
-		`PKT_ST_CHK_PID:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			if (SIEPortData[1:0] == `TOKEN)	
-				NextState_SIETx <= `PKT_ST_TKN_PID_WAIT_RDY;
-			else if (SIEPortData[1:0] == `HANDSHAKE)	
-				NextState_SIETx <= `PKT_ST_HS_WAIT_RDY;
-			else if (SIEPortData[1:0] == `DATA)	
-				NextState_SIETx <= `PKT_ST_DATA_PID_WAIT_RDY;
-			else if (SIEPortData[1:0] == `SPECIAL)	
-				NextState_SIETx <= `PKT_ST_SPCL_WAIT_RDY;
-		end
-		`PKT_ST_WAIT_RDY_PKT:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_CHK_PID;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= `SYNC_BYTE;
-				next_TxByteOutCtrl <= `DATA_START;
-			end
-		`PKT_ST_DATA_CRC_PKT_SENT1:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `PKT_ST_DATA_CRC_WAIT_RDY2;
-		end
-		`PKT_ST_DATA_CRC_PKT_SENT2:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`PKT_ST_DATA_CRC_WAIT_RDY1:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_DATA_CRC_PKT_SENT1;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= ~CRC16Result[7:0];
-				next_TxByteOutCtrl <= `DATA_STREAM;
-			end
-		`PKT_ST_DATA_CRC_WAIT_RDY2:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_DATA_CRC_PKT_SENT2;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= ~CRC16Result[15:8];
-				next_TxByteOutCtrl <= `DATA_STOP;
-			end
-		`PKT_ST_DATA_DATA_CHK_STOP:
-			if (SIEPortCtrl == `TX_PACKET_STOP)	
-				NextState_SIETx <= `PKT_ST_DATA_CRC_WAIT_RDY1;
-			else
-				NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_CRC_RDY;
-		`PKT_ST_DATA_DATA_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_BYTE;
-		end
-		`PKT_ST_DATA_DATA_UPD_CRC:
-		begin
-			next_CRCData <= SIEPortData;
-			next_CRC16En <= 1'b1;
-			NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_RDY;
-		end
-		`PKT_ST_DATA_DATA_WAIT_BYTE:
-		begin
-			next_SIEPortTxRdy <= 1'b1;
-			if (SIEPortWEn == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_DATA_DATA_CHK_STOP;
-				next_SIEPortData <= SIEPortDataIn;
-				next_SIEPortCtrl <= SIEPortCtrlIn;
-				next_SIEPortTxRdy <= 1'b0;
-			end
-		end
-		`PKT_ST_DATA_DATA_WAIT_RDY:
-		begin
-			next_CRC16En <= 1'b0;
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_DATA_DATA_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STREAM;
-			end
-		end
-		`PKT_ST_DATA_DATA_WAIT_CRC_RDY:
-			if (CRC16UpdateRdy == 1'b1)	
-				NextState_SIETx <= `PKT_ST_DATA_DATA_UPD_CRC;
-		`PKT_ST_DATA_PID_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			next_rstCRC <= 1'b0;
-			NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_BYTE;
-		end
-		`PKT_ST_DATA_PID_WAIT_RDY:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_DATA_PID_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STREAM;
-				next_rstCRC <= 1'b1;
-			end
-		`PKT_ST_HS_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`PKT_ST_HS_WAIT_RDY:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_HS_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STOP;
-			end
-		`PKT_ST_SPCL_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`PKT_ST_SPCL_WAIT_RDY:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_SPCL_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STOP;
-			end
-		`PKT_ST_TKN_BYTE1_PKT_SENT1:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_BYTE;
-		end
-		`PKT_ST_TKN_BYTE1_UPD_CRC:
-		begin
-			next_CRCData <= SIEPortData;
-			next_CRC5_8Bit <= 1'b1;
-			next_CRC5En <= 1'b1;
-			NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_RDY;
-		end
-		`PKT_ST_TKN_BYTE1_WAIT_BYTE:
-		begin
-			next_SIEPortTxRdy <= 1'b1;
-			if (SIEPortWEn == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_CRC_RDY;
-				next_SIEPortData <= SIEPortDataIn;
-				next_SIEPortCtrl <= SIEPortCtrlIn;
-				next_SIEPortTxRdy <= 1'b0;
-			end
-		end
-		`PKT_ST_TKN_BYTE1_WAIT_RDY:
-		begin
-			next_CRC5En <= 1'b0;
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_TKN_BYTE1_PKT_SENT1;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STREAM;
-			end
-		end
-		`PKT_ST_TKN_BYTE1_WAIT_CRC_RDY:
-			if (CRC5UpdateRdy == 1'b1)	
-				NextState_SIETx <= `PKT_ST_TKN_BYTE1_UPD_CRC;
-		`PKT_ST_TKN_CRC_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`PKT_ST_TKN_CRC_UPD_CRC:
-		begin
-			next_CRCData <= SIEPortData;
-			next_CRC5_8Bit <= 1'b0;
-			next_CRC5En <= 1'b1;
-			NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_RDY;
-		end
-		`PKT_ST_TKN_CRC_WAIT_BYTE:
-		begin
-			next_SIEPortTxRdy <= 1'b1;
-			if (SIEPortWEn == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_CRC_RDY;
-				next_SIEPortData <= SIEPortDataIn;
-				next_SIEPortCtrl <= SIEPortCtrlIn;
-				next_SIEPortTxRdy <= 1'b0;
-			end
-		end
-		`PKT_ST_TKN_CRC_WAIT_RDY:
-		begin
-			next_CRC5En <= 1'b0;
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_TKN_CRC_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= {~CRC5Result, SIEPortData[2:0] };
-				next_TxByteOutCtrl <= `DATA_STOP;
-			end
-		end
-		`PKT_ST_TKN_CRC_WAIT_CRC_RDY:
-			if (CRC5UpdateRdy == 1'b1)	
-				NextState_SIETx <= `PKT_ST_TKN_CRC_UPD_CRC;
-		`PKT_ST_TKN_PID_PKT_SENT:
-		begin
-			next_processTxByteWEn <= 1'b0;
-			next_rstCRC <= 1'b0;
-			NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_BYTE;
-		end
-		`PKT_ST_TKN_PID_WAIT_RDY:
-			if (processTxByteRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `PKT_ST_TKN_PID_PKT_SENT;
-				next_processTxByteWEn <= 1'b1;
-				next_TxByteOut <= SIEPortData;
-				next_TxByteOutCtrl <= `DATA_STREAM;
-				next_rstCRC <= 1'b1;
-			end
-		`RES_ST_CHK_FIN:
-		begin
-			next_USBWireWEn <= 1'b0;
-			if (resumeCnt == `HOST_TX_RESUME_TIME)	
-				NextState_SIETx <= `RES_ST_W_RDY1;
-			else
-				NextState_SIETx <= `RES_ST_DELAY;
-		end
-		`RES_ST_SND_J_1:
-		begin
-			next_USBWireWEn <= 1'b0;
-			NextState_SIETx <= `RES_ST_W_RDY4;
-		end
-		`RES_ST_SND_J_2:
-		begin
-			next_USBWireWEn <= 1'b0;
-			next_USBWireReq <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-			next_USBWireFullSpeedRate <= fullSpeedRateIn;
-		end
-		`RES_ST_SND_SE0_1:
-		begin
-			next_USBWireWEn <= 1'b0;
-			NextState_SIETx <= `RES_ST_W_RDY2;
-		end
-		`RES_ST_SND_SE0_2:
-		begin
-			next_USBWireWEn <= 1'b0;
-			NextState_SIETx <= `RES_ST_W_RDY3;
-		end
-		`RES_ST_WAIT_GNT:
-			if (USBWireGnt == 1'b1)	
-				NextState_SIETx <= `RES_ST_WAIT_RDY;
-		`RES_ST_WAIT_RDY:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `RES_ST_CHK_FIN;
-				next_USBWireData <= KBit;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-				next_resumeCnt <= resumeCnt  + 1'b1;
-			end
-		`RES_ST_W_RDY1:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `RES_ST_SND_SE0_1;
-				next_USBWireData <= `SE0;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`RES_ST_DELAY:
-			NextState_SIETx <= `RES_ST_WAIT_RDY;
-		`RES_ST_W_RDY2:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `RES_ST_SND_SE0_2;
-				next_USBWireData <= `SE0;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`RES_ST_W_RDY3:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `RES_ST_SND_J_1;
-				next_USBWireData <= JBit;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`RES_ST_W_RDY4:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `RES_ST_SND_J_2;
-				next_USBWireData <= JBit;
-				next_USBWireCtrl <= `TRI_STATE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`TX_LS_EOP_WAIT_GNT1:
-			if (USBWireGnt == 1'b1)	
-				NextState_SIETx <= `TX_LS_EOP_W_RDY1;
-		`TX_LS_EOP_SND_SE0_2:
-		begin
-			next_USBWireWEn <= 1'b0;
-			NextState_SIETx <= `TX_LS_EOP_W_RDY3;
-		end
-		`TX_LS_EOP_SND_SE0_1:
-		begin
-			next_USBWireWEn <= 1'b0;
-			NextState_SIETx <= `TX_LS_EOP_W_RDY2;
-		end
-		`TX_LS_EOP_W_RDY1:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `TX_LS_EOP_SND_SE0_1;
-				next_USBWireData <= `SE0;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`TX_LS_EOP_SND_J:
-		begin
-			next_USBWireWEn <= 1'b0;
-			next_USBWireReq <= 1'b0;
-			NextState_SIETx <= `STX_WAIT_BYTE;
-		end
-		`TX_LS_EOP_W_RDY2:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `TX_LS_EOP_SND_SE0_2;
-				next_USBWireData <= `SE0;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-		`TX_LS_EOP_W_RDY3:
-			if (USBWireRdy == 1'b1)	
-			begin
-				NextState_SIETx <= `TX_LS_EOP_SND_J;
-				next_USBWireData <= JBit;
-				next_USBWireCtrl <= `DRIVE;
-				next_USBWireWEn <= 1'b1;
-			end
-	endcase
+  NextState_SIETx <= CurrState_SIETx;
+  // Set default values for outputs and signals
+  next_processTxByteWEn <= processTxByteWEn;
+  next_TxByteOut <= TxByteOut;
+  next_TxByteOutCtrl <= TxByteOutCtrl;
+  next_USBWireData <= USBWireData;
+  next_USBWireCtrl <= USBWireCtrl;
+  next_USBWireReq <= USBWireReq;
+  next_USBWireWEn <= USBWireWEn;
+  next_rstCRC <= rstCRC;
+  next_CRCData <= CRCData;
+  next_CRC5En <= CRC5En;
+  next_CRC5_8Bit <= CRC5_8Bit;
+  next_CRC16En <= CRC16En;
+  next_SIEPortTxRdy <= SIEPortTxRdy;
+  next_SIEPortData <= SIEPortData;
+  next_SIEPortCtrl <= SIEPortCtrl;
+  next_i <= i;
+  next_resumeCnt <= resumeCnt;
+  next_TxByteOutFullSpeedRate <= TxByteOutFullSpeedRate;
+  next_USBWireFullSpeedRate <= USBWireFullSpeedRate;
+  case (CurrState_SIETx)
+    `IDLE:
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    `START_SIETX:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      next_TxByteOut <= 8'h00;
+      next_TxByteOutCtrl <= 8'h00;
+      next_USBWireData <= 2'b00;
+      next_USBWireCtrl <= `TRI_STATE;
+      next_USBWireReq <= 1'b0;
+      next_USBWireWEn <= 1'b0;
+      next_rstCRC <= 1'b0;
+      next_CRCData <= 8'h00;
+      next_CRC5En <= 1'b0;
+      next_CRC5_8Bit <= 1'b0;
+      next_CRC16En <= 1'b0;
+      next_SIEPortTxRdy <= 1'b0;
+      next_SIEPortData <= 8'h00;
+      next_SIEPortCtrl <= 8'h00;
+      next_i <= 3'h0;
+      next_resumeCnt <= 16'h0000;
+      next_TxByteOutFullSpeedRate <= 1'b0;
+      next_USBWireFullSpeedRate <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `STX_CHK_ST:
+      if ((SIEPortCtrl == `TX_PACKET_START) && (SIEPortData[3:0] == `SOF || SIEPortData[3:0] == `PREAMBLE))	
+      begin
+        NextState_SIETx <= `PKT_ST_WAIT_RDY_PKT;
+        next_TxByteOutFullSpeedRate <= 1'b1;
+        //SOF and PRE always at full speed
+      end
+      else if (SIEPortCtrl == `TX_PACKET_START)	
+        NextState_SIETx <= `PKT_ST_WAIT_RDY_PKT;
+      else if (SIEPortCtrl == `TX_LS_KEEP_ALIVE)	
+      begin
+        NextState_SIETx <= `TX_LS_EOP_WAIT_GNT1;
+        next_USBWireReq <= 1'b1;
+      end
+      else if (SIEPortCtrl == `TX_DIRECT_CONTROL)	
+      begin
+        NextState_SIETx <= `DIR_CTL_WAIT_GNT;
+        next_USBWireReq <= 1'b1;
+      end
+      else if (SIEPortCtrl == `TX_IDLE)	
+        NextState_SIETx <= `IDLE;
+      else if (SIEPortCtrl == `TX_RESUME_START)	
+      begin
+        NextState_SIETx <= `RES_ST_WAIT_GNT;
+        next_USBWireReq <= 1'b1;
+        next_resumeCnt <= 16'h0000;
+        next_USBWireFullSpeedRate <= 1'b0;
+        //resume always uses low speed timing
+      end
+    `STX_WAIT_BYTE:
+    begin
+      next_SIEPortTxRdy <= 1'b1;
+      if (SIEPortWEn == 1'b1)	
+      begin
+        NextState_SIETx <= `STX_CHK_ST;
+        next_SIEPortData <= SIEPortDataIn;
+        next_SIEPortCtrl <= SIEPortCtrlIn;
+        next_SIEPortTxRdy <= 1'b0;
+        next_TxByteOutFullSpeedRate <= fullSpeedRateIn;
+        next_USBWireFullSpeedRate <= fullSpeedRateIn;
+      end
+    end
+    `DIR_CTL_CHK_FIN:
+    begin
+      next_USBWireWEn <= 1'b0;
+      next_i <= i + 1'b1;
+      if (i == 3'h7)	
+      begin
+        NextState_SIETx <= `STX_WAIT_BYTE;
+        next_USBWireReq <= 1'b0;
+      end
+      else
+        NextState_SIETx <= `DIR_CTL_DELAY;
+    end
+    `DIR_CTL_WAIT_GNT:
+    begin
+      next_i <= 3'h0;
+      if (USBWireGnt == 1'b1)	
+        NextState_SIETx <= `DIR_CTL_WAIT_RDY;
+    end
+    `DIR_CTL_WAIT_RDY:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `DIR_CTL_CHK_FIN;
+        next_USBWireData <= SIEPortData[1:0];
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `DIR_CTL_DELAY:
+      NextState_SIETx <= `DIR_CTL_WAIT_RDY;
+    `PKT_ST_CHK_PID:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      if (SIEPortData[1:0] == `TOKEN)	
+        NextState_SIETx <= `PKT_ST_TKN_PID_WAIT_RDY;
+      else if (SIEPortData[1:0] == `HANDSHAKE)	
+        NextState_SIETx <= `PKT_ST_HS_WAIT_RDY;
+      else if (SIEPortData[1:0] == `DATA)	
+        NextState_SIETx <= `PKT_ST_DATA_PID_WAIT_RDY;
+      else if (SIEPortData[1:0] == `SPECIAL)	
+        NextState_SIETx <= `PKT_ST_SPCL_WAIT_RDY;
+    end
+    `PKT_ST_WAIT_RDY_PKT:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_CHK_PID;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= `SYNC_BYTE;
+        next_TxByteOutCtrl <= `DATA_START;
+      end
+    `PKT_ST_DATA_CRC_PKT_SENT1:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `PKT_ST_DATA_CRC_WAIT_RDY2;
+    end
+    `PKT_ST_DATA_CRC_PKT_SENT2:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `PKT_ST_DATA_CRC_WAIT_RDY1:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_DATA_CRC_PKT_SENT1;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= ~CRC16Result[7:0];
+        next_TxByteOutCtrl <= `DATA_STREAM;
+      end
+    `PKT_ST_DATA_CRC_WAIT_RDY2:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_DATA_CRC_PKT_SENT2;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= ~CRC16Result[15:8];
+        next_TxByteOutCtrl <= `DATA_STOP;
+      end
+    `PKT_ST_DATA_DATA_CHK_STOP:
+      if (SIEPortCtrl == `TX_PACKET_STOP)	
+        NextState_SIETx <= `PKT_ST_DATA_CRC_WAIT_RDY1;
+      else
+        NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_CRC_RDY;
+    `PKT_ST_DATA_DATA_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_BYTE;
+    end
+    `PKT_ST_DATA_DATA_UPD_CRC:
+    begin
+      next_CRCData <= SIEPortData;
+      next_CRC16En <= 1'b1;
+      NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_RDY;
+    end
+    `PKT_ST_DATA_DATA_WAIT_BYTE:
+    begin
+      next_SIEPortTxRdy <= 1'b1;
+      if (SIEPortWEn == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_DATA_DATA_CHK_STOP;
+        next_SIEPortData <= SIEPortDataIn;
+        next_SIEPortCtrl <= SIEPortCtrlIn;
+        next_SIEPortTxRdy <= 1'b0;
+      end
+    end
+    `PKT_ST_DATA_DATA_WAIT_RDY:
+    begin
+      next_CRC16En <= 1'b0;
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_DATA_DATA_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STREAM;
+      end
+    end
+    `PKT_ST_DATA_DATA_WAIT_CRC_RDY:
+      if (CRC16UpdateRdy == 1'b1)	
+        NextState_SIETx <= `PKT_ST_DATA_DATA_UPD_CRC;
+    `PKT_ST_DATA_PID_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      next_rstCRC <= 1'b0;
+      NextState_SIETx <= `PKT_ST_DATA_DATA_WAIT_BYTE;
+    end
+    `PKT_ST_DATA_PID_WAIT_RDY:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_DATA_PID_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STREAM;
+        next_rstCRC <= 1'b1;
+      end
+    `PKT_ST_HS_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `PKT_ST_HS_WAIT_RDY:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_HS_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STOP;
+      end
+    `PKT_ST_SPCL_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `PKT_ST_SPCL_WAIT_RDY:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_SPCL_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STOP;
+      end
+    `PKT_ST_TKN_BYTE1_PKT_SENT1:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_BYTE;
+    end
+    `PKT_ST_TKN_BYTE1_UPD_CRC:
+    begin
+      next_CRCData <= SIEPortData;
+      next_CRC5_8Bit <= 1'b1;
+      next_CRC5En <= 1'b1;
+      NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_RDY;
+    end
+    `PKT_ST_TKN_BYTE1_WAIT_BYTE:
+    begin
+      next_SIEPortTxRdy <= 1'b1;
+      if (SIEPortWEn == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_CRC_RDY;
+        next_SIEPortData <= SIEPortDataIn;
+        next_SIEPortCtrl <= SIEPortCtrlIn;
+        next_SIEPortTxRdy <= 1'b0;
+      end
+    end
+    `PKT_ST_TKN_BYTE1_WAIT_RDY:
+    begin
+      next_CRC5En <= 1'b0;
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_TKN_BYTE1_PKT_SENT1;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STREAM;
+      end
+    end
+    `PKT_ST_TKN_BYTE1_WAIT_CRC_RDY:
+      if (CRC5UpdateRdy == 1'b1)	
+        NextState_SIETx <= `PKT_ST_TKN_BYTE1_UPD_CRC;
+    `PKT_ST_TKN_CRC_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `PKT_ST_TKN_CRC_UPD_CRC:
+    begin
+      next_CRCData <= SIEPortData;
+      next_CRC5_8Bit <= 1'b0;
+      next_CRC5En <= 1'b1;
+      NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_RDY;
+    end
+    `PKT_ST_TKN_CRC_WAIT_BYTE:
+    begin
+      next_SIEPortTxRdy <= 1'b1;
+      if (SIEPortWEn == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_TKN_CRC_WAIT_CRC_RDY;
+        next_SIEPortData <= SIEPortDataIn;
+        next_SIEPortCtrl <= SIEPortCtrlIn;
+        next_SIEPortTxRdy <= 1'b0;
+      end
+    end
+    `PKT_ST_TKN_CRC_WAIT_RDY:
+    begin
+      next_CRC5En <= 1'b0;
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_TKN_CRC_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= {~CRC5Result, SIEPortData[2:0] };
+        next_TxByteOutCtrl <= `DATA_STOP;
+      end
+    end
+    `PKT_ST_TKN_CRC_WAIT_CRC_RDY:
+      if (CRC5UpdateRdy == 1'b1)	
+        NextState_SIETx <= `PKT_ST_TKN_CRC_UPD_CRC;
+    `PKT_ST_TKN_PID_PKT_SENT:
+    begin
+      next_processTxByteWEn <= 1'b0;
+      next_rstCRC <= 1'b0;
+      NextState_SIETx <= `PKT_ST_TKN_BYTE1_WAIT_BYTE;
+    end
+    `PKT_ST_TKN_PID_WAIT_RDY:
+      if (processTxByteRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `PKT_ST_TKN_PID_PKT_SENT;
+        next_processTxByteWEn <= 1'b1;
+        next_TxByteOut <= SIEPortData;
+        next_TxByteOutCtrl <= `DATA_STREAM;
+        next_rstCRC <= 1'b1;
+      end
+    `RES_ST_CHK_FIN:
+    begin
+      next_USBWireWEn <= 1'b0;
+      if (resumeCnt == `HOST_TX_RESUME_TIME)	
+        NextState_SIETx <= `RES_ST_W_RDY1;
+      else
+        NextState_SIETx <= `RES_ST_DELAY;
+    end
+    `RES_ST_SND_J_1:
+    begin
+      next_USBWireWEn <= 1'b0;
+      NextState_SIETx <= `RES_ST_W_RDY4;
+    end
+    `RES_ST_SND_J_2:
+    begin
+      next_USBWireWEn <= 1'b0;
+      next_USBWireReq <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+      next_USBWireFullSpeedRate <= fullSpeedRateIn;
+    end
+    `RES_ST_SND_SE0_1:
+    begin
+      next_USBWireWEn <= 1'b0;
+      NextState_SIETx <= `RES_ST_W_RDY2;
+    end
+    `RES_ST_SND_SE0_2:
+    begin
+      next_USBWireWEn <= 1'b0;
+      NextState_SIETx <= `RES_ST_W_RDY3;
+    end
+    `RES_ST_WAIT_GNT:
+      if (USBWireGnt == 1'b1)	
+        NextState_SIETx <= `RES_ST_WAIT_RDY;
+    `RES_ST_WAIT_RDY:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `RES_ST_CHK_FIN;
+        next_USBWireData <= KBit;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+        next_resumeCnt <= resumeCnt  + 1'b1;
+      end
+    `RES_ST_W_RDY1:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `RES_ST_SND_SE0_1;
+        next_USBWireData <= `SE0;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `RES_ST_DELAY:
+      NextState_SIETx <= `RES_ST_WAIT_RDY;
+    `RES_ST_W_RDY2:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `RES_ST_SND_SE0_2;
+        next_USBWireData <= `SE0;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `RES_ST_W_RDY3:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `RES_ST_SND_J_1;
+        next_USBWireData <= JBit;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `RES_ST_W_RDY4:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `RES_ST_SND_J_2;
+        next_USBWireData <= JBit;
+        next_USBWireCtrl <= `TRI_STATE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `TX_LS_EOP_WAIT_GNT1:
+      if (USBWireGnt == 1'b1)	
+        NextState_SIETx <= `TX_LS_EOP_W_RDY1;
+    `TX_LS_EOP_SND_SE0_2:
+    begin
+      next_USBWireWEn <= 1'b0;
+      NextState_SIETx <= `TX_LS_EOP_W_RDY3;
+    end
+    `TX_LS_EOP_SND_SE0_1:
+    begin
+      next_USBWireWEn <= 1'b0;
+      NextState_SIETx <= `TX_LS_EOP_W_RDY2;
+    end
+    `TX_LS_EOP_W_RDY1:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `TX_LS_EOP_SND_SE0_1;
+        next_USBWireData <= `SE0;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `TX_LS_EOP_SND_J:
+    begin
+      next_USBWireWEn <= 1'b0;
+      next_USBWireReq <= 1'b0;
+      NextState_SIETx <= `STX_WAIT_BYTE;
+    end
+    `TX_LS_EOP_W_RDY2:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `TX_LS_EOP_SND_SE0_2;
+        next_USBWireData <= `SE0;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+    `TX_LS_EOP_W_RDY3:
+      if (USBWireRdy == 1'b1)	
+      begin
+        NextState_SIETx <= `TX_LS_EOP_SND_J;
+        next_USBWireData <= JBit;
+        next_USBWireCtrl <= `DRIVE;
+        next_USBWireWEn <= 1'b1;
+      end
+  endcase
 end
 
 //----------------------------------
@@ -654,10 +654,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SIETx_CurrentState
-	if (rst)	
-		CurrState_SIETx <= `START_SIETX;
-	else
-		CurrState_SIETx <= NextState_SIETx;
+  if (rst)	
+    CurrState_SIETx <= `START_SIETX;
+  else
+    CurrState_SIETx <= NextState_SIETx;
 end
 
 //----------------------------------
@@ -665,50 +665,50 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SIETx_RegOutput
-	if (rst)	
-	begin
-		SIEPortData <= 8'h00;
-		SIEPortCtrl <= 8'h00;
-		i <= 3'h0;
-		resumeCnt <= 16'h0000;
-		processTxByteWEn <= 1'b0;
-		TxByteOut <= 8'h00;
-		TxByteOutCtrl <= 8'h00;
-		USBWireData <= 2'b00;
-		USBWireCtrl <= `TRI_STATE;
-		USBWireReq <= 1'b0;
-		USBWireWEn <= 1'b0;
-		rstCRC <= 1'b0;
-		CRCData <= 8'h00;
-		CRC5En <= 1'b0;
-		CRC5_8Bit <= 1'b0;
-		CRC16En <= 1'b0;
-		SIEPortTxRdy <= 1'b0;
-		TxByteOutFullSpeedRate <= 1'b0;
-		USBWireFullSpeedRate <= 1'b0;
-	end
-	else 
-	begin
-		SIEPortData <= next_SIEPortData;
-		SIEPortCtrl <= next_SIEPortCtrl;
-		i <= next_i;
-		resumeCnt <= next_resumeCnt;
-		processTxByteWEn <= next_processTxByteWEn;
-		TxByteOut <= next_TxByteOut;
-		TxByteOutCtrl <= next_TxByteOutCtrl;
-		USBWireData <= next_USBWireData;
-		USBWireCtrl <= next_USBWireCtrl;
-		USBWireReq <= next_USBWireReq;
-		USBWireWEn <= next_USBWireWEn;
-		rstCRC <= next_rstCRC;
-		CRCData <= next_CRCData;
-		CRC5En <= next_CRC5En;
-		CRC5_8Bit <= next_CRC5_8Bit;
-		CRC16En <= next_CRC16En;
-		SIEPortTxRdy <= next_SIEPortTxRdy;
-		TxByteOutFullSpeedRate <= next_TxByteOutFullSpeedRate;
-		USBWireFullSpeedRate <= next_USBWireFullSpeedRate;
-	end
+  if (rst)	
+  begin
+    SIEPortData <= 8'h00;
+    SIEPortCtrl <= 8'h00;
+    i <= 3'h0;
+    resumeCnt <= 16'h0000;
+    processTxByteWEn <= 1'b0;
+    TxByteOut <= 8'h00;
+    TxByteOutCtrl <= 8'h00;
+    USBWireData <= 2'b00;
+    USBWireCtrl <= `TRI_STATE;
+    USBWireReq <= 1'b0;
+    USBWireWEn <= 1'b0;
+    rstCRC <= 1'b0;
+    CRCData <= 8'h00;
+    CRC5En <= 1'b0;
+    CRC5_8Bit <= 1'b0;
+    CRC16En <= 1'b0;
+    SIEPortTxRdy <= 1'b0;
+    TxByteOutFullSpeedRate <= 1'b0;
+    USBWireFullSpeedRate <= 1'b0;
+  end
+  else 
+  begin
+    SIEPortData <= next_SIEPortData;
+    SIEPortCtrl <= next_SIEPortCtrl;
+    i <= next_i;
+    resumeCnt <= next_resumeCnt;
+    processTxByteWEn <= next_processTxByteWEn;
+    TxByteOut <= next_TxByteOut;
+    TxByteOutCtrl <= next_TxByteOutCtrl;
+    USBWireData <= next_USBWireData;
+    USBWireCtrl <= next_USBWireCtrl;
+    USBWireReq <= next_USBWireReq;
+    USBWireWEn <= next_USBWireWEn;
+    rstCRC <= next_rstCRC;
+    CRCData <= next_CRCData;
+    CRC5En <= next_CRC5En;
+    CRC5_8Bit <= next_CRC5_8Bit;
+    CRC16En <= next_CRC16En;
+    SIEPortTxRdy <= next_SIEPortTxRdy;
+    TxByteOutFullSpeedRate <= next_TxByteOutFullSpeedRate;
+    USBWireFullSpeedRate <= next_USBWireFullSpeedRate;
+  end
 end
 
 endmodule

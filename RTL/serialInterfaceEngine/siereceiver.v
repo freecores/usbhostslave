@@ -1,6 +1,6 @@
 
 // File        : ../RTL/serialInterfaceEngine/siereceiver.v
-// Generated   : 10/06/06 19:35:30
+// Generated   : 10/15/06 20:31:22
 // From        : ../RTL/serialInterfaceEngine/siereceiver.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -93,159 +93,159 @@ reg [3:0] NextState_rcvr;
 //----------------------------------
 always @ (RxWireDataIn or RxBits or RXWaitCount or RxWireDataWEn or RXStMachCurrState or connectState or CurrState_rcvr)
 begin : rcvr_NextState
-	NextState_rcvr <= CurrState_rcvr;
-	// Set default values for outputs and signals
-	next_RxBits <= RxBits;
-	next_RXStMachCurrState <= RXStMachCurrState;
-	next_RXWaitCount <= RXWaitCount;
-	next_connectState <= connectState;
-	case (CurrState_rcvr)
-		`WAIT_BIT:
-			if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_LOW_SP_DISCONNECT_ST))	
-			begin
-				NextState_rcvr <= `WAIT_LS_DIS_CHK_RX_BITS;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `CONNECT_FULL_SPEED_ST))	
-			begin
-				NextState_rcvr <= `FS_CONN_CHK_RX_BITS1;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `CONNECT_LOW_SPEED_ST))	
-			begin
-				NextState_rcvr <= `LS_CONN_CHK_RX_BITS;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_LOW_SPEED_CONN_ST))	
-			begin
-				NextState_rcvr <= `WAIT_LS_CONN_CHK_RX_BITS;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_FULL_SPEED_CONN_ST))	
-			begin
-				NextState_rcvr <= `WAIT_FS_CONN_CHK_RX_BITS;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `DISCONNECT_ST))	
-			begin
-				NextState_rcvr <= `DISCNCT_CHK_RXBITS;
-				next_RxBits <= RxWireDataIn;
-			end
-			else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_FULL_SP_DISCONNECT_ST))	
-			begin
-				NextState_rcvr <= `WAIT_FS_DIS_CHK_RX_BITS2;
-				next_RxBits <= RxWireDataIn;
-			end
-		`START_SRX:
-		begin
-			next_RXStMachCurrState <= `DISCONNECT_ST;
-			next_RXWaitCount <= 8'h00;
-			next_connectState <= `DISCONNECT;
-			next_RxBits <= 2'b00;
-			NextState_rcvr <= `WAIT_BIT;
-		end
-		`DISCNCT_CHK_RXBITS:
-			if (RxBits == `ZERO_ONE)	
-			begin
-				NextState_rcvr <= `WAIT_BIT;
-				next_RXStMachCurrState <= `WAIT_LOW_SPEED_CONN_ST;
-				next_RXWaitCount <= 8'h00;
-			end
-			else if (RxBits == `ONE_ZERO)	
-			begin
-				NextState_rcvr <= `WAIT_BIT;
-				next_RXStMachCurrState <= `WAIT_FULL_SPEED_CONN_ST;
-				next_RXWaitCount <= 8'h00;
-			end
-			else
-				NextState_rcvr <= `WAIT_BIT;
-		`WAIT_FS_CONN_CHK_RX_BITS:
-		begin
-			if (RxBits == `ONE_ZERO)
-			begin
-			  next_RXWaitCount <= RXWaitCount + 1'b1;
-			    if (RXWaitCount == `CONNECT_WAIT_TIME)
-			    begin
-			    next_connectState <= `FULL_SPEED_CONNECT;
-			    next_RXStMachCurrState <= `CONNECT_FULL_SPEED_ST;
-			    end
-			end
-			else
-			begin
-			  next_RXStMachCurrState <= `DISCONNECT_ST;
-			end
-			NextState_rcvr <= `WAIT_BIT;
-		end
-		`WAIT_LS_CONN_CHK_RX_BITS:
-		begin
-			if (RxBits == `ZERO_ONE)
-			begin
-			  next_RXWaitCount <= RXWaitCount + 1'b1;
-			    if (RXWaitCount == `CONNECT_WAIT_TIME)
-			    begin
-			    next_connectState <= `LOW_SPEED_CONNECT;
-			    next_RXStMachCurrState <= `CONNECT_LOW_SPEED_ST;
-			    end
-			end
-			else
-			begin
-			  next_RXStMachCurrState <= `DISCONNECT_ST;
-			end
-			NextState_rcvr <= `WAIT_BIT;
-		end
-		`LS_CONN_CHK_RX_BITS:
-		begin
-			NextState_rcvr <= `WAIT_BIT;
-			if (RxBits == `SE0)
-			begin
-			  next_RXStMachCurrState <= `WAIT_LOW_SP_DISCONNECT_ST;
-			  next_RXWaitCount <= 0;
-			end
-		end
-		`FS_CONN_CHK_RX_BITS1:
-		begin
-			NextState_rcvr <= `WAIT_BIT;
-			if (RxBits == `SE0)
-			begin
-			  next_RXStMachCurrState <= `WAIT_FULL_SP_DISCONNECT_ST;
-			  next_RXWaitCount <= 0;
-			end
-		end
-		`WAIT_LS_DIS_CHK_RX_BITS:
-		begin
-			NextState_rcvr <= `WAIT_BIT;
-			if (RxBits == `SE0)
-			begin
-			  next_RXWaitCount <= RXWaitCount + 1'b1;
-			    if (RXWaitCount == `DISCONNECT_WAIT_TIME)
-			    begin
-			    next_RXStMachCurrState <= `DISCONNECT_ST;
-			    next_connectState <= `DISCONNECT;
-			    end
-			end
-			else
-			begin
-			  next_RXStMachCurrState <= `CONNECT_LOW_SPEED_ST;
-			end
-		end
-		`WAIT_FS_DIS_CHK_RX_BITS2:
-		begin
-			NextState_rcvr <= `WAIT_BIT;
-			if (RxBits == `SE0)
-			begin
-			  next_RXWaitCount <= RXWaitCount + 1'b1;
-			    if (RXWaitCount == `DISCONNECT_WAIT_TIME)
-			    begin
-			    next_RXStMachCurrState <= `DISCONNECT_ST;
-			    next_connectState <= `DISCONNECT;
-			    end
-			end
-			else
-			begin
-			  next_RXStMachCurrState <= `CONNECT_FULL_SPEED_ST;
-			end
-		end
-	endcase
+  NextState_rcvr <= CurrState_rcvr;
+  // Set default values for outputs and signals
+  next_RxBits <= RxBits;
+  next_RXStMachCurrState <= RXStMachCurrState;
+  next_RXWaitCount <= RXWaitCount;
+  next_connectState <= connectState;
+  case (CurrState_rcvr)
+    `WAIT_BIT:
+      if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_LOW_SPEED_CONN_ST))	
+      begin
+        NextState_rcvr <= `WAIT_LS_CONN_CHK_RX_BITS;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `CONNECT_LOW_SPEED_ST))	
+      begin
+        NextState_rcvr <= `LS_CONN_CHK_RX_BITS;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `CONNECT_FULL_SPEED_ST))	
+      begin
+        NextState_rcvr <= `FS_CONN_CHK_RX_BITS1;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_LOW_SP_DISCONNECT_ST))	
+      begin
+        NextState_rcvr <= `WAIT_LS_DIS_CHK_RX_BITS;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_FULL_SP_DISCONNECT_ST))	
+      begin
+        NextState_rcvr <= `WAIT_FS_DIS_CHK_RX_BITS2;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `DISCONNECT_ST))	
+      begin
+        NextState_rcvr <= `DISCNCT_CHK_RXBITS;
+        next_RxBits <= RxWireDataIn;
+      end
+      else if ((RxWireDataWEn == 1'b1) && (RXStMachCurrState == `WAIT_FULL_SPEED_CONN_ST))	
+      begin
+        NextState_rcvr <= `WAIT_FS_CONN_CHK_RX_BITS;
+        next_RxBits <= RxWireDataIn;
+      end
+    `START_SRX:
+    begin
+      next_RXStMachCurrState <= `DISCONNECT_ST;
+      next_RXWaitCount <= 8'h00;
+      next_connectState <= `DISCONNECT;
+      next_RxBits <= 2'b00;
+      NextState_rcvr <= `WAIT_BIT;
+    end
+    `DISCNCT_CHK_RXBITS:
+      if (RxBits == `ZERO_ONE)	
+      begin
+        NextState_rcvr <= `WAIT_BIT;
+        next_RXStMachCurrState <= `WAIT_LOW_SPEED_CONN_ST;
+        next_RXWaitCount <= 8'h00;
+      end
+      else if (RxBits == `ONE_ZERO)	
+      begin
+        NextState_rcvr <= `WAIT_BIT;
+        next_RXStMachCurrState <= `WAIT_FULL_SPEED_CONN_ST;
+        next_RXWaitCount <= 8'h00;
+      end
+      else
+        NextState_rcvr <= `WAIT_BIT;
+    `WAIT_FS_CONN_CHK_RX_BITS:
+    begin
+      if (RxBits == `ONE_ZERO)
+      begin
+        next_RXWaitCount <= RXWaitCount + 1'b1;
+          if (RXWaitCount == `CONNECT_WAIT_TIME)
+          begin
+          next_connectState <= `FULL_SPEED_CONNECT;
+          next_RXStMachCurrState <= `CONNECT_FULL_SPEED_ST;
+          end
+      end
+      else
+      begin
+        next_RXStMachCurrState <= `DISCONNECT_ST;
+      end
+      NextState_rcvr <= `WAIT_BIT;
+    end
+    `WAIT_LS_CONN_CHK_RX_BITS:
+    begin
+      if (RxBits == `ZERO_ONE)
+      begin
+        next_RXWaitCount <= RXWaitCount + 1'b1;
+          if (RXWaitCount == `CONNECT_WAIT_TIME)
+          begin
+          next_connectState <= `LOW_SPEED_CONNECT;
+          next_RXStMachCurrState <= `CONNECT_LOW_SPEED_ST;
+          end
+      end
+      else
+      begin
+        next_RXStMachCurrState <= `DISCONNECT_ST;
+      end
+      NextState_rcvr <= `WAIT_BIT;
+    end
+    `LS_CONN_CHK_RX_BITS:
+    begin
+      NextState_rcvr <= `WAIT_BIT;
+      if (RxBits == `SE0)
+      begin
+        next_RXStMachCurrState <= `WAIT_LOW_SP_DISCONNECT_ST;
+        next_RXWaitCount <= 0;
+      end
+    end
+    `FS_CONN_CHK_RX_BITS1:
+    begin
+      NextState_rcvr <= `WAIT_BIT;
+      if (RxBits == `SE0)
+      begin
+        next_RXStMachCurrState <= `WAIT_FULL_SP_DISCONNECT_ST;
+        next_RXWaitCount <= 0;
+      end
+    end
+    `WAIT_LS_DIS_CHK_RX_BITS:
+    begin
+      NextState_rcvr <= `WAIT_BIT;
+      if (RxBits == `SE0)
+      begin
+        next_RXWaitCount <= RXWaitCount + 1'b1;
+          if (RXWaitCount == `DISCONNECT_WAIT_TIME)
+          begin
+          next_RXStMachCurrState <= `DISCONNECT_ST;
+          next_connectState <= `DISCONNECT;
+          end
+      end
+      else
+      begin
+        next_RXStMachCurrState <= `CONNECT_LOW_SPEED_ST;
+      end
+    end
+    `WAIT_FS_DIS_CHK_RX_BITS2:
+    begin
+      NextState_rcvr <= `WAIT_BIT;
+      if (RxBits == `SE0)
+      begin
+        next_RXWaitCount <= RXWaitCount + 1'b1;
+          if (RXWaitCount == `DISCONNECT_WAIT_TIME)
+          begin
+          next_RXStMachCurrState <= `DISCONNECT_ST;
+          next_connectState <= `DISCONNECT;
+          end
+      end
+      else
+      begin
+        next_RXStMachCurrState <= `CONNECT_FULL_SPEED_ST;
+      end
+    end
+  endcase
 end
 
 //----------------------------------
@@ -253,10 +253,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : rcvr_CurrentState
-	if (rst)	
-		CurrState_rcvr <= `START_SRX;
-	else
-		CurrState_rcvr <= NextState_rcvr;
+  if (rst)	
+    CurrState_rcvr <= `START_SRX;
+  else
+    CurrState_rcvr <= NextState_rcvr;
 end
 
 //----------------------------------
@@ -264,20 +264,20 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : rcvr_RegOutput
-	if (rst)	
-	begin
-		RXStMachCurrState <= `DISCONNECT_ST;
-		RXWaitCount <= 8'h00;
-		RxBits <= 2'b00;
-		connectState <= `DISCONNECT;
-	end
-	else 
-	begin
-		RXStMachCurrState <= next_RXStMachCurrState;
-		RXWaitCount <= next_RXWaitCount;
-		RxBits <= next_RxBits;
-		connectState <= next_connectState;
-	end
+  if (rst)	
+  begin
+    RXStMachCurrState <= `DISCONNECT_ST;
+    RXWaitCount <= 8'h00;
+    RxBits <= 2'b00;
+    connectState <= `DISCONNECT;
+  end
+  else 
+  begin
+    RXStMachCurrState <= next_RXStMachCurrState;
+    RXWaitCount <= next_RXWaitCount;
+    RxBits <= next_RxBits;
+    connectState <= next_connectState;
+  end
 end
 
 endmodule

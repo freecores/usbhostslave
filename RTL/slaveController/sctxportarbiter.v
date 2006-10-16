@@ -1,6 +1,6 @@
 
 // File        : ../RTL/slaveController/sctxportarbiter.v
-// Generated   : 10/06/06 19:35:32
+// Generated   : 10/15/06 20:31:23
 // From        : ../RTL/slaveController/sctxportarbiter.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -133,40 +133,40 @@ end
 //----------------------------------
 always @ (sendPacketReq or directCntlReq or sendPacketGnt or muxDCEn or directCntlGnt or CurrState_SCTxArb)
 begin : SCTxArb_NextState
-	NextState_SCTxArb <= CurrState_SCTxArb;
-	// Set default values for outputs and signals
-	next_sendPacketGnt <= sendPacketGnt;
-	next_muxDCEn <= muxDCEn;
-	next_directCntlGnt <= directCntlGnt;
-	case (CurrState_SCTxArb)
-		`SARB1_WAIT_REQ:
-			if (sendPacketReq == 1'b1)	
-			begin
-				NextState_SCTxArb <= `SARB_SEND_PACKET;
-				next_sendPacketGnt <= 1'b1;
-				next_muxDCEn <= 1'b0;
-			end
-			else if (directCntlReq == 1'b1)	
-			begin
-				NextState_SCTxArb <= `SARB_DC;
-				next_directCntlGnt <= 1'b1;
-				next_muxDCEn <= 1'b1;
-			end
-		`SARB_SEND_PACKET:
-			if (sendPacketReq == 1'b0)	
-			begin
-				NextState_SCTxArb <= `SARB1_WAIT_REQ;
-				next_sendPacketGnt <= 1'b0;
-			end
-		`SARB_DC:
-			if (directCntlReq == 1'b0)	
-			begin
-				NextState_SCTxArb <= `SARB1_WAIT_REQ;
-				next_directCntlGnt <= 1'b0;
-			end
-		`START_SARB:
-			NextState_SCTxArb <= `SARB1_WAIT_REQ;
-	endcase
+  NextState_SCTxArb <= CurrState_SCTxArb;
+  // Set default values for outputs and signals
+  next_sendPacketGnt <= sendPacketGnt;
+  next_muxDCEn <= muxDCEn;
+  next_directCntlGnt <= directCntlGnt;
+  case (CurrState_SCTxArb)
+    `SARB1_WAIT_REQ:
+      if (sendPacketReq == 1'b1)	
+      begin
+        NextState_SCTxArb <= `SARB_SEND_PACKET;
+        next_sendPacketGnt <= 1'b1;
+        next_muxDCEn <= 1'b0;
+      end
+      else if (directCntlReq == 1'b1)	
+      begin
+        NextState_SCTxArb <= `SARB_DC;
+        next_directCntlGnt <= 1'b1;
+        next_muxDCEn <= 1'b1;
+      end
+    `SARB_SEND_PACKET:
+      if (sendPacketReq == 1'b0)	
+      begin
+        NextState_SCTxArb <= `SARB1_WAIT_REQ;
+        next_sendPacketGnt <= 1'b0;
+      end
+    `SARB_DC:
+      if (directCntlReq == 1'b0)	
+      begin
+        NextState_SCTxArb <= `SARB1_WAIT_REQ;
+        next_directCntlGnt <= 1'b0;
+      end
+    `START_SARB:
+      NextState_SCTxArb <= `SARB1_WAIT_REQ;
+  endcase
 end
 
 //----------------------------------
@@ -174,10 +174,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SCTxArb_CurrentState
-	if (rst)	
-		CurrState_SCTxArb <= `START_SARB;
-	else
-		CurrState_SCTxArb <= NextState_SCTxArb;
+  if (rst)	
+    CurrState_SCTxArb <= `START_SARB;
+  else
+    CurrState_SCTxArb <= NextState_SCTxArb;
 end
 
 //----------------------------------
@@ -185,18 +185,18 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SCTxArb_RegOutput
-	if (rst)	
-	begin
-		muxDCEn <= 1'b0;
-		sendPacketGnt <= 1'b0;
-		directCntlGnt <= 1'b0;
-	end
-	else 
-	begin
-		muxDCEn <= next_muxDCEn;
-		sendPacketGnt <= next_sendPacketGnt;
-		directCntlGnt <= next_directCntlGnt;
-	end
+  if (rst)	
+  begin
+    muxDCEn <= 1'b0;
+    sendPacketGnt <= 1'b0;
+    directCntlGnt <= 1'b0;
+  end
+  else 
+  begin
+    muxDCEn <= next_muxDCEn;
+    sendPacketGnt <= next_sendPacketGnt;
+    directCntlGnt <= next_directCntlGnt;
+  end
 end
 
 endmodule

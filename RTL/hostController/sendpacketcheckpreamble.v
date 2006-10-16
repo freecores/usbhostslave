@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/sendpacketcheckpreamble.v
-// Generated   : 10/06/06 19:35:27
+// Generated   : 10/15/06 20:31:20
 // From        : ../RTL/hostController/sendpacketcheckpreamble.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -100,76 +100,76 @@ reg [3:0] NextState_sendPktCP;
 //----------------------------------
 always @ (sendPacketCPPID or sendPacketCPWEn or preAmbleEnable or sendPacketRdy or sendPacketCPReady or sendPacketWEn or sendPacketPID or CurrState_sendPktCP)
 begin : sendPktCP_NextState
-	NextState_sendPktCP <= CurrState_sendPktCP;
-	// Set default values for outputs and signals
-	next_sendPacketCPReady <= sendPacketCPReady;
-	next_sendPacketWEn <= sendPacketWEn;
-	next_sendPacketPID <= sendPacketPID;
-	case (CurrState_sendPktCP)
-		`SPC_WAIT_EN:
-			if (sendPacketCPWEn == 1'b1)	
-			begin
-				NextState_sendPktCP <= `CHK_PREAM;
-				next_sendPacketCPReady <= 1'b0;
-			end
-		`START_SPC:
-			NextState_sendPktCP <= `SPC_WAIT_EN;
-		`CHK_PREAM:
-			if (preAmbleEnable == 1'b1)	
-				NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY1;
-			else
-				NextState_sendPktCP <= `REG_PKT_WAIT_RDY1;
-		`READY:
-		begin
-			next_sendPacketCPReady <= 1'b1;
-			NextState_sendPktCP <= `SPC_WAIT_EN;
-		end
-		`PREAM_PKT_SND_PREAM:
-		begin
-			next_sendPacketWEn <= 1'b1;
-			next_sendPacketPID <= `PREAMBLE;
-			NextState_sendPktCP <= `PREAM_PKT_PREAM_SENT;
-		end
-		`PREAM_PKT_WAIT_RDY1:
-			if (sendPacketRdy == 1'b1)	
-				NextState_sendPktCP <= `PREAM_PKT_SND_PREAM;
-		`PREAM_PKT_PREAM_SENT:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY2;
-		end
-		`PREAM_PKT_SND_PID:
-		begin
-			next_sendPacketWEn <= 1'b1;
-			next_sendPacketPID <= sendPacketCPPID;
-			NextState_sendPktCP <= `PREAM_PKT_PID_SENT;
-		end
-		`PREAM_PKT_PID_SENT:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY3;
-		end
-		`PREAM_PKT_WAIT_RDY2:
-			if (sendPacketRdy == 1'b1)	
-				NextState_sendPktCP <= `PREAM_PKT_SND_PID;
-		`PREAM_PKT_WAIT_RDY3:
-			if (sendPacketRdy == 1'b1)	
-				NextState_sendPktCP <= `READY;
-		`REG_PKT_SEND_PID:
-		begin
-			next_sendPacketWEn <= 1'b1;
-			next_sendPacketPID <= sendPacketCPPID;
-			NextState_sendPktCP <= `REG_PKT_WAIT_RDY;
-		end
-		`REG_PKT_WAIT_RDY1:
-			if (sendPacketRdy == 1'b1)	
-				NextState_sendPktCP <= `REG_PKT_SEND_PID;
-		`REG_PKT_WAIT_RDY:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_sendPktCP <= `READY;
-		end
-	endcase
+  NextState_sendPktCP <= CurrState_sendPktCP;
+  // Set default values for outputs and signals
+  next_sendPacketCPReady <= sendPacketCPReady;
+  next_sendPacketWEn <= sendPacketWEn;
+  next_sendPacketPID <= sendPacketPID;
+  case (CurrState_sendPktCP)
+    `SPC_WAIT_EN:
+      if (sendPacketCPWEn == 1'b1)	
+      begin
+        NextState_sendPktCP <= `CHK_PREAM;
+        next_sendPacketCPReady <= 1'b0;
+      end
+    `START_SPC:
+      NextState_sendPktCP <= `SPC_WAIT_EN;
+    `CHK_PREAM:
+      if (preAmbleEnable == 1'b1)	
+        NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY1;
+      else
+        NextState_sendPktCP <= `REG_PKT_WAIT_RDY1;
+    `READY:
+    begin
+      next_sendPacketCPReady <= 1'b1;
+      NextState_sendPktCP <= `SPC_WAIT_EN;
+    end
+    `PREAM_PKT_SND_PREAM:
+    begin
+      next_sendPacketWEn <= 1'b1;
+      next_sendPacketPID <= `PREAMBLE;
+      NextState_sendPktCP <= `PREAM_PKT_PREAM_SENT;
+    end
+    `PREAM_PKT_WAIT_RDY1:
+      if (sendPacketRdy == 1'b1)	
+        NextState_sendPktCP <= `PREAM_PKT_SND_PREAM;
+    `PREAM_PKT_PREAM_SENT:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY2;
+    end
+    `PREAM_PKT_SND_PID:
+    begin
+      next_sendPacketWEn <= 1'b1;
+      next_sendPacketPID <= sendPacketCPPID;
+      NextState_sendPktCP <= `PREAM_PKT_PID_SENT;
+    end
+    `PREAM_PKT_PID_SENT:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY3;
+    end
+    `PREAM_PKT_WAIT_RDY2:
+      if (sendPacketRdy == 1'b1)	
+        NextState_sendPktCP <= `PREAM_PKT_SND_PID;
+    `PREAM_PKT_WAIT_RDY3:
+      if (sendPacketRdy == 1'b1)	
+        NextState_sendPktCP <= `READY;
+    `REG_PKT_SEND_PID:
+    begin
+      next_sendPacketWEn <= 1'b1;
+      next_sendPacketPID <= sendPacketCPPID;
+      NextState_sendPktCP <= `REG_PKT_WAIT_RDY;
+    end
+    `REG_PKT_WAIT_RDY1:
+      if (sendPacketRdy == 1'b1)	
+        NextState_sendPktCP <= `REG_PKT_SEND_PID;
+    `REG_PKT_WAIT_RDY:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_sendPktCP <= `READY;
+    end
+  endcase
 end
 
 //----------------------------------
@@ -177,10 +177,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sendPktCP_CurrentState
-	if (rst)	
-		CurrState_sendPktCP <= `START_SPC;
-	else
-		CurrState_sendPktCP <= NextState_sendPktCP;
+  if (rst)	
+    CurrState_sendPktCP <= `START_SPC;
+  else
+    CurrState_sendPktCP <= NextState_sendPktCP;
 end
 
 //----------------------------------
@@ -188,18 +188,18 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : sendPktCP_RegOutput
-	if (rst)	
-	begin
-		sendPacketWEn <= 1'b0;
-		sendPacketPID <= 4'b0;
-		sendPacketCPReady <= 1'b1;
-	end
-	else 
-	begin
-		sendPacketWEn <= next_sendPacketWEn;
-		sendPacketPID <= next_sendPacketPID;
-		sendPacketCPReady <= next_sendPacketCPReady;
-	end
+  if (rst)	
+  begin
+    sendPacketWEn <= 1'b0;
+    sendPacketPID <= 4'b0;
+    sendPacketCPReady <= 1'b1;
+  end
+  else 
+  begin
+    sendPacketWEn <= next_sendPacketWEn;
+    sendPacketPID <= next_sendPacketPID;
+    sendPacketCPReady <= next_sendPacketCPReady;
+  end
 end
 
 endmodule

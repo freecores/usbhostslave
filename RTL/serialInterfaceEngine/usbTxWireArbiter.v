@@ -1,6 +1,6 @@
 
 // File        : ../RTL/serialInterfaceEngine/usbTxWireArbiter.v
-// Generated   : 10/06/06 19:35:31
+// Generated   : 10/15/06 20:31:23
 // From        : ../RTL/serialInterfaceEngine/usbTxWireArbiter.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -144,40 +144,40 @@ end
 //----------------------------------
 always @ (prcTxByteReq or SIETxReq or prcTxByteGnt or muxSIENotPTXB or SIETxGnt or CurrState_txWireArb)
 begin : txWireArb_NextState
-	NextState_txWireArb <= CurrState_txWireArb;
-	// Set default values for outputs and signals
-	next_prcTxByteGnt <= prcTxByteGnt;
-	next_muxSIENotPTXB <= muxSIENotPTXB;
-	next_SIETxGnt <= SIETxGnt;
-	case (CurrState_txWireArb)
-		`START_TARB:
-			NextState_txWireArb <= `TARB_WAIT_REQ;
-		`TARB_WAIT_REQ:
-			if (prcTxByteReq == 1'b1)	
-			begin
-				NextState_txWireArb <= `PTXB_ACT;
-				next_prcTxByteGnt <= 1'b1;
-				next_muxSIENotPTXB <= 1'b0;
-			end
-			else if (SIETxReq == 1'b1)	
-			begin
-				NextState_txWireArb <= `SIE_TX_ACT;
-				next_SIETxGnt <= 1'b1;
-				next_muxSIENotPTXB <= 1'b1;
-			end
-		`PTXB_ACT:
-			if (prcTxByteReq == 1'b0)	
-			begin
-				NextState_txWireArb <= `TARB_WAIT_REQ;
-				next_prcTxByteGnt <= 1'b0;
-			end
-		`SIE_TX_ACT:
-			if (SIETxReq == 1'b0)	
-			begin
-				NextState_txWireArb <= `TARB_WAIT_REQ;
-				next_SIETxGnt <= 1'b0;
-			end
-	endcase
+  NextState_txWireArb <= CurrState_txWireArb;
+  // Set default values for outputs and signals
+  next_prcTxByteGnt <= prcTxByteGnt;
+  next_muxSIENotPTXB <= muxSIENotPTXB;
+  next_SIETxGnt <= SIETxGnt;
+  case (CurrState_txWireArb)
+    `START_TARB:
+      NextState_txWireArb <= `TARB_WAIT_REQ;
+    `TARB_WAIT_REQ:
+      if (prcTxByteReq == 1'b1)	
+      begin
+        NextState_txWireArb <= `PTXB_ACT;
+        next_prcTxByteGnt <= 1'b1;
+        next_muxSIENotPTXB <= 1'b0;
+      end
+      else if (SIETxReq == 1'b1)	
+      begin
+        NextState_txWireArb <= `SIE_TX_ACT;
+        next_SIETxGnt <= 1'b1;
+        next_muxSIENotPTXB <= 1'b1;
+      end
+    `PTXB_ACT:
+      if (prcTxByteReq == 1'b0)	
+      begin
+        NextState_txWireArb <= `TARB_WAIT_REQ;
+        next_prcTxByteGnt <= 1'b0;
+      end
+    `SIE_TX_ACT:
+      if (SIETxReq == 1'b0)	
+      begin
+        NextState_txWireArb <= `TARB_WAIT_REQ;
+        next_SIETxGnt <= 1'b0;
+      end
+  endcase
 end
 
 //----------------------------------
@@ -185,10 +185,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : txWireArb_CurrentState
-	if (rst)	
-		CurrState_txWireArb <= `START_TARB;
-	else
-		CurrState_txWireArb <= NextState_txWireArb;
+  if (rst)	
+    CurrState_txWireArb <= `START_TARB;
+  else
+    CurrState_txWireArb <= NextState_txWireArb;
 end
 
 //----------------------------------
@@ -196,18 +196,18 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : txWireArb_RegOutput
-	if (rst)	
-	begin
-		muxSIENotPTXB <= 1'b0;
-		prcTxByteGnt <= 1'b0;
-		SIETxGnt <= 1'b0;
-	end
-	else 
-	begin
-		muxSIENotPTXB <= next_muxSIENotPTXB;
-		prcTxByteGnt <= next_prcTxByteGnt;
-		SIETxGnt <= next_SIETxGnt;
-	end
+  if (rst)	
+  begin
+    muxSIENotPTXB <= 1'b0;
+    prcTxByteGnt <= 1'b0;
+    SIETxGnt <= 1'b0;
+  end
+  else 
+  begin
+    muxSIENotPTXB <= next_muxSIENotPTXB;
+    prcTxByteGnt <= next_prcTxByteGnt;
+    SIETxGnt <= next_SIETxGnt;
+  end
 end
 
 endmodule

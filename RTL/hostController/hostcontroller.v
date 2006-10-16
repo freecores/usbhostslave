@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/hostcontroller.v
-// Generated   : 10/06/06 19:35:25
+// Generated   : 10/15/06 20:31:18
 // From        : ../RTL/hostController/hostcontroller.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -135,218 +135,218 @@ reg [5:0] NextState_hstCntrl;
 //----------------------------------
 always @ (transReq or transType or sendPacketArbiterGnt or getPacketRdy or sendPacketRdy or isoEn or RXStatus or sendPacketArbiterReq or transDone or clearTXReq or sendPacketWEn or getPacketREn or sendPacketPID or CurrState_hstCntrl)
 begin : hstCntrl_NextState
-	NextState_hstCntrl <= CurrState_hstCntrl;
-	// Set default values for outputs and signals
-	next_sendPacketArbiterReq <= sendPacketArbiterReq;
-	next_transDone <= transDone;
-	next_clearTXReq <= clearTXReq;
-	next_sendPacketWEn <= sendPacketWEn;
-	next_getPacketREn <= getPacketREn;
-	next_sendPacketPID <= sendPacketPID;
-	case (CurrState_hstCntrl)
-		`START_HC:
-			NextState_hstCntrl <= `TX_REQ;
-		`TX_REQ:
-			if (transReq == 1'b1)	
-			begin
-				NextState_hstCntrl <= `WAIT_GNT;
-				next_sendPacketArbiterReq <= 1'b1;
-			end
-		`CHK_TYPE:
-			if (transType == `IN_TRANS)	
-				NextState_hstCntrl <= `IN_WAIT_SP_RDY1;
-			else if (transType == `OUTDATA0_TRANS)	
-				NextState_hstCntrl <= `OUT0_WAIT_SP_RDY1;
-			else if (transType == `OUTDATA1_TRANS)	
-				NextState_hstCntrl <= `OUT1_WAIT_SP_RDY1;
-			else if (transType == `SETUP_TRANS)	
-				NextState_hstCntrl <= `SETUP_HC_WAIT_RDY;
-		`FLAG:
-		begin
-			next_transDone <= 1'b1;
-			next_clearTXReq <= 1'b1;
-			next_sendPacketArbiterReq <= 1'b0;
-			NextState_hstCntrl <= `FIN;
-		end
-		`FIN:
-		begin
-			next_clearTXReq <= 1'b0;
-			next_transDone <= 1'b0;
-			//now wait for 'transReq' to clear
-			NextState_hstCntrl <= `DEL1;
-		end
-		`WAIT_GNT:
-			if (sendPacketArbiterGnt == 1'b1)	
-				NextState_hstCntrl <= `CHK_TYPE;
-		`DEL1:
-			NextState_hstCntrl <= `DEL2;
-		`DEL2:
-			NextState_hstCntrl <= `TX_REQ;
-		`SETUP_CLR_SP_WEN1:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `SETUP_WAIT_SETUP_SENT;
-		end
-		`SETUP_CLR_SP_WEN2:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `SETUP_WAIT_DATA_SENT;
-		end
-		`SETUP_WAIT_PKT_RXED:
-		begin
-			next_getPacketREn <= 1'b0;
-			if (getPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `FLAG;
-		end
-		`SETUP_HC_WAIT_RDY:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `SETUP_CLR_SP_WEN1;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `SETUP;
-			end
-		`SETUP_WAIT_SETUP_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `SETUP_CLR_SP_WEN2;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `DATA0;
-			end
-		`SETUP_WAIT_DATA_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `SETUP_WAIT_PKT_RXED;
-				next_getPacketREn <= 1'b1;
-			end
-		`IN_WAIT_DATA_RXED:
-		begin
-			next_getPacketREn <= 1'b0;
-			if (getPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `IN_CHK_FOR_ERROR;
-		end
-		`IN_CHK_FOR_ERROR:
-			if (isoEn == 1'b1)	
-				NextState_hstCntrl <= `FLAG;
-			else if (RXStatus [`HC_CRC_ERROR_BIT] == 1'b0 &&
-				RXStatus [`HC_BIT_STUFF_ERROR_BIT] == 1'b0 &&
-				RXStatus [`HC_RX_OVERFLOW_BIT] == 1'b0 &&
-				RXStatus [`HC_NAK_RXED_BIT] == 1'b0 &&
-				RXStatus [`HC_STALL_RXED_BIT] == 1'b0 &&
-				RXStatus [`HC_RX_TIME_OUT_BIT] == 1'b0)	
-				NextState_hstCntrl <= `IN_WAIT_SP_RDY2;
-			else
-				NextState_hstCntrl <= `FLAG;
-		`IN_CLR_SP_WEN2:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `IN_WAIT_ACK_SENT;
-		end
-		`IN_WAIT_IN_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `IN_WAIT_DATA_RXED;
-				next_getPacketREn <= 1'b1;
-			end
-		`IN_WAIT_SP_RDY1:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `IN_CLR_SP_WEN1;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `IN;
-			end
-		`IN_WAIT_SP_RDY2:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `IN_CLR_SP_WEN2;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `ACK;
-			end
-		`IN_CLR_SP_WEN1:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `IN_WAIT_IN_SENT;
-		end
-		`IN_WAIT_ACK_SENT:
-			if (sendPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `FLAG;
-		`OUT0_WAIT_RX_DATA:
-		begin
-			next_getPacketREn <= 1'b0;
-			if (getPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `FLAG;
-		end
-		`OUT0_WAIT_DATA0_SENT:
-			if (sendPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `OUT0_CHK_ISO;
-		`OUT0_WAIT_OUT_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `OUT0_CLR_WEN2;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `DATA0;
-			end
-		`OUT0_WAIT_SP_RDY1:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `OUT0_CLR_WEN1;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `OUT;
-			end
-		`OUT0_CLR_WEN1:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `OUT0_WAIT_OUT_SENT;
-		end
-		`OUT0_CLR_WEN2:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `OUT0_WAIT_DATA0_SENT;
-		end
-		`OUT0_CHK_ISO:
-			if (isoEn == 1'b0)	
-			begin
-				NextState_hstCntrl <= `OUT0_WAIT_RX_DATA;
-				next_getPacketREn <= 1'b1;
-			end
-			else
-				NextState_hstCntrl <= `FLAG;
-		`OUT1_WAIT_RX_DATA:
-		begin
-			next_getPacketREn <= 1'b0;
-			if (getPacketRdy == 1'b1)	
-				NextState_hstCntrl <= `FLAG;
-		end
-		`OUT1_WAIT_OUT_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `OUT1_CLR_WEN2;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `DATA1;
-			end
-		`OUT1_WAIT_DATA1_SENT:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `OUT1_WAIT_RX_DATA;
-				next_getPacketREn <= 1'b1;
-			end
-		`OUT1_WAIT_SP_RDY1:
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_hstCntrl <= `OUT1_CLR_WEN1;
-				next_sendPacketWEn <= 1'b1;
-				next_sendPacketPID <= `OUT;
-			end
-		`OUT1_CLR_WEN1:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `OUT1_WAIT_OUT_SENT;
-		end
-		`OUT1_CLR_WEN2:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			NextState_hstCntrl <= `OUT1_WAIT_DATA1_SENT;
-		end
-	endcase
+  NextState_hstCntrl <= CurrState_hstCntrl;
+  // Set default values for outputs and signals
+  next_sendPacketArbiterReq <= sendPacketArbiterReq;
+  next_transDone <= transDone;
+  next_clearTXReq <= clearTXReq;
+  next_sendPacketWEn <= sendPacketWEn;
+  next_getPacketREn <= getPacketREn;
+  next_sendPacketPID <= sendPacketPID;
+  case (CurrState_hstCntrl)
+    `START_HC:
+      NextState_hstCntrl <= `TX_REQ;
+    `TX_REQ:
+      if (transReq == 1'b1)	
+      begin
+        NextState_hstCntrl <= `WAIT_GNT;
+        next_sendPacketArbiterReq <= 1'b1;
+      end
+    `CHK_TYPE:
+      if (transType == `IN_TRANS)	
+        NextState_hstCntrl <= `IN_WAIT_SP_RDY1;
+      else if (transType == `OUTDATA0_TRANS)	
+        NextState_hstCntrl <= `OUT0_WAIT_SP_RDY1;
+      else if (transType == `OUTDATA1_TRANS)	
+        NextState_hstCntrl <= `OUT1_WAIT_SP_RDY1;
+      else if (transType == `SETUP_TRANS)	
+        NextState_hstCntrl <= `SETUP_HC_WAIT_RDY;
+    `FLAG:
+    begin
+      next_transDone <= 1'b1;
+      next_clearTXReq <= 1'b1;
+      next_sendPacketArbiterReq <= 1'b0;
+      NextState_hstCntrl <= `FIN;
+    end
+    `FIN:
+    begin
+      next_clearTXReq <= 1'b0;
+      next_transDone <= 1'b0;
+      //now wait for 'transReq' to clear
+      NextState_hstCntrl <= `DEL1;
+    end
+    `WAIT_GNT:
+      if (sendPacketArbiterGnt == 1'b1)	
+        NextState_hstCntrl <= `CHK_TYPE;
+    `DEL1:
+      NextState_hstCntrl <= `DEL2;
+    `DEL2:
+      NextState_hstCntrl <= `TX_REQ;
+    `SETUP_CLR_SP_WEN1:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `SETUP_WAIT_SETUP_SENT;
+    end
+    `SETUP_CLR_SP_WEN2:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `SETUP_WAIT_DATA_SENT;
+    end
+    `SETUP_WAIT_PKT_RXED:
+    begin
+      next_getPacketREn <= 1'b0;
+      if (getPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `FLAG;
+    end
+    `SETUP_HC_WAIT_RDY:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `SETUP_CLR_SP_WEN1;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `SETUP;
+      end
+    `SETUP_WAIT_SETUP_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `SETUP_CLR_SP_WEN2;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `DATA0;
+      end
+    `SETUP_WAIT_DATA_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `SETUP_WAIT_PKT_RXED;
+        next_getPacketREn <= 1'b1;
+      end
+    `IN_WAIT_DATA_RXED:
+    begin
+      next_getPacketREn <= 1'b0;
+      if (getPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `IN_CHK_FOR_ERROR;
+    end
+    `IN_CHK_FOR_ERROR:
+      if (isoEn == 1'b1)	
+        NextState_hstCntrl <= `FLAG;
+      else if (RXStatus [`HC_CRC_ERROR_BIT] == 1'b0 &&
+        RXStatus [`HC_BIT_STUFF_ERROR_BIT] == 1'b0 &&
+        RXStatus [`HC_RX_OVERFLOW_BIT] == 1'b0 &&
+        RXStatus [`HC_NAK_RXED_BIT] == 1'b0 &&
+        RXStatus [`HC_STALL_RXED_BIT] == 1'b0 &&
+        RXStatus [`HC_RX_TIME_OUT_BIT] == 1'b0)	
+        NextState_hstCntrl <= `IN_WAIT_SP_RDY2;
+      else
+        NextState_hstCntrl <= `FLAG;
+    `IN_CLR_SP_WEN2:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `IN_WAIT_ACK_SENT;
+    end
+    `IN_WAIT_IN_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `IN_WAIT_DATA_RXED;
+        next_getPacketREn <= 1'b1;
+      end
+    `IN_WAIT_SP_RDY1:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `IN_CLR_SP_WEN1;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `IN;
+      end
+    `IN_WAIT_SP_RDY2:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `IN_CLR_SP_WEN2;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `ACK;
+      end
+    `IN_CLR_SP_WEN1:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `IN_WAIT_IN_SENT;
+    end
+    `IN_WAIT_ACK_SENT:
+      if (sendPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `FLAG;
+    `OUT0_WAIT_RX_DATA:
+    begin
+      next_getPacketREn <= 1'b0;
+      if (getPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `FLAG;
+    end
+    `OUT0_WAIT_DATA0_SENT:
+      if (sendPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `OUT0_CHK_ISO;
+    `OUT0_WAIT_OUT_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `OUT0_CLR_WEN2;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `DATA0;
+      end
+    `OUT0_WAIT_SP_RDY1:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `OUT0_CLR_WEN1;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `OUT;
+      end
+    `OUT0_CLR_WEN1:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `OUT0_WAIT_OUT_SENT;
+    end
+    `OUT0_CLR_WEN2:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `OUT0_WAIT_DATA0_SENT;
+    end
+    `OUT0_CHK_ISO:
+      if (isoEn == 1'b0)	
+      begin
+        NextState_hstCntrl <= `OUT0_WAIT_RX_DATA;
+        next_getPacketREn <= 1'b1;
+      end
+      else
+        NextState_hstCntrl <= `FLAG;
+    `OUT1_WAIT_RX_DATA:
+    begin
+      next_getPacketREn <= 1'b0;
+      if (getPacketRdy == 1'b1)	
+        NextState_hstCntrl <= `FLAG;
+    end
+    `OUT1_WAIT_OUT_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `OUT1_CLR_WEN2;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `DATA1;
+      end
+    `OUT1_WAIT_DATA1_SENT:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `OUT1_WAIT_RX_DATA;
+        next_getPacketREn <= 1'b1;
+      end
+    `OUT1_WAIT_SP_RDY1:
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_hstCntrl <= `OUT1_CLR_WEN1;
+        next_sendPacketWEn <= 1'b1;
+        next_sendPacketPID <= `OUT;
+      end
+    `OUT1_CLR_WEN1:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `OUT1_WAIT_OUT_SENT;
+    end
+    `OUT1_CLR_WEN2:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      NextState_hstCntrl <= `OUT1_WAIT_DATA1_SENT;
+    end
+  endcase
 end
 
 //----------------------------------
@@ -354,10 +354,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : hstCntrl_CurrentState
-	if (rst)	
-		CurrState_hstCntrl <= `START_HC;
-	else
-		CurrState_hstCntrl <= NextState_hstCntrl;
+  if (rst)	
+    CurrState_hstCntrl <= `START_HC;
+  else
+    CurrState_hstCntrl <= NextState_hstCntrl;
 end
 
 //----------------------------------
@@ -365,24 +365,24 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : hstCntrl_RegOutput
-	if (rst)	
-	begin
-		transDone <= 1'b0;
-		clearTXReq <= 1'b0;
-		getPacketREn <= 1'b0;
-		sendPacketArbiterReq <= 1'b0;
-		sendPacketWEn <= 1'b0;
-		sendPacketPID <= 4'b0;
-	end
-	else 
-	begin
-		transDone <= next_transDone;
-		clearTXReq <= next_clearTXReq;
-		getPacketREn <= next_getPacketREn;
-		sendPacketArbiterReq <= next_sendPacketArbiterReq;
-		sendPacketWEn <= next_sendPacketWEn;
-		sendPacketPID <= next_sendPacketPID;
-	end
+  if (rst)	
+  begin
+    transDone <= 1'b0;
+    clearTXReq <= 1'b0;
+    getPacketREn <= 1'b0;
+    sendPacketArbiterReq <= 1'b0;
+    sendPacketWEn <= 1'b0;
+    sendPacketPID <= 4'b0;
+  end
+  else 
+  begin
+    transDone <= next_transDone;
+    clearTXReq <= next_clearTXReq;
+    getPacketREn <= next_getPacketREn;
+    sendPacketArbiterReq <= next_sendPacketArbiterReq;
+    sendPacketWEn <= next_sendPacketWEn;
+    sendPacketPID <= next_sendPacketPID;
+  end
 end
 
 endmodule

@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/hctxportarbiter.v
-// Generated   : 10/06/06 19:35:28
+// Generated   : 10/15/06 20:31:20
 // From        : ../RTL/hostController/hctxportarbiter.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -155,53 +155,53 @@ end
 //----------------------------------
 always @ (SOFCntlReq or sendPacketReq or directCntlReq or SOFCntlGnt or muxCntl or sendPacketGnt or directCntlGnt or CurrState_HCTxArb)
 begin : HCTxArb_NextState
-	NextState_HCTxArb <= CurrState_HCTxArb;
-	// Set default values for outputs and signals
-	next_SOFCntlGnt <= SOFCntlGnt;
-	next_muxCntl <= muxCntl;
-	next_sendPacketGnt <= sendPacketGnt;
-	next_directCntlGnt <= directCntlGnt;
-	case (CurrState_HCTxArb)
-		`START_HARB:
-			NextState_HCTxArb <= `WAIT_REQ;
-		`WAIT_REQ:
-			if (SOFCntlReq == 1'b1)	
-			begin
-				NextState_HCTxArb <= `SEND_SOF;
-				next_SOFCntlGnt <= 1'b1;
-				next_muxCntl <= `SOF_CTRL_MUX;
-			end
-			else if (sendPacketReq == 1'b1)	
-			begin
-				NextState_HCTxArb <= `SEND_PACKET;
-				next_sendPacketGnt <= 1'b1;
-				next_muxCntl <= `SEND_PACKET_MUX;
-			end
-			else if (directCntlReq == 1'b1)	
-			begin
-				NextState_HCTxArb <= `DIRECT_CONTROL;
-				next_directCntlGnt <= 1'b1;
-				next_muxCntl <= `DIRECT_CTRL_MUX;
-			end
-		`SEND_SOF:
-			if (SOFCntlReq == 1'b0)	
-			begin
-				NextState_HCTxArb <= `WAIT_REQ;
-				next_SOFCntlGnt <= 1'b0;
-			end
-		`SEND_PACKET:
-			if (sendPacketReq == 1'b0)	
-			begin
-				NextState_HCTxArb <= `WAIT_REQ;
-				next_sendPacketGnt <= 1'b0;
-			end
-		`DIRECT_CONTROL:
-			if (directCntlReq == 1'b0)	
-			begin
-				NextState_HCTxArb <= `WAIT_REQ;
-				next_directCntlGnt <= 1'b0;
-			end
-	endcase
+  NextState_HCTxArb <= CurrState_HCTxArb;
+  // Set default values for outputs and signals
+  next_SOFCntlGnt <= SOFCntlGnt;
+  next_muxCntl <= muxCntl;
+  next_sendPacketGnt <= sendPacketGnt;
+  next_directCntlGnt <= directCntlGnt;
+  case (CurrState_HCTxArb)
+    `START_HARB:
+      NextState_HCTxArb <= `WAIT_REQ;
+    `WAIT_REQ:
+      if (SOFCntlReq == 1'b1)	
+      begin
+        NextState_HCTxArb <= `SEND_SOF;
+        next_SOFCntlGnt <= 1'b1;
+        next_muxCntl <= `SOF_CTRL_MUX;
+      end
+      else if (sendPacketReq == 1'b1)	
+      begin
+        NextState_HCTxArb <= `SEND_PACKET;
+        next_sendPacketGnt <= 1'b1;
+        next_muxCntl <= `SEND_PACKET_MUX;
+      end
+      else if (directCntlReq == 1'b1)	
+      begin
+        NextState_HCTxArb <= `DIRECT_CONTROL;
+        next_directCntlGnt <= 1'b1;
+        next_muxCntl <= `DIRECT_CTRL_MUX;
+      end
+    `SEND_SOF:
+      if (SOFCntlReq == 1'b0)	
+      begin
+        NextState_HCTxArb <= `WAIT_REQ;
+        next_SOFCntlGnt <= 1'b0;
+      end
+    `SEND_PACKET:
+      if (sendPacketReq == 1'b0)	
+      begin
+        NextState_HCTxArb <= `WAIT_REQ;
+        next_sendPacketGnt <= 1'b0;
+      end
+    `DIRECT_CONTROL:
+      if (directCntlReq == 1'b0)	
+      begin
+        NextState_HCTxArb <= `WAIT_REQ;
+        next_directCntlGnt <= 1'b0;
+      end
+  endcase
 end
 
 //----------------------------------
@@ -209,10 +209,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : HCTxArb_CurrentState
-	if (rst)	
-		CurrState_HCTxArb <= `START_HARB;
-	else
-		CurrState_HCTxArb <= NextState_HCTxArb;
+  if (rst)	
+    CurrState_HCTxArb <= `START_HARB;
+  else
+    CurrState_HCTxArb <= NextState_HCTxArb;
 end
 
 //----------------------------------
@@ -220,20 +220,20 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : HCTxArb_RegOutput
-	if (rst)	
-	begin
-		muxCntl <= 2'b00;
-		SOFCntlGnt <= 1'b0;
-		sendPacketGnt <= 1'b0;
-		directCntlGnt <= 1'b0;
-	end
-	else 
-	begin
-		muxCntl <= next_muxCntl;
-		SOFCntlGnt <= next_SOFCntlGnt;
-		sendPacketGnt <= next_sendPacketGnt;
-		directCntlGnt <= next_directCntlGnt;
-	end
+  if (rst)	
+  begin
+    muxCntl <= 2'b00;
+    SOFCntlGnt <= 1'b0;
+    sendPacketGnt <= 1'b0;
+    directCntlGnt <= 1'b0;
+  end
+  else 
+  begin
+    muxCntl <= next_muxCntl;
+    SOFCntlGnt <= next_SOFCntlGnt;
+    sendPacketGnt <= next_sendPacketGnt;
+    directCntlGnt <= next_directCntlGnt;
+  end
 end
 
 endmodule

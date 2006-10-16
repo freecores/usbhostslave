@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/softransmit.v
-// Generated   : 10/06/06 19:35:27
+// Generated   : 10/15/06 20:31:20
 // From        : ../RTL/hostController/softransmit.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 
@@ -101,68 +101,68 @@ reg [2:0] NextState_SOFTx;
 //----------------------------------
 always @ (i or SOFTimer or SOFSyncEn or SOFEnable or sendPacketArbiterGnt or sendPacketRdy or sendPacketArbiterReq or sendPacketWEn or SOFTimerClr or SOFSent or CurrState_SOFTx)
 begin : SOFTx_NextState
-	NextState_SOFTx <= CurrState_SOFTx;
-	// Set default values for outputs and signals
-	next_sendPacketArbiterReq <= sendPacketArbiterReq;
-	next_sendPacketWEn <= sendPacketWEn;
-	next_SOFTimerClr <= SOFTimerClr;
-	next_SOFSent <= SOFSent;
-	next_i <= i;
-	case (CurrState_SOFTx)
-		`START_STX:
-			NextState_SOFTx <= `WAIT_SOF_NEAR;
-		`WAIT_SOF_NEAR:
-			if (SOFTimer >= `SOF_TX_TIME - `SOF_TX_MARGIN ||
-				(SOFSyncEn == 1'b1 &&
-				SOFEnable == 1'b1))	
-			begin
-				NextState_SOFTx <= `WAIT_SP_GNT;
-				next_sendPacketArbiterReq <= 1'b1;
-			end
-		`WAIT_SP_GNT:
-			if (sendPacketArbiterGnt == 1'b1 && sendPacketRdy == 1'b1)	
-				NextState_SOFTx <= `WAIT_SOF_NOW;
-		`WAIT_SOF_NOW:
-			if (SOFTimer >= `SOF_TX_TIME)	
-			begin
-				NextState_SOFTx <= `SOF_FIN;
-				next_sendPacketWEn <= 1'b1;
-				next_SOFTimerClr <= 1'b1;
-				next_SOFSent <= 1'b1;
-			end
-			else if (SOFEnable == 1'b0)	
-			begin
-				NextState_SOFTx <= `SOF_FIN;
-				next_SOFTimerClr <= 1'b1;
-			end
-		`SOF_FIN:
-		begin
-			next_sendPacketWEn <= 1'b0;
-			next_SOFTimerClr <= 1'b0;
-			next_SOFSent <= 1'b0;
-			if (sendPacketRdy == 1'b1)	
-			begin
-				NextState_SOFTx <= `DLY_SOF_CHK1;
-				next_i <= 8'h00;
-			end
-		end
-		`DLY_SOF_CHK1:
-		begin
-			next_i <= i + 1'b1;
-			if (i==8'hff)	
-			begin
-				NextState_SOFTx <= `DLY_SOF_CHK2;
-				next_sendPacketArbiterReq <= 1'b0;
-				next_i <= 8'h00;
-			end
-		end
-		`DLY_SOF_CHK2:
-		begin
-			next_i <= i + 1'b1;
-			if (i==8'hff)	
-				NextState_SOFTx <= `WAIT_SOF_NEAR;
-		end
-	endcase
+  NextState_SOFTx <= CurrState_SOFTx;
+  // Set default values for outputs and signals
+  next_sendPacketArbiterReq <= sendPacketArbiterReq;
+  next_sendPacketWEn <= sendPacketWEn;
+  next_SOFTimerClr <= SOFTimerClr;
+  next_SOFSent <= SOFSent;
+  next_i <= i;
+  case (CurrState_SOFTx)
+    `START_STX:
+      NextState_SOFTx <= `WAIT_SOF_NEAR;
+    `WAIT_SOF_NEAR:
+      if (SOFTimer >= `SOF_TX_TIME - `SOF_TX_MARGIN ||
+        (SOFSyncEn == 1'b1 &&
+        SOFEnable == 1'b1))	
+      begin
+        NextState_SOFTx <= `WAIT_SP_GNT;
+        next_sendPacketArbiterReq <= 1'b1;
+      end
+    `WAIT_SP_GNT:
+      if (sendPacketArbiterGnt == 1'b1 && sendPacketRdy == 1'b1)	
+        NextState_SOFTx <= `WAIT_SOF_NOW;
+    `WAIT_SOF_NOW:
+      if (SOFTimer >= `SOF_TX_TIME)	
+      begin
+        NextState_SOFTx <= `SOF_FIN;
+        next_sendPacketWEn <= 1'b1;
+        next_SOFTimerClr <= 1'b1;
+        next_SOFSent <= 1'b1;
+      end
+      else if (SOFEnable == 1'b0)	
+      begin
+        NextState_SOFTx <= `SOF_FIN;
+        next_SOFTimerClr <= 1'b1;
+      end
+    `SOF_FIN:
+    begin
+      next_sendPacketWEn <= 1'b0;
+      next_SOFTimerClr <= 1'b0;
+      next_SOFSent <= 1'b0;
+      if (sendPacketRdy == 1'b1)	
+      begin
+        NextState_SOFTx <= `DLY_SOF_CHK1;
+        next_i <= 8'h00;
+      end
+    end
+    `DLY_SOF_CHK1:
+    begin
+      next_i <= i + 1'b1;
+      if (i==8'hff)	
+      begin
+        NextState_SOFTx <= `DLY_SOF_CHK2;
+        next_sendPacketArbiterReq <= 1'b0;
+        next_i <= 8'h00;
+      end
+    end
+    `DLY_SOF_CHK2:
+    begin
+      next_i <= i + 1'b1;
+      if (i==8'hff)	
+        NextState_SOFTx <= `WAIT_SOF_NEAR;
+    end
+  endcase
 end
 
 //----------------------------------
@@ -170,10 +170,10 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SOFTx_CurrentState
-	if (rst)	
-		CurrState_SOFTx <= `START_STX;
-	else
-		CurrState_SOFTx <= NextState_SOFTx;
+  if (rst)	
+    CurrState_SOFTx <= `START_STX;
+  else
+    CurrState_SOFTx <= NextState_SOFTx;
 end
 
 //----------------------------------
@@ -181,22 +181,22 @@ end
 //----------------------------------
 always @ (posedge clk)
 begin : SOFTx_RegOutput
-	if (rst)	
-	begin
-		i <= 8'h00;
-		SOFSent <= 1'b0;
-		SOFTimerClr <= 1'b0;
-		sendPacketArbiterReq <= 1'b0;
-		sendPacketWEn <= 1'b0;
-	end
-	else 
-	begin
-		i <= next_i;
-		SOFSent <= next_SOFSent;
-		SOFTimerClr <= next_SOFTimerClr;
-		sendPacketArbiterReq <= next_sendPacketArbiterReq;
-		sendPacketWEn <= next_sendPacketWEn;
-	end
+  if (rst)	
+  begin
+    i <= 8'h00;
+    SOFSent <= 1'b0;
+    SOFTimerClr <= 1'b0;
+    sendPacketArbiterReq <= 1'b0;
+    sendPacketWEn <= 1'b0;
+  end
+  else 
+  begin
+    i <= next_i;
+    SOFSent <= next_SOFSent;
+    SOFTimerClr <= next_SOFTimerClr;
+    sendPacketArbiterReq <= next_sendPacketArbiterReq;
+    sendPacketWEn <= next_sendPacketWEn;
+  end
 end
 
 endmodule

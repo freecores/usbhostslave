@@ -115,11 +115,19 @@ reg [7:0] rxActiveCnt;
 reg RxWireEdgeDetect;
 reg RxWireActiveReg;
 reg RxWireActiveReg2;
+reg [1:0] RxBitsInSyncReg1;
+reg [1:0] RxBitsInSyncReg2;
 
 // buffer output state machine state codes:
 `define WAIT_BUFFER_NOT_EMPTY 2'b00
 `define WAIT_SIE_RX_READY 2'b01
 `define SIE_RX_WRITE 2'b10
+
+// re-synchronize incoming bits
+always @(posedge clk) begin
+  RxBitsInSyncReg1 <= RxBitsIn;
+  RxBitsInSyncReg2 <= RxBitsInSyncReg1;
+end
 
 reg [1:0] bufferOutStMachCurrState;
 
@@ -158,10 +166,10 @@ always @(posedge clk) begin
   end
   else begin
     RxWireActiveReg2 <= RxWireActiveReg; //Delay 'RxWireActiveReg' until after 'sampleCnt' has been reset
-    RxBitsInReg <= RxBitsIn;    
+    RxBitsInReg <= RxBitsInSyncReg2;    
     oldRxBitsIn <= RxBitsInReg;
     incBufferCnt <= 1'b0;         //default value
-    if ( (TxWireActiveDrive == 1'b0) && (RxBitsIn != RxBitsInReg)) begin  //if edge detected then
+    if ( (TxWireActiveDrive == 1'b0) && (RxBitsInSyncReg2 != RxBitsInReg)) begin  //if edge detected then
       sampleCnt <= 5'b00000;        
       RxWireEdgeDetect <= 1'b1;   // flag receive activity 
       RxWireActiveReg <= 1'b1;

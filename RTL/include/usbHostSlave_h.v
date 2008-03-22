@@ -48,10 +48,18 @@
 //             Replaced individual timescale directives with `include "timescale.v
 //             Renamed top level Altera wrapper from 'usbHostSlaveWrap' to 
 //             'usbHostSlaveAvalonWrap'
+// Version 1.3 - March 22nd 2008. Fixed bug in 'readUSBWireData'. Added
+//             synchronizer to incoming USB wire data to avoid
+//             metastability, and delay hazards. Not entirely sure, but it appears that 
+//             this bug caused more problems with some of the newer low power FPGAs
+//             Maybe because they are more prone to problems with metastable
+//             inputs that feed logic functions causing excessive high speed
+//             toggle activity, and disrupting nearby cicuits.
+
 
 // Most significant nibble corresponds to major revision.
 // Least significant nibble corresponds to minor revision.
-`define USBHOSTSLAVE_VERSION_NUM 8'h12   
+`define USBHOSTSLAVE_VERSION_NUM 8'h13   
 
 //Host slave common registers
 `define HOST_SLAVE_CONTROL_REG 1'b0

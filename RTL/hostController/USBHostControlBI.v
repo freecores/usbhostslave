@@ -122,9 +122,13 @@ reg resumeIntOut;
 reg transDoneIntOut;
 
 reg [1:0] TxTransTypeReg;
+reg [1:0] TxTransTypeReg_reg1;
 reg TxSOFEnableReg;
+reg TxSOFEnableReg_reg1;
 reg [6:0] TxAddrReg;
+reg [6:0] TxAddrReg_reg1;
 reg [3:0] TxEndPReg;
+reg [3:0] TxEndPReg_reg1;
 wire [10:0] frameNumIn;
 wire [7:0] RxPktStatusIn;
 wire [3:0] RxPIDIn;
@@ -137,13 +141,21 @@ wire transDoneIn;
 wire hostControlSelect;
 wire clrTransReq;
 reg preambleEn;
+reg preambleEn_reg1;
 reg SOFSync;
+reg SOFSync_reg1;
 reg [1:0] TxLineState;
+reg [1:0] TxLineState_reg1;
 reg LineDirectControlEn;
+reg LineDirectControlEn_reg1;
 reg fullSpeedPol; 
+reg fullSpeedPol_reg1; 
 reg fullSpeedRate;
+reg fullSpeedRate_reg1;
 reg transReq;
+reg transReq_reg1;
 reg isoEn;
+reg isoEn_reg1;
 wire [15:0] SOFTimer;
 
 //internal wire and regs
@@ -159,6 +171,11 @@ reg resumeInt;
 reg transDoneInt;
 reg [3:0] interruptMaskReg;
 reg setTransReq;
+reg [2:0] resumeIntInExtend;
+reg [2:0] transDoneInExtend;
+reg [2:0] connEventInExtend;
+reg [2:0] SOFSentInExtend;
+reg [2:0] clrTransReqExtend;
 
 //clock domain crossing sync registers
 //STB = Sync To Busclk
@@ -175,15 +192,20 @@ reg fullSpeedRateSTB;
 reg transReqSTB;
 reg isoEnSTB;   
 reg [10:0] frameNumInSTB;
+reg [10:0] frameNumInSTB_reg1;
 reg [7:0] RxPktStatusInSTB;
+reg [7:0] RxPktStatusInSTB_reg1;
 reg [3:0] RxPIDInSTB;
+reg [3:0] RxPIDInSTB_reg1;
 reg [1:0] connectStateInSTB;
-reg SOFSentInSTB;
-reg connEventInSTB;
-reg resumeIntInSTB;
-reg transDoneInSTB;
-reg clrTransReqSTB;
+reg [1:0] connectStateInSTB_reg1;
+reg [2:0] SOFSentInSTB;
+reg [2:0] connEventInSTB;
+reg [2:0] resumeIntInSTB;
+reg [2:0] transDoneInSTB;
+reg [2:0] clrTransReqSTB;
 reg [15:0] SOFTimerSTB;
+reg [15:0] SOFTimerSTB_reg1;
 
   
 //sync write demux
@@ -242,22 +264,22 @@ begin
     transDoneInt <= 1'b0;
   end
   else begin
-    if (SOFSentInSTB == 1'b1)
+    if (SOFSentInSTB[1] == 1'b1 && SOFSentInSTB[0] == 1'b0)
       SOFSentInt <= 1'b1;
     else if (clrSOFReq == 1'b1)
       SOFSentInt <= 1'b0;
     
-    if (connEventInSTB == 1'b1)
+    if (connEventInSTB[1] == 1'b1 && connEventInSTB[0] == 1'b0)
       connEventInt <= 1'b1;
     else if (clrConnEvtReq == 1'b1)
       connEventInt <= 1'b0;
     
-    if (resumeIntInSTB == 1'b1)
+    if (resumeIntInSTB[1] == 1'b1 && resumeIntInSTB[0] == 1'b0)
       resumeInt <= 1'b1;
     else if (clrResInReq == 1'b1)
       resumeInt <= 1'b0;  
 
-    if (transDoneInSTB == 1'b1)
+    if (transDoneInSTB[1] == 1'b1 && transDoneInSTB[0] == 1'b0)
       transDoneInt <= 1'b1;
     else if (clrTransDoneReq == 1'b1)
       transDoneInt <= 1'b0;
@@ -265,7 +287,7 @@ begin
 end
 
 //mask interrupts
-always @(interruptMaskReg or transDoneInt or resumeInt or connEventInt or SOFSentInt) begin
+always @(*) begin
   transDoneIntOut <= transDoneInt & interruptMaskReg[`TRANS_DONE_BIT];
   resumeIntOut <= resumeInt & interruptMaskReg[`RESUME_INT_BIT];
   connEventIntOut <= connEventInt & interruptMaskReg[`CONNECTION_EVENT_BIT];
@@ -278,7 +300,7 @@ end
 //ensuring that control signals have been clocked through to 'usbClk' clock
 //domain before the transaction request is asserted.
 //Not sure this is required because there is at least two 'usbClk' ticks between
-//detection of 'transReq' and sampling of related control signals.always @(posedge busClk)
+//detection of 'transReq' and sampling of related control signals.
 always @(posedge busClk)
 begin
   if (rstSyncToBusClk == 1'b1) begin
@@ -287,13 +309,13 @@ begin
   else begin
     if (setTransReq == 1'b1)
       transReqSTB <= 1'b1;
-    else if (clrTransReqSTB == 1'b1)
+    else if (clrTransReqSTB[1] == 1'b1 && clrTransReqSTB[0] == 1'b0)
       transReqSTB <= 1'b0;
   end
 end  
   
 //break out control signals
-always @(TxControlReg or TxLineControlReg) begin
+always @(*) begin
   TxLineStateSTB <= TxLineControlReg[`TX_LINE_STATE_MSBIT:`TX_LINE_STATE_LSBIT];
   LineDirectControlEnSTB <= TxLineControlReg[`DIRECT_CONTROL_BIT];
   fullSpeedPolSTB <= TxLineControlReg[`FULL_SPEED_LINE_POLARITY_BIT]; 
@@ -301,12 +323,7 @@ always @(TxControlReg or TxLineControlReg) begin
 end
   
 // async read mux
-always @(address or
-  TxControlReg or TxTransTypeRegSTB or TxLineControlReg or TxSOFEnableRegSTB or
-  TxAddrRegSTB or TxEndPRegSTB or frameNumInSTB or 
-  SOFSentInt or connEventInt or resumeInt or transDoneInt or
-  interruptMaskReg or RxPktStatusInSTB or RxPIDInSTB or connectStateInSTB or
-  preambleEnSTB or SOFSyncSTB or transReqSTB or isoEnSTB or SOFTimerSTB)
+always @(*)
 begin
   case (address)
       `TX_CONTROL_REG : dataOut <= {4'b0000, isoEnSTB, preambleEnSTB, SOFSyncSTB, transReqSTB} ;
@@ -331,50 +348,131 @@ end
 always @(posedge usbClk) begin
   if (rstSyncToUsbClk == 1'b1) begin
     isoEn <= 1'b0;
+    isoEn_reg1 <= 1'b0;
     preambleEn <= 1'b0;
+    preambleEn_reg1 <= 1'b0;
     SOFSync <= 1'b0;
+    SOFSync_reg1 <= 1'b0;
     TxTransTypeReg <= 2'b00;
+    TxTransTypeReg_reg1 <= 2'b00;
     TxSOFEnableReg <= 1'b0;
-    TxAddrReg <= 7'h00;
+    TxSOFEnableReg_reg1 <= 1'b0;
+    TxAddrReg <= {7{1'b0}};
+    TxAddrReg_reg1 <= {7{1'b0}};
     TxEndPReg <= 4'h0;
+    TxEndPReg_reg1 <= 4'h0;
     TxLineState <= 2'b00;
+    TxLineState_reg1 <= 2'b00;
     LineDirectControlEn <= 1'b0;
+    LineDirectControlEn_reg1 <= 1'b0;
     fullSpeedPol <= 1'b0; 
+    fullSpeedPol_reg1 <= 1'b0; 
     fullSpeedRate <= 1'b0;
+    fullSpeedRate_reg1 <= 1'b0;
     transReq <= 1'b0;
+    transReq_reg1 <= 1'b0;
   end
   else begin
-    isoEn <= isoEnSTB;     
-    preambleEn <= preambleEnSTB;
-    SOFSync <= SOFSyncSTB;
-    TxTransTypeReg <= TxTransTypeRegSTB;
-    TxSOFEnableReg <= TxSOFEnableRegSTB;
-    TxAddrReg <= TxAddrRegSTB;
-    TxEndPReg <= TxEndPRegSTB;
-    TxLineState <= TxLineStateSTB;
-    LineDirectControlEn <= LineDirectControlEnSTB;
-    fullSpeedPol <= fullSpeedPolSTB; 
-    fullSpeedRate <= fullSpeedRateSTB;
-    transReq <= transReqSTB;
+    isoEn_reg1 <= isoEnSTB;     
+    isoEn <= isoEn_reg1;     
+    preambleEn_reg1 <= preambleEnSTB;
+    preambleEn <= preambleEn_reg1;
+    SOFSync_reg1 <= SOFSyncSTB;
+    SOFSync <= SOFSync_reg1;
+    TxTransTypeReg_reg1 <= TxTransTypeRegSTB;
+    TxTransTypeReg <= TxTransTypeReg_reg1;
+    TxSOFEnableReg_reg1 <= TxSOFEnableRegSTB;
+    TxSOFEnableReg <= TxSOFEnableReg_reg1;
+    TxAddrReg_reg1 <= TxAddrRegSTB;
+    TxAddrReg <= TxAddrReg_reg1;
+    TxEndPReg_reg1 <= TxEndPRegSTB;
+    TxEndPReg <= TxEndPReg_reg1;
+    TxLineState_reg1 <= TxLineStateSTB;
+    TxLineState <= TxLineState_reg1;
+    LineDirectControlEn_reg1 <= LineDirectControlEnSTB;
+    LineDirectControlEn <= LineDirectControlEn_reg1;
+    fullSpeedPol_reg1 <= fullSpeedPolSTB; 
+    fullSpeedPol <= fullSpeedPol_reg1; 
+    fullSpeedRate_reg1 <= fullSpeedRateSTB;
+    fullSpeedRate <= fullSpeedRate_reg1;
+    transReq_reg1 <= transReqSTB;
+    transReq <= transReq_reg1;
+  end
+end
+
+//Extend  resumeIntIn etc from 1 tick to 3 ticks
+always @(posedge usbClk) begin
+  if (rstSyncToUsbClk == 1'b1) begin
+    resumeIntInExtend <= 3'b000;
+    transDoneInExtend <= 3'b000;
+    connEventInExtend <= 3'b000;
+    SOFSentInExtend <= 3'b000;
+    clrTransReqExtend <= 3'b000;
+  end
+  else begin
+    if (resumeIntIn == 1'b1)
+      resumeIntInExtend <= 3'b111;
+    else
+      resumeIntInExtend <= {1'b0, resumeIntInExtend[2:1]};
+    if (transDoneIn == 1'b1)
+      transDoneInExtend <= 3'b111;
+    else
+      transDoneInExtend <= {1'b0, transDoneInExtend[2:1]};
+    if (connEventIn == 1'b1)
+      connEventInExtend <= 3'b111;
+    else
+      connEventInExtend <= {1'b0, connEventInExtend[2:1]};
+    if (SOFSentIn == 1'b1)
+      SOFSentInExtend <= 3'b111;
+    else
+      SOFSentInExtend <= {1'b0, SOFSentInExtend[2:1]};
+    if (clrTransReq == 1'b1)
+      clrTransReqExtend <= 3'b111;
+    else
+      clrTransReqExtend <= {1'b0, clrTransReqExtend[2:1]};
   end
 end
 
 //re-sync from usbClk to busClk. Since 'clrTransReq', 'transDoneIn' etc are only asserted 
-//for one 'usbClk' tick, busClk freq must be greater than or equal to usbClk freq
+//for 3 'usbClk' ticks, busClk freq must be greater than or equal to usbClk/3 freq
 always @(posedge busClk) begin
-  frameNumInSTB <= frameNumIn;
-  RxPktStatusInSTB <= RxPktStatusIn;
-  RxPIDInSTB <= RxPIDIn;
-  connectStateInSTB <= connectStateIn;
-  SOFSentInSTB <= SOFSentIn;
-  connEventInSTB <= connEventIn;
-  resumeIntInSTB <= resumeIntIn;
-  transDoneInSTB <= transDoneIn;
-  clrTransReqSTB <= clrTransReq;
-  //FIXME. It is not safe to pass 'SOFTimer' multi-bit signal between clock domains this way
-  //All the other multi-bit signals will be static at the time that they are
-  //read, but 'SOFTimer' will not be static.
-  SOFTimerSTB <= SOFTimer; 
+  if (rstSyncToBusClk == 1'b1) begin
+    SOFSentInSTB <= 3'b000;
+    connEventInSTB <= 3'b000;
+    resumeIntInSTB <= 3'b000;
+    transDoneInSTB <= 3'b000;
+    clrTransReqSTB <= 3'b000;
+    frameNumInSTB <= {11{1'b0}};
+    frameNumInSTB_reg1 <= {11{1'b0}};
+    RxPktStatusInSTB <= 8'h00;
+    RxPktStatusInSTB_reg1 <= 8'h00;
+    RxPIDInSTB <= 4'h0;
+    RxPIDInSTB_reg1 <= 4'h0;
+    connectStateInSTB <= 2'b00;
+    connectStateInSTB_reg1 <= 2'b00;
+    SOFTimerSTB <= 16'h0000;
+    SOFTimerSTB_reg1 <= 16'h0000;
+  end
+  else begin
+    frameNumInSTB_reg1 <= frameNumIn;
+    frameNumInSTB <= frameNumInSTB_reg1;
+    RxPktStatusInSTB_reg1 <= RxPktStatusIn;
+    RxPktStatusInSTB <= RxPktStatusInSTB_reg1;
+    RxPIDInSTB_reg1 <= RxPIDIn;
+    RxPIDInSTB <= RxPIDInSTB_reg1;
+    connectStateInSTB_reg1 <= connectStateIn;
+    connectStateInSTB <= connectStateInSTB_reg1;
+    SOFSentInSTB <= {SOFSentInExtend[0], SOFSentInSTB[2:1]};
+    connEventInSTB <= {connEventInExtend[0], connEventInSTB[2:1]};
+    resumeIntInSTB <= {resumeIntInExtend[0], resumeIntInSTB[2:1]};
+    transDoneInSTB <= {transDoneInExtend[0], transDoneInSTB[2:1]};
+    clrTransReqSTB <= {clrTransReqExtend[0], clrTransReqSTB[2:1]};
+    //FIXME. It is not safe to pass 'SOFTimer' multi-bit signal between clock domains this way
+    //All the other multi-bit signals will be static at the time that they are
+    //read, but 'SOFTimer' will not be static.
+    SOFTimerSTB_reg1 <= SOFTimer; 
+    SOFTimerSTB <= SOFTimerSTB_reg1; 
+  end
 end
 
 

@@ -45,6 +45,24 @@ Release notes:
 //             Replaced individual timescale directives with `include "timescale.v
 //             Renamed top level Altera wrapper from 'usbHostSlaveWrap' to 
 //             'usbHostSlaveAvalonWrap'
+// Version 1.3 - March 22nd 2008. Fixed bug in 'readUSBWireData'. Added
+//             synchronizer to incoming USB wire data to avoid
+//             metastability, and delay hazards. Not entirely sure, but it appears that 
+//             this bug caused more problems with some of the newer low power FPGAs
+//             Maybe because they are more prone to problems with metastable
+//             inputs that feed logic functions causing excessive high speed
+//             toggle activity, and disrupting nearby cicuits.
+// Version 2.0 - June 16th 2008. Added two new top level modules which
+//             allow the instantiation of only host (usbHost.v), or only device
+//             features. Added double sync stages between usbClk, and busClk domains
+//             to fix possible metastability issues. Also modified synchronization to
+//             allow operation with busClk frequency less than usbClk frequency (down to
+//             24MHz). Integrated full support for USB PHY. Prior to this modification
+//             the user would need to instantiate a GPIO module to control USB speed,
+//             D+ and D- pull-up control, and VBUS detect. Fixed bug in bus interface wb_ack.
+//             Modified cross-clock synchronisation of fifo resets
+//             Added usbDevice, a standalone usb device implementation of usbhostslave
+//             no additional hardware or software required
 
  
 

@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/softransmit.v
-// Generated   : 10/15/06 20:31:20
+// Generated   : 11/10/06 05:37:21
 // From        : ../RTL/hostController/softransmit.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 

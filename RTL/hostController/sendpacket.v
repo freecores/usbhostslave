@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/sendpacket.v
-// Generated   : 10/15/06 20:31:19
+// Generated   : 11/10/06 05:37:20
 // From        : ../RTL/hostController/sendpacket.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 

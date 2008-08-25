@@ -1,9 +1,4 @@
 
-// File        : ../RTL/hostController/hostcontroller.v
-// Generated   : 10/15/06 20:31:18
-// From        : ../RTL/hostController/hostcontroller.asf
-// By          : FSM2VHDL ver. 5.0.0.9
-
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
 //// hostController
@@ -85,6 +80,9 @@ reg     transDone, next_transDone;
 wire    transReq;
 wire    [1:0] transType;
 
+// diagram signals declarations
+reg  [3:0]delCnt, next_delCnt;
+
 // BINARY ENCODED state machine: hstCntrl
 // State codes definitions:
 `define START_HC 6'b000000
@@ -120,8 +118,6 @@ wire    [1:0] transType;
 `define OUT1_CLR_WEN1 6'b011110
 `define OUT1_CLR_WEN2 6'b011111
 `define OUT0_CHK_ISO 6'b100000
-`define DEL1 6'b100001
-`define DEL2 6'b100010
 
 reg [5:0] CurrState_hstCntrl;
 reg [5:0] NextState_hstCntrl;
@@ -133,17 +129,18 @@ reg [5:0] NextState_hstCntrl;
 //----------------------------------
 // Next State Logic (combinatorial)
 //----------------------------------
-always @ (transReq or transType or sendPacketArbiterGnt or getPacketRdy or sendPacketRdy or isoEn or RXStatus or sendPacketArbiterReq or transDone or clearTXReq or sendPacketWEn or getPacketREn or sendPacketPID or CurrState_hstCntrl)
+always @ (delCnt or transReq or transType or sendPacketArbiterGnt or getPacketRdy or sendPacketRdy or isoEn or RXStatus or sendPacketArbiterReq or transDone or clearTXReq or sendPacketWEn or getPacketREn or sendPacketPID or CurrState_hstCntrl)
 begin : hstCntrl_NextState
   NextState_hstCntrl <= CurrState_hstCntrl;
   // Set default values for outputs and signals
   next_sendPacketArbiterReq <= sendPacketArbiterReq;
   next_transDone <= transDone;
   next_clearTXReq <= clearTXReq;
+  next_delCnt <= delCnt;
   next_sendPacketWEn <= sendPacketWEn;
   next_getPacketREn <= getPacketREn;
   next_sendPacketPID <= sendPacketPID;
-  case (CurrState_hstCntrl)
+  case (CurrState_hstCntrl) // synopsys parallel_case full_case
     `START_HC:
       NextState_hstCntrl <= `TX_REQ;
     `TX_REQ:
@@ -166,22 +163,21 @@ begin : hstCntrl_NextState
       next_transDone <= 1'b1;
       next_clearTXReq <= 1'b1;
       next_sendPacketArbiterReq <= 1'b0;
+      next_delCnt <= 4'h0;
       NextState_hstCntrl <= `FIN;
     end
     `FIN:
     begin
       next_clearTXReq <= 1'b0;
       next_transDone <= 1'b0;
+      next_delCnt <= delCnt + 1'b1;
       //now wait for 'transReq' to clear
-      NextState_hstCntrl <= `DEL1;
+      if (delCnt == 4'hf)	
+        NextState_hstCntrl <= `TX_REQ;
     end
     `WAIT_GNT:
       if (sendPacketArbiterGnt == 1'b1)	
         NextState_hstCntrl <= `CHK_TYPE;
-    `DEL1:
-      NextState_hstCntrl <= `DEL2;
-    `DEL2:
-      NextState_hstCntrl <= `TX_REQ;
     `SETUP_CLR_SP_WEN1:
     begin
       next_sendPacketWEn <= 1'b0;
@@ -367,6 +363,7 @@ always @ (posedge clk)
 begin : hstCntrl_RegOutput
   if (rst)	
   begin
+    delCnt <= 4'h0;
     transDone <= 1'b0;
     clearTXReq <= 1'b0;
     getPacketREn <= 1'b0;
@@ -376,6 +373,7 @@ begin : hstCntrl_RegOutput
   end
   else 
   begin
+    delCnt <= next_delCnt;
     transDone <= next_transDone;
     clearTXReq <= next_clearTXReq;
     getPacketREn <= next_getPacketREn;

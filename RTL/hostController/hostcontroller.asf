@@ -1,58 +1,58 @@
-VERSION=1.15
+VERSION=1.21
 HEADER
 FILE="hostcontroller.asf"
 FID=403fbdc7
 LANGUAGE=VERILOG
 ENTITY="hostcontroller"
-FRAMES=ON
-FREEOID=455
+FREEOID=459
 "LIBRARIES=//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// hostController\n////                                                              ////\n//// This file is part of the usbhostslave opencores effort.\n//// http://www.opencores.org/cores/usbhostslave/                 ////\n////                                                              ////\n//// Module Description:                                          ////\n//// \n////                                                              ////\n//// To Do:                                                       ////\n//// \n////                                                              ////\n//// Author(s):                                                   ////\n//// - Steve Fielding, sfielding@base2designs.com                 ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////\n////                                                              ////\n//// This source file may be used and distributed without         ////\n//// restriction provided that this copyright statement is not    ////\n//// removed from the file and that any derivative work contains  ////\n//// the original copyright notice and the associated disclaimer. ////\n////                                                              ////\n//// This source file is free software; you can redistribute it   ////\n//// and/or modify it under the terms of the GNU Lesser General   ////\n//// Public License as published by the Free Software Foundation; ////\n//// either version 2.1 of the License, or (at your option) any   ////\n//// later version.                                               ////\n////                                                              ////\n//// This source is distributed in the hope that it will be       ////\n//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////\n//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////\n//// PURPOSE. See the GNU Lesser General Public License for more  ////\n//// details.                                                     ////\n////                                                              ////\n//// You should have received a copy of the GNU Lesser General    ////\n//// Public License along with this source; if not, download it   ////\n//// from http://www.opencores.org/lgpl.shtml                     ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n//\n`include \"timescale.v\"\n`include \"usbHostControl_h.v\"\n`include \"usbConstants_h.v\"\n\n"
+MULTIPLEARCHSTATUS=FALSE
+SYNTHESISATTRIBUTES=TRUE
+HEADER_PARAM="AUTHOR,"
+HEADER_PARAM="COMPANY,"
+HEADER_PARAM="CREATIONDATE,"
+HEADER_PARAM="TITLE,No Title"
+BLOCKTABLE_FILE=""
+BLOCKTABLE_TEMPL="0"
+BLOCKTABLE_VISIBLE="1"
 END
 BUNDLES
-B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
-B T "Conditions" 0,0,0 0 0 0 255,255,255 0 3333 0 0110 1  "Arial" 0
-B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0  "Arial" 0
-B T "Actions" 0,0,0 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
-B T "Labels" 0,0,0 0 0 0 255,255,255 0 3333 0 0000 1  "Arial" 0
-B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0  "Arial" 0
-B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0  "Arial" 0
-B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
-B T "State Labels" 0,0,0 0 0 0 255,255,255 0 3333 0 0000 1  "Arial" 4
-B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0  "Arial" 0
-B T "Comments" 157,157,157 0 0 1 255,255,255 0 3333 0 0000 0  "Arial" 0
-B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
-B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0  "Arial" 0
-B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0  "Arial" 0
+B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3125 0 0000 0 "Arial" 0
+B T "Conditions" 236,0,236 0 0 0 255,255,255 0 3125 0 0110 0 "Arial" 0
+B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0 "Arial" 0
+B T "Actions" 0,0,0 0 0 1 255,255,255 0 3125 0 0000 0 "Arial" 0
+B T "Labels" 0,0,0 0 0 0 255,255,255 0 3125 0 0000 0 "Arial" 0
+B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0 "Arial" 0
+B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0 "Arial" 0
+B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0 "Arial" 0
+B T "State Labels" 0,0,0 0 0 0 255,255,255 0 3125 0 0000 0 "Arial" 4
+B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0 "Arial" 0
+B T "Comments" 157,157,157 0 0 1 255,255,255 0 3125 0 0000 0 "Arial" 0
+B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0 "Arial" 0
+B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0 "Arial" 0
+B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0 "Arial" 0
+B T "Alias" 0,128,0 0 0 1 255,255,255 0 3527 1480 0000 0 "Arial" 0
+B F "Delay" 0,0,0 0 0 1 180,180,180 1 3527 1480 0000 0 "Arial" 0
 END
 INSTHEADER 1
-PAGE 25400,0 215900,279400
-UPPERLEFT 0,0
-GRID=OFF
-GRIDSIZE 5000,5000 10000,10000
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,0
 END
 INSTHEADER 45
-PAGE 25400,0 215900,279400
-UPPERLEFT 0,0
-GRID=OFF
-GRIDSIZE 0,0 10000,10000
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,0
 END
 INSTHEADER 47
-PAGE 25400,0 215900,279400
-UPPERLEFT 0,0
-GRID=OFF
-GRIDSIZE 0,0 10000,10000
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,0
 END
 INSTHEADER 49
-PAGE 25400,0 215900,279400
-UPPERLEFT 0,0
-GRID=OFF
-GRIDSIZE 0,0 10000,10000
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,0
 END
 INSTHEADER 51
-PAGE 25400,0 215900,279400
-UPPERLEFT 0,0
-GRID=OFF
-GRIDSIZE 0,0 10000,10000
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,0
 END
 OBJECTS
 C 285 97 0 TEXT "Conditions" | 92604,187877 1 0 0 "rst"
@@ -66,20 +66,20 @@ L 272 271 0 TEXT "Labels" | 156136,213642 1 0 0 "getPacketREn"
 S 15 6 0 ELLIPSE "States" | 111713,189976 6500 6500
 L 14 15 0 TEXT "State Labels" | 111713,189976 1 0 0 "START_HC\n/0/"
 L 7 6 0 TEXT "Labels" | 30788,196844 1 0 0 "hstCntrl"
-F 6 0 671089152 282 0 RECT 0,0,0 0 0 1 255,255,255 0 | 28400,3000 212900,202584
-G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0  "Arial" 0 | 110650,251000 1 0 0 "Module: hostcontroller"
+F 6 0 671089152 282 0 "" 0 RECT 0,0,0 0 0 1 255,255,255 0 | 28400,3000 212900,202584
+G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0 "Arial" 0 | 110650,251000 1 0 0 "Module: hostcontroller"
 L 303 304 0 TEXT "State Labels" | 192420,160790 1 0 0 "WAIT_GNT\n/10/"
 A 302 83 16 TEXT "Actions" | 127391,163104 1 0 0 "sendPacketArbiterReq <= 1'b1;"
 L 301 300 0 TEXT "Labels" | 38804,222186 1 0 0 "sendPacketRdy"
 I 300 0 130 Builtin InPort | 31274,222492 "" ""
 L 299 298 0 TEXT "Labels" | 34751,217674 1 0 0 "sendPacketWEn"
 I 298 0 2 Builtin OutPort | 29102,217674 "" ""
-A 296 294 4 TEXT "Actions" | 137744,29936 1 0 0 "clearTXReq <= 1'b0;\ntransDone <= 1'b0;\n//now wait for 'transReq' to clear"
+A 296 294 4 TEXT "Actions" | 137744,29936 1 0 0 "clearTXReq <= 1'b0;\ntransDone <= 1'b0;\ndelCnt <= delCnt + 1'b1;\n//now wait for 'transReq' to clear"
 W 295 6 0 81 294 BEZIER "Transitions" | 118859,46885 118878,43940 119066,38166 119085,35221
 S 294 6 53248 ELLIPSE "States" | 119561,28750 6500 6500
 L 293 294 0 TEXT "State Labels" | 119561,28750 1 0 0 "FIN\n/9/"
-A 291 81 4 TEXT "Actions" | 137367,55613 1 0 0 "transDone <= 1'b1;\nclearTXReq <= 1'b1;\nsendPacketArbiterReq <= 1'b0;"
-A 288 15 2 TEXT "Actions" | 133652,198047 1 0 0 "transDone <= 1'b0;\nclearTXReq <= 1'b0;\ngetPacketREn <= 1'b0;\nsendPacketArbiterReq <= 1'b0;\nsendPacketPID <= 4'b0;\nsendPacketWEn <= 1'b0;"
+A 291 81 4 TEXT "Actions" | 137367,55613 1 0 0 "transDone <= 1'b1;\nclearTXReq <= 1'b1;\nsendPacketArbiterReq <= 1'b0;\ndelCnt <= 4'h0;"
+A 288 15 2 TEXT "Actions" | 133652,198047 1 0 0 "transDone <= 1'b0;\nclearTXReq <= 1'b0;\ngetPacketREn <= 1'b0;\nsendPacketArbiterReq <= 1'b0;\nsendPacketPID <= 4'b0;\nsendPacketWEn <= 1'b0;\ndelCnt <= 4'h0;"
 S 319 59 65536 ELLIPSE "States" | 151472,194918 6500 6500
 L 318 319 0 TEXT "State Labels" | 151472,194918 1 0 0 "WAIT_IN_SENT\n/12/"
 A 311 308 4 TEXT "Actions" | 123760,87560 1 0 0 "getPacketREn <= 1'b0;"
@@ -264,16 +264,13 @@ S 166 59 40960 ELLIPSE "States" | 172827,39140 6500 6500
 W 167 59 2 152 385 BEZIER "Transitions" | 90058,101832 121384,93858 152710,85883 184036,77909
 W 169 59 0 166 410 BEZIER "Transitions" | 166354,39725 153254,40876 140152,42028 127052,43179
 C 171 167 0 TEXT "Conditions" | 127655,112448 1 0 0 "RXStatus [`HC_CRC_ERROR_BIT] == 1'b0 &&\nRXStatus [`HC_BIT_STUFF_ERROR_BIT] == 1'b0 &&\nRXStatus [`HC_RX_OVERFLOW_BIT] == 1'b0 &&\nRXStatus [`HC_NAK_RXED_BIT] == 1'b0 &&\nRXStatus [`HC_STALL_RXED_BIT] == 1'b0 &&\nRXStatus [`HC_RX_TIME_OUT_BIT] == 1'b0"
-L 445 446 0 TEXT "State Labels" | 91983,29847 1 0 0 "DEL1\n/33/"
-S 446 6 151552 ELLIPSE "States" | 91983,29847 6500 6500
-L 447 448 0 TEXT "State Labels" | 71118,38835 1 0 0 "DEL2\n/34/"
-S 448 6 155648 ELLIPSE "States" | 71118,38835 6500 6500
-W 451 6 0 294 446 BEZIER "Transitions" | 113064,28940 108490,29421 103055,29490 98481,29971
-W 452 6 0 446 448 BEZIER "Transitions" | 86012,32413 83123,33616 79949,35000 77060,36203
-W 454 6 0 448 41 BEZIER "Transitions" | 67046,43901 63355,51524 38215,83856 36770,94047\
-                                        35326,104238 36932,129759 42870,138987 48808,148215\
-                                        70958,159612 79745,162701 88532,165790 99731,166612\
-                                        106231,167093
+W 455 6 0 294 41 BEZIER "Transitions" | 113108,29526 99069,31142 72011,34324 62012,39273\
+                                        52013,44222 40095,60786 37368,72855 34641,84925\
+                                        35651,116639 37115,130223 38580,143808 43428,166432\
+                                        52518,171128 61608,175825 90617,170916 106373,168997
+L 456 457 0 TEXT "Labels" | 190656,222568 1 0 0 "delCnt[3:0]"
+I 457 0 130 Builtin Signal | 187656,222568 "" ""
+C 458 455 0 TEXT "Conditions" | 77768,36546 1 0 0 "delCnt == 4'hf"
 A 192 108 4 TEXT "Actions" | 170431,157698 1 0 0 "sendPacketWEn <= 1'b0;"
 S 213 66 77824 ELLIPSE "States" | 93236,213619 6500 6500
 L 214 213 0 TEXT "State Labels" | 93236,213619 1 0 0 "WAIT_OUT_SENT\n/15/"

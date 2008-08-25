@@ -1,6 +1,6 @@
 
 // File        : ../RTL/hostController/directcontrol.v
-// Generated   : 10/15/06 20:31:18
+// Generated   : 11/10/06 05:37:19
 // From        : ../RTL/hostController/directcontrol.asf
 // By          : FSM2VHDL ver. 5.0.0.9
 

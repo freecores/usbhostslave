@@ -57,6 +57,7 @@ module usbHostSlave(
   hostConnEventIntOut, 
   hostResumeIntOut, 
   hostTransDoneIntOut,
+  slaveVBusDetIntOut,
   slaveNAKSentIntOut,
   slaveSOFRxedIntOut, 
   slaveResetEventIntOut, 
@@ -67,7 +68,10 @@ module usbHostSlave(
   USBWireDataOut,
   USBWireDataOutTick,
   USBWireCtrlOut,
-  USBFullSpeed
+  USBFullSpeed,
+  USBDPlusPullup,
+  USBDMinusPullup,
+  vBusDetect
    );
   parameter HOST_FIFO_DEPTH = 64; //HOST_FIFO_DEPTH = HOST_ADDR_WIDTH^2
   parameter HOST_FIFO_ADDR_WIDTH = 6;   
@@ -80,7 +84,7 @@ module usbHostSlave(
   parameter EP3_FIFO_DEPTH = 64; 
   parameter EP3_FIFO_ADDR_WIDTH = 6;   
 
-input clk_i;               //Wishbone bus clock. Maximum 5*usbClk=240MHz
+input clk_i;               //Wishbone bus clock. Min = usbClk/2 = 24MHz. Max 5*usbClk=240MHz
 input rst_i;               //Wishbone bus sync reset. Synchronous to 'clk_i'. Resets all logic
 input [7:0] address_i;     //Wishbone bus address in
 input [7:0] data_i;        //Wishbone bus data in
@@ -98,12 +102,16 @@ output slaveResetEventIntOut;
 output slaveResumeIntOut; 
 output slaveTransDoneIntOut;
 output slaveNAKSentIntOut;
+output slaveVBusDetIntOut;
 input [1:0] USBWireDataIn;
 output [1:0] USBWireDataOut;
 output USBWireDataOutTick;
 output USBWireDataInTick;
 output USBWireCtrlOut;
 output USBFullSpeed;
+output USBDPlusPullup;
+output USBDMinusPullup;
+input vBusDetect;
 
 wire clk_i;
 wire rst_i;
@@ -123,12 +131,16 @@ wire slaveResetEventIntOut;
 wire slaveResumeIntOut; 
 wire slaveTransDoneIntOut;
 wire slaveNAKSentIntOut;
+wire slaveVBusDetIntOut;
 wire [1:0] USBWireDataIn;
 wire [1:0] USBWireDataOut;
 wire USBWireDataOutTick;
 wire USBWireDataInTick;
 wire USBWireCtrlOut;
 wire USBFullSpeed;
+wire USBDPlusPullup;
+wire USBDMinusPullup;
+wire vBusDetect;
 
 //internal wiring
 wire hostControlSel;
@@ -211,8 +223,11 @@ wire rstSyncToUsbClk;
 wire noActivityTimeOutEnableToSIE;
 wire noActivityTimeOutEnableFromHost;
 wire noActivityTimeOutEnableFromSlave;
+wire connectSlaveToHost;
 
 assign USBFullSpeed = fullSpeedBitRateToSIE;  
+assign USBDPlusPullup = (USBFullSpeed & connectSlaveToHost);
+assign USBDMinusPullup = (~USBFullSpeed & connectSlaveToHost);
 
 usbHostControl u_usbHostControl(
   .busClk(clk_i), 
@@ -261,12 +276,14 @@ usbSlaveControl u_usbSlaveControl(
   .SIERxTimeOut(noActivityTimeOut), 
   .SIERxTimeOutEn(noActivityTimeOutEnableFromSlave),
   .RxFifoData(slaveRxFifoData),
+  .connectSlaveToHost(connectSlaveToHost),
   .fullSpeedRate(fullSpeedBitRateFromSlave), 
   .fullSpeedPol(fullSpeedPolarityFromSlave),
   .SCTxPortEn(SIEPortWEnFromSlave), 
   .SCTxPortRdy(SIEPortTxRdy),
   .SCTxPortData(SIEPortDataInFromSlave), 
   .SCTxPortCtrl(SIEPortCtrlInFromSlave),
+  .vBusDetect(vBusDetect),
   .connectStateIn(connectState), 
   .resumeDetectedIn(resumeDetected),
   .busAddress(address_i[4:0]),
@@ -279,6 +296,7 @@ usbSlaveControl u_usbSlaveControl(
   .resumeIntOut(slaveResumeIntOut), 
   .transDoneIntOut(slaveTransDoneIntOut),
   .NAKSentIntOut(slaveNAKSentIntOut),
+  .vBusDetIntOut(slaveVBusDetIntOut),
   .slaveControlSelect(slaveControlSel),
   .TxFifoEP0REn(TxFifoEP0REn),
   .TxFifoEP1REn(TxFifoEP1REn),

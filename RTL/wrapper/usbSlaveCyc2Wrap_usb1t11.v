@@ -1,15 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-//// usbDevice.v                                                 ////
+//// usbSlaveCyc2Wrap_usb1t11.v                                           ////
 ////                                                              ////
-//// This file is part of the usbHostSlave opencores effort.
+//// This file is part of the usbhostslave opencores effort.
 //// <http://www.opencores.org/cores//>                           ////
 ////                                                              ////
 //// Module Description:                                          ////
-//// Top level module for usbDevice
-//// Instantiates a usbSlave, and controllers for EP0 and EP1
-//// If you wish to implement another type of HID, then you will
-//// need to modify usbROM.v, and EP1Mouse.v
+////   Top level module wrapper. 
 ////                                                              ////
 //// To Do:                                                       ////
 //// 
@@ -44,66 +41,81 @@
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 //
+`include "timescale.v"
 
-module usbDevice (
-  clk,
-  rst,
-  usbSlaveVP_in,
-  usbSlaveVM_in,
-  usbSlaveVP_out,
-  usbSlaveVM_out,
-  usbSlaveOE_n,
+
+module usbSlaveCyc2Wrap_usb1t11(
+  clk_i, 
+  rst_i,
+  address_i, 
+  data_i, 
+  data_o, 
+  we_i, 
+  strobe_i,
+  ack_o,
+  irq, 
+  usbClk,
+  USBWireVPin,
+  USBWireVMin,
+  USBWireVPout,
+  USBWireVMout,
+  USBWireOE_n,
   USBFullSpeed,
-  usbDPlusPullup,
-  usbDMinusPullup,
+  USBDPlusPullup,
+  USBDMinusPullup,
   vBusDetect
-);
+   );
 
-input clk;
-input rst;
-input usbSlaveVP_in;
-input usbSlaveVM_in;
-output usbSlaveVP_out;
-output usbSlaveVM_out;
-output usbSlaveOE_n;
-output USBFullSpeed;
-output usbDPlusPullup;
-output usbDMinusPullup;
+input clk_i;
+input rst_i;
+input [7:0] address_i; 
+input [7:0] data_i; 
+output [7:0] data_o; 
+input we_i; 
+input strobe_i;
+output ack_o;
+output irq; 
+input usbClk;
+input USBWireVPin /* synthesis useioff=1 */;
+input USBWireVMin /* synthesis useioff=1 */;
+output USBWireVPout /* synthesis useioff=1 */;
+output USBWireVMout /* synthesis useioff=1 */;
+output USBWireOE_n /* synthesis useioff=1 */;
+output USBFullSpeed /* synthesis useioff=1 */;
+output USBDPlusPullup;
+output USBDMinusPullup;
 input vBusDetect;
 
-//local wires and regs
-wire [7:0] wb_addr0;
-wire wb_stb0;
-wire wb_we0;
-wire wbBusReq0;
-wire wbBusGnt0;
-wire [7:0] wb_addr1;
-wire [7:0] wb_data_o1;
-wire wb_stb1;
-wire wb_we1;
-wire wbBusReq1;
-wire wbBusGnt1;
-wire [7:0] wb_addr2;
-wire [7:0] wb_data_o2;
-wire wb_stb2;
-wire wb_we2;
-wire wbBusReq2;
-wire wbBusGnt2;
-wire [7:0] wb_adr;
-wire [7:0] wb_dat_to_usb;
-wire [7:0] wb_dat_from_usb;
-wire wb_we;
-wire wb_stb;
-wire wb_ack;
-reg [1:0] resetReg;
-wire initComplete;
-wire usbRstDet;
-wire [7:0] memAddr;
-wire [7:0] memData;
+wire clk_i;
+wire rst_i;
+wire [7:0] address_i; 
+wire [7:0] data_i; 
+wire [7:0] data_o; 
+wire irq;
+wire usbClk;
+wire USBWireDataOutTick;
+wire USBWireDataInTick;
+wire USBFullSpeed;
+
+//internal wiring 
+wire slaveSOFRxedIntOut; 
+wire slaveResetEventIntOut; 
+wire slaveResumeIntOut; 
+wire slaveTransDoneIntOut;
+wire slaveNAKSentIntOut;
+wire slaveVBusDetIntOut;
 wire USBWireCtrlOut;
 wire [1:0] USBWireDataIn;
 wire [1:0] USBWireDataOut;
 
+
+assign irq = slaveSOFRxedIntOut | slaveResetEventIntOut |
+             slaveResumeIntOut | slaveTransDoneIntOut |
+             slaveNAKSentIntOut | slaveVBusDetIntOut;
+
+assign USBWireDataIn = {USBWireVPin, USBWireVMin};
+assign {USBWireVPout, USBWireVMout} = USBWireDataOut;
+assign USBWireOE_n = ~USBWireCtrlOut;
 
 //Parameters declaration: 
 defparam usbSlaveInst.EP0_FIFO_DEPTH = 64;
@@ -115,121 +127,38 @@ defparam usbSlaveInst.EP2_FIFO_ADDR_WIDTH = 6;
 defparam usbSlaveInst.EP3_FIFO_DEPTH = 64;
 defparam usbSlaveInst.EP3_FIFO_ADDR_WIDTH = 6;
 usbSlave usbSlaveInst (
-  .clk_i(clk),
-  .rst_i(rst),
-  .address_i(wb_adr),
-  .data_i(wb_dat_to_usb),
-  .data_o(wb_dat_from_usb),
-  .we_i(wb_we),
-  .strobe_i(wb_stb),
-  .ack_o(wb_ack),
-  .usbClk(clk),
-  .slaveSOFRxedIntOut(),
-  .slaveResetEventIntOut(),
-  .slaveResumeIntOut(),
-  .slaveTransDoneIntOut(),
-  .slaveNAKSentIntOut(),
-  .slaveVBusDetIntOut(),
+  .clk_i(clk_i),
+  .rst_i(rst_i),
+  .address_i(address_i),
+  .data_i(data_i),
+  .data_o(data_o),
+  .we_i(we_i),
+  .strobe_i(strobe_i),
+  .ack_o(ack_o),
+  .usbClk(usbClk),
+  .slaveSOFRxedIntOut(slaveSOFRxedIntOut),
+  .slaveResetEventIntOut(slaveResetEventIntOut),
+  .slaveResumeIntOut(slaveResumeIntOut),
+  .slaveTransDoneIntOut(slaveTransDoneIntOut),
+  .slaveNAKSentIntOut(slaveNAKSentIntOut),
+  .slaveVBusDetIntOut(slaveVBusDetIntOut),
   .USBWireDataIn(USBWireDataIn),
-  .USBWireDataInTick(),
+  .USBWireDataInTick(USBWireDataInTick),
   .USBWireDataOut(USBWireDataOut),
-  .USBWireDataOutTick(),
+  .USBWireDataOutTick(USBWireDataOutTick),
   .USBWireCtrlOut(USBWireCtrlOut),
   .USBFullSpeed(USBFullSpeed),
-  .USBDPlusPullup(usbDPlusPullup),
-  .USBDMinusPullup(usbDMinusPullup),
+  .USBDPlusPullup(USBDPlusPullup),
+  .USBDMinusPullup(USBDMinusPullup),
   .vBusDetect(vBusDetect)
-);
-
-assign USBWireDataIn = {usbSlaveVP_in, usbSlaveVM_in};
-assign {usbSlaveVP_out, usbSlaveVM_out} = USBWireDataOut;
-assign usbSlaveOE_n = ~USBWireCtrlOut;
-
-checkLineState u_checkLineState (
-  .clk(clk),
-  .rst(rst),
-  .initComplete(initComplete),
-  .usbRstDet(usbRstDet),
-  .wb_ack(wb_ack),
-  .wb_addr(wb_addr0),
-  .wb_data_i(wb_dat_from_usb),
-  .wb_stb(wb_stb0),
-  .wb_we(wb_we0),
-  .wbBusGnt(wbBusGnt0),
-  .wbBusReq(wbBusReq0)
-);
-
-
-EP0 u_EP0 (
-  .clk(clk), 
-  .rst(rst | usbRstDet),
-  .initComplete(initComplete),
-  .wb_ack(wb_ack),
-  .wb_addr(wb_addr1),
-  .wb_data_i(wb_dat_from_usb),
-  .wb_data_o(wb_data_o1),
-  .wb_stb(wb_stb1),
-  .wb_we(wb_we1),
-  .wbBusGnt(wbBusGnt1),
-  .wbBusReq(wbBusReq1),
-  .memAddr(memAddr),
-  .memData(memData),
-  .memRdEn()
-);
-
-usbROM u_usbROM (
-  .clk(clk),
-  .addr(memAddr),
-  .data(memData)
-);
-
-
-EP1Mouse u_EP1Mouse (
-  .clk(clk),
-  .rst(rst | usbRstDet),
-  .initComplete(initComplete),
-  .wb_ack(wb_ack),
-  .wb_addr(wb_addr2),
-  .wb_data_i(wb_dat_from_usb),
-  .wb_data_o(wb_data_o2),
-  .wb_stb(wb_stb2),
-  .wb_we(wb_we2),
-  .wbBusGnt(wbBusGnt2),
-  .wbBusReq(wbBusReq2)
-);
-
-wishboneArb u_wishboneArb (
-  .clk(clk),
-  .rst(rst),
-
-  .addr0_i(wb_addr0),
-  .data0_i(8'h00),
-  .stb0_i(wb_stb0),
-  .we0_i(wb_we0),
-  .req0(wbBusReq0),
-  .gnt0(wbBusGnt0),
-
-  .addr1_i(wb_addr1),
-  .data1_i(wb_data_o1),
-  .stb1_i(wb_stb1),
-  .we1_i(wb_we1),
-  .req1(wbBusReq1),
-  .gnt1(wbBusGnt1),
-
-  .addr2_i(wb_addr2),
-  .data2_i(wb_data_o2),
-  .stb2_i(wb_stb2),
-  .we2_i(wb_we2),
-  .req2(wbBusReq2),
-  .gnt2(wbBusGnt2),
-
-
-  .addr_o(wb_adr),
-  .data_o(wb_dat_to_usb),
-  .stb_o(wb_stb),
-  .we_o(wb_we)
 );
 
 
 endmodule
+
+  
+  
+
+
+
 

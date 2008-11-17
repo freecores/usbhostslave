@@ -74,12 +74,57 @@ set_location_assignment PIN_47 -to spiClk
 set_location_assignment PIN_20 -to spiMasterDataOut
 set_location_assignment PIN_44 -to spiCS_n
 
-set_location_assignment PIN_18 -to usbHostOE_n
-set_location_assignment PIN_8 -to usbSlaveVP
-set_location_assignment PIN_7 -to usbSlaveVM
-set_location_assignment PIN_9 -to usbSlaveOE_n
-set_location_assignment PIN_13 -to usbDPlusPullup
-set_location_assignment PIN_4 -to vBusDetect
+#set_location_assignment PIN_18 -to usbHostOE_n
+#set_location_assignment PIN_8 -to usbSlaveVP
+#set_location_assignment PIN_7 -to usbSlaveVM
+#set_location_assignment PIN_9 -to usbSlaveOE_n
+#set_location_assignment PIN_13 -to usbDPlusPullup
+#set_location_assignment PIN_4 -to vBusDetect
+
+# Santa Cruz Connector
+set_location_assignment PIN_16 -to SC_P_CLK
+set_location_assignment PIN_15 -to SC_PCS_N
+set_location_assignment PIN_188 -to SC_RST_N
+set_location_assignment PIN_191 -to SC_P0
+set_location_assignment PIN_189 -to SC_P1
+set_location_assignment PIN_194 -to SC_P2
+set_location_assignment PIN_192 -to SC_P3
+set_location_assignment PIN_199 -to SC_P4
+set_location_assignment PIN_197 -to SC_P5
+set_location_assignment PIN_208 -to SC_P6
+set_location_assignment PIN_203 -to SC_P7
+set_location_assignment PIN_218 -to SC_P8
+set_location_assignment PIN_216 -to SC_P9
+set_location_assignment PIN_226 -to SC_P10
+set_location_assignment PIN_223 -to SC_P11
+set_location_assignment PIN_231 -to SC_P12
+set_location_assignment PIN_230 -to SC_P13
+set_location_assignment PIN_234 -to SC_P14
+set_location_assignment PIN_233 -to SC_P15
+set_location_assignment PIN_236 -to SC_P16
+set_location_assignment PIN_237 -to SC_P17
+set_location_assignment PIN_238 -to SC_P18
+set_location_assignment PIN_5 -to SC_P19
+set_location_assignment PIN_4 -to SC_P20
+set_location_assignment PIN_6 -to SC_P21
+set_location_assignment PIN_7 -to SC_P22
+set_location_assignment PIN_8 -to SC_P23
+set_location_assignment PIN_9 -to SC_P24
+set_location_assignment PIN_11 -to SC_P25
+set_location_assignment PIN_13 -to SC_P26
+set_location_assignment PIN_14 -to SC_P27
+set_location_assignment PIN_18 -to SC_P28
+set_location_assignment PIN_184 -to SC_P29
+set_location_assignment PIN_185 -to SC_P30
+set_location_assignment PIN_186 -to SC_P31
+set_location_assignment PIN_187 -to SC_P32
+set_location_assignment PIN_195 -to SC_P33
+set_location_assignment PIN_200 -to SC_P34
+set_location_assignment PIN_214 -to SC_P35
+set_location_assignment PIN_222 -to SC_P36
+set_location_assignment PIN_228 -to SC_P37
+set_location_assignment PIN_232 -to SC_P38
+set_location_assignment PIN_235 -to SC_P39
 
 
 

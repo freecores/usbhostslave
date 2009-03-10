@@ -1,0 +1,13 @@
+body   { color: #000000; background-color: #FFFFFF }
+pre    { font-family: Courier New, monospace; font-size: 10pt; }
+#t_com { color: #008000; font-style: italic; }
+#t_kwd { color: #0000FF; }
+#t_cns { color: #848484; }
+#t_idt { }
+#t_msb { }
+#t_dir { color: #6B6D9C; }
+#t_sdt { font-weight: bold; }
+#t_sdv { }
+#t_sdf { }
+#t_sys { color: #6B6D9C; }
+

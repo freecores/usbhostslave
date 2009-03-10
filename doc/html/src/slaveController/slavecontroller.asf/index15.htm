@@ -1,0 +1,31 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+	<title></title>
+	<meta name="GENERATOR" content="Aldec.FSM">
+	<meta name="ProgId" content="Aldec.FSM">
+</head>
+
+<script>
+	var m_tools = 0;
+	var m_schem = 0;
+	function ToolsOn() {m_tools=1;StartIt();}
+	function SchemOn() {m_schem=1;StartIt();}
+	function Plugged() {return (m_tools==1 && m_schem==1)?1:0;}
+	function StartIt() {if(Plugged()) frames["tools"].Init();}
+	function Mapper(MouseX,MouseY) {if(Plugged())frames["tools"].Mapper(MouseX,MouseY);}
+	function MapperOver(MouseX,MouseY) {if(Plugged())frames["tools"].MapperOver(MouseX,MouseY);}
+</script>
+
+<frameset rows="22,*" border="0" frameborder="0" framespacing="0" title="FSM">
+	<frame name="tools" scrolling="no" noresize="noresize" src="./toolbar15.html" marginwidth="0" marginheight="0">
+	<frame name="xschem" scrolling="auto" noresize="resize" src="./diagram15.html" marginwidth="0" marginheight="0">
+	<noframes>
+		<body>
+			<p>This page uses frames, but your browser doesn't support them. <br></p>
+		</body>
+	</noframes>
+</frameset>
+
+</html>

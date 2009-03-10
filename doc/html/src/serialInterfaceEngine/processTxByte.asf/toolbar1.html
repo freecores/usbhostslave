@@ -1,0 +1,51 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 2;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(330,1478,432,1580,Click874,Over874);
+FUB[1] = new Array(342,1793,444,1895,Click887,Over887);
+
+//----------------------------------------------------------------------------
+function Click874(){fubclick('./index874.htm');}
+function Over874(){window.status='Hierarchical State SEND_BYTE';};
+function Click887(){fubclick('./index887.htm');}
+function Over887(){window.status='Hierarchical State STOP';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./processTxByte.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./processTxByte.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

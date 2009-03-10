@@ -1,0 +1,528 @@
+<html>
+<head>
+<title>usbHostSlave.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbHostSlave.v                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>////   Top level module</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:45 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>usbHostSlave</span>(
+  <span id=t_idt>clk</span>, 
+  <span id=t_idt>rst</span>,
+  <span id=t_idt>address_i</span>, 
+  <span id=t_idt>data_i</span>, 
+  <span id=t_idt>data_o</span>, 
+  <span id=t_idt>writeEn</span>, 
+  <span id=t_idt>strobe_i</span>,
+  <span id=t_idt>ack_o</span>,
+  <span id=t_idt>hostSOFSentIntOut</span>, 
+  <span id=t_idt>hostConnEventIntOut</span>, 
+  <span id=t_idt>hostResumeIntOut</span>, 
+  <span id=t_idt>hostTransDoneIntOut</span>,
+  <span id=t_idt>slaveNAKSentIntOut</span>,
+  <span id=t_idt>slaveSOFRxedIntOut</span>, 
+  <span id=t_idt>slaveResetEventIntOut</span>, 
+  <span id=t_idt>slaveResumeIntOut</span>, 
+  <span id=t_idt>slaveTransDoneIntOut</span>,
+  <span id=t_idt>USBWireDataIn</span>,
+  <span id=t_idt>USBWireDataInTick</span>,
+  <span id=t_idt>USBWireDataOut</span>,
+  <span id=t_idt>USBWireDataOutTick</span>,
+  <span id=t_idt>USBWireCtrlOut</span>
+   );
+  <span id=t_kwd>parameter</span> <span id=t_idt>HOST_FIFO_DEPTH</span> = <span id=t_cns>64</span>; <span id=t_com>//HOST_FIFO_DEPTH = HOST_ADDR_WIDTH^2</span>
+  <span id=t_kwd>parameter</span> <span id=t_idt>HOST_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP0_FIFO_DEPTH</span> = <span id=t_cns>64</span>; 
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP0_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP1_FIFO_DEPTH</span> = <span id=t_cns>64</span>; 
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP1_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP2_FIFO_DEPTH</span> = <span id=t_cns>64</span>; 
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP2_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP3_FIFO_DEPTH</span> = <span id=t_cns>64</span>; 
+  <span id=t_kwd>parameter</span> <span id=t_idt>EP3_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>address_i</span>; 
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>data_i</span>; 
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>data_o</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>writeEn</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>output</span> <span id=t_idt>ack_o</span>;
+<span id=t_kwd>output</span> <span id=t_idt>hostSOFSentIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>hostConnEventIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>hostResumeIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>hostTransDoneIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>slaveSOFRxedIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>slaveResetEventIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>slaveResumeIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>slaveTransDoneIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>slaveNAKSentIntOut</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataIn</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireDataOutTick</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireDataInTick</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireCtrlOut</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>address_i</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>data_i</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>data_o</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>writeEn</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>ack_o</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostSOFSentIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostConnEventIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostResumeIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostTransDoneIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveSOFRxedIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>slaveResetEventIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>slaveResumeIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>slaveTransDoneIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveNAKSentIntOut</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataOutTick</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataInTick</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireCtrlOut</span>;
+
+<span id=t_com>//internal wiring</span>
+<span id=t_kwd>wire</span> <span id=t_idt>hostControlSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveControlSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostRxFifoSel</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostTxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostSlaveMuxSel</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromHostControl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromSlaveControl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromHostRxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromHostTxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromHostSlaveMux</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostTxFifoRE</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>hostTxFifoData</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostTxFifoEmpty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostRxFifoWE</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>hostRxFifoData</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>hostRxFifoFull</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlOut</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataFromSIE</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RxDataOutWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedBitRateFromHost</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedBitRateFromSlave</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedPolarityFromHost</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedPolarityFromSlave</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortWEnFromHost</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortWEnFromSlave</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortTxRdy</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataInFromHost</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataInFromSlave</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlInFromHost</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlInFromSlave</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectState</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>resumeDetected</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataInToSIE</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortWEnToSIE</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlInToSIE</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedPolarityToSIE</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedBitRateToSIE</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>noActivityTimeOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP0REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP1REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP2REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP3REn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP0Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP1Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP2Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP3Data</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP0Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP1Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP2Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP3Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP0WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP1WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP2WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP3WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP0Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP1Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP2Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP3Full</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>slaveRxFifoData</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP0RxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP1RxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP2RxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP3RxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP0TxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP1TxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP2TxFifo</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromEP3TxFifo</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP0RxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP1RxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP2RxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP3RxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP0TxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP1TxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP2TxFifoSel</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveEP3TxFifoSel</span>;
+
+<span id=t_idt>usbHostControl</span> <span id=t_idt>u_usbHostControl</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>TxFifoRE</span>(<span id=t_idt>hostTxFifoRE</span>), 
+  .<span id=t_idt>TxFifoData</span>(<span id=t_idt>hostTxFifoData</span>), 
+  .<span id=t_idt>TxFifoEmpty</span>(<span id=t_idt>hostTxFifoEmpty</span>),
+  .<span id=t_idt>RxFifoWE</span>(<span id=t_idt>hostRxFifoWE</span>), 
+  .<span id=t_idt>RxFifoData</span>(<span id=t_idt>hostRxFifoData</span>), 
+  .<span id=t_idt>RxFifoFull</span>(<span id=t_idt>hostRxFifoFull</span>),
+  .<span id=t_idt>RxByteStatus</span>(<span id=t_idt>RxCtrlOut</span>), 
+  .<span id=t_idt>RxData</span>(<span id=t_idt>RxDataFromSIE</span>), 
+  .<span id=t_idt>RxDataValid</span>(<span id=t_idt>RxDataOutWEn</span>),
+  .<span id=t_idt>SIERxTimeOut</span>(<span id=t_idt>noActivityTimeOut</span>),
+  .<span id=t_idt>fullSpeedRate</span>(<span id=t_idt>fullSpeedBitRateFromHost</span>), 
+  .<span id=t_idt>fullSpeedPol</span>(<span id=t_idt>fullSpeedPolarityFromHost</span>),
+  .<span id=t_idt>HCTxPortEn</span>(<span id=t_idt>SIEPortWEnFromHost</span>), 
+  .<span id=t_idt>HCTxPortRdy</span>(<span id=t_idt>SIEPortTxRdy</span>),
+  .<span id=t_idt>HCTxPortData</span>(<span id=t_idt>SIEPortDataInFromHost</span>), 
+  .<span id=t_idt>HCTxPortCtrl</span>(<span id=t_idt>SIEPortCtrlInFromHost</span>),
+  .<span id=t_idt>connectStateIn</span>(<span id=t_idt>connectState</span>), 
+  .<span id=t_idt>resumeDetectedIn</span>(<span id=t_idt>resumeDetected</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>]),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromHostControl</span>), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>),
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>SOFSentIntOut</span>(<span id=t_idt>hostSOFSentIntOut</span>), 
+  .<span id=t_idt>connEventIntOut</span>(<span id=t_idt>hostConnEventIntOut</span>), 
+  .<span id=t_idt>resumeIntOut</span>(<span id=t_idt>hostResumeIntOut</span>), 
+  .<span id=t_idt>transDoneIntOut</span>(<span id=t_idt>hostTransDoneIntOut</span>),
+  .<span id=t_idt>hostControlSelect</span>(<span id=t_idt>hostControlSel</span>) );
+  
+
+<span id=t_idt>usbSlaveControl</span> <span id=t_idt>u_usbSlaveControl</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>RxByteStatus</span>(<span id=t_idt>RxCtrlOut</span>), 
+  .<span id=t_idt>RxData</span>(<span id=t_idt>RxDataFromSIE</span>), 
+  .<span id=t_idt>RxDataValid</span>(<span id=t_idt>RxDataOutWEn</span>),
+  .<span id=t_idt>SIERxTimeOut</span>(<span id=t_idt>noActivityTimeOut</span>), 
+  .<span id=t_idt>RxFifoData</span>(<span id=t_idt>slaveRxFifoData</span>),
+  .<span id=t_idt>fullSpeedRate</span>(<span id=t_idt>fullSpeedBitRateFromSlave</span>), 
+  .<span id=t_idt>fullSpeedPol</span>(<span id=t_idt>fullSpeedPolarityFromSlave</span>),
+  .<span id=t_idt>SCTxPortEn</span>(<span id=t_idt>SIEPortWEnFromSlave</span>), 
+  .<span id=t_idt>SCTxPortRdy</span>(<span id=t_idt>SIEPortTxRdy</span>),
+  .<span id=t_idt>SCTxPortData</span>(<span id=t_idt>SIEPortDataInFromSlave</span>), 
+  .<span id=t_idt>SCTxPortCtrl</span>(<span id=t_idt>SIEPortCtrlInFromSlave</span>),
+  .<span id=t_idt>connectStateIn</span>(<span id=t_idt>connectState</span>), 
+  .<span id=t_idt>resumeDetectedIn</span>(<span id=t_idt>resumeDetected</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>4</span>:<span id=t_cns>0</span>]),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromSlaveControl</span>), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>),
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>SOFRxedIntOut</span>(<span id=t_idt>slaveSOFRxedIntOut</span>), 
+  .<span id=t_idt>resetEventIntOut</span>(<span id=t_idt>slaveResetEventIntOut</span>), 
+  .<span id=t_idt>resumeIntOut</span>(<span id=t_idt>slaveResumeIntOut</span>), 
+  .<span id=t_idt>transDoneIntOut</span>(<span id=t_idt>slaveTransDoneIntOut</span>),
+  .<span id=t_idt>NAKSentIntOut</span>(<span id=t_idt>slaveNAKSentIntOut</span>),
+  .<span id=t_idt>slaveControlSelect</span>(<span id=t_idt>slaveControlSel</span>),
+  .<span id=t_idt>TxFifoEP0REn</span>(<span id=t_idt>TxFifoEP0REn</span>),
+  .<span id=t_idt>TxFifoEP1REn</span>(<span id=t_idt>TxFifoEP1REn</span>),
+  .<span id=t_idt>TxFifoEP2REn</span>(<span id=t_idt>TxFifoEP2REn</span>),
+  .<span id=t_idt>TxFifoEP3REn</span>(<span id=t_idt>TxFifoEP3REn</span>),
+  .<span id=t_idt>TxFifoEP0Data</span>(<span id=t_idt>TxFifoEP0Data</span>),
+  .<span id=t_idt>TxFifoEP1Data</span>(<span id=t_idt>TxFifoEP1Data</span>),
+  .<span id=t_idt>TxFifoEP2Data</span>(<span id=t_idt>TxFifoEP2Data</span>),
+  .<span id=t_idt>TxFifoEP3Data</span>(<span id=t_idt>TxFifoEP3Data</span>),
+  .<span id=t_idt>TxFifoEP0Empty</span>(<span id=t_idt>TxFifoEP0Empty</span>),
+  .<span id=t_idt>TxFifoEP1Empty</span>(<span id=t_idt>TxFifoEP1Empty</span>),
+  .<span id=t_idt>TxFifoEP2Empty</span>(<span id=t_idt>TxFifoEP2Empty</span>),
+  .<span id=t_idt>TxFifoEP3Empty</span>(<span id=t_idt>TxFifoEP3Empty</span>),
+  .<span id=t_idt>RxFifoEP0WEn</span>(<span id=t_idt>RxFifoEP0WEn</span>),
+  .<span id=t_idt>RxFifoEP1WEn</span>(<span id=t_idt>RxFifoEP1WEn</span>),
+  .<span id=t_idt>RxFifoEP2WEn</span>(<span id=t_idt>RxFifoEP2WEn</span>),
+  .<span id=t_idt>RxFifoEP3WEn</span>(<span id=t_idt>RxFifoEP3WEn</span>),
+  .<span id=t_idt>RxFifoEP0Full</span>(<span id=t_idt>RxFifoEP0Full</span>),
+  .<span id=t_idt>RxFifoEP1Full</span>(<span id=t_idt>RxFifoEP1Full</span>),
+  .<span id=t_idt>RxFifoEP2Full</span>(<span id=t_idt>RxFifoEP2Full</span>),
+  .<span id=t_idt>RxFifoEP3Full</span>(<span id=t_idt>RxFifoEP3Full</span>)
+  );
+
+<span id=t_idt>wishBoneBI</span> <span id=t_idt>u_wishBoneBI</span> (
+  .<span id=t_idt>address</span>(<span id=t_idt>address_i</span>), 
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>dataOut</span>(<span id=t_idt>data_o</span>), 
+  .<span id=t_idt>writeEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>strobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>ack_o</span>(<span id=t_idt>ack_o</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>hostControlSel</span>(<span id=t_idt>hostControlSel</span>), 
+  .<span id=t_idt>hostRxFifoSel</span>(<span id=t_idt>hostRxFifoSel</span>), 
+  .<span id=t_idt>hostTxFifoSel</span>(<span id=t_idt>hostTxFifoSel</span>),
+  .<span id=t_idt>slaveControlSel</span>(<span id=t_idt>slaveControlSel</span>),
+  .<span id=t_idt>slaveEP0RxFifoSel</span>(<span id=t_idt>slaveEP0RxFifoSel</span>), 
+  .<span id=t_idt>slaveEP1RxFifoSel</span>(<span id=t_idt>slaveEP1RxFifoSel</span>), 
+  .<span id=t_idt>slaveEP2RxFifoSel</span>(<span id=t_idt>slaveEP2RxFifoSel</span>), 
+  .<span id=t_idt>slaveEP3RxFifoSel</span>(<span id=t_idt>slaveEP3RxFifoSel</span>), 
+  .<span id=t_idt>slaveEP0TxFifoSel</span>(<span id=t_idt>slaveEP0TxFifoSel</span>), 
+  .<span id=t_idt>slaveEP1TxFifoSel</span>(<span id=t_idt>slaveEP1TxFifoSel</span>), 
+  .<span id=t_idt>slaveEP2TxFifoSel</span>(<span id=t_idt>slaveEP2TxFifoSel</span>), 
+  .<span id=t_idt>slaveEP3TxFifoSel</span>(<span id=t_idt>slaveEP3TxFifoSel</span>), 
+  .<span id=t_idt>hostSlaveMuxSel</span>(<span id=t_idt>hostSlaveMuxSel</span>),
+  .<span id=t_idt>dataFromHostControl</span>(<span id=t_idt>dataFromHostControl</span>),
+  .<span id=t_idt>dataFromHostRxFifo</span>(<span id=t_idt>dataFromHostRxFifo</span>),
+  .<span id=t_idt>dataFromHostTxFifo</span>(<span id=t_idt>dataFromHostTxFifo</span>),
+  .<span id=t_idt>dataFromSlaveControl</span>(<span id=t_idt>dataFromSlaveControl</span>),
+  .<span id=t_idt>dataFromEP0RxFifo</span>(<span id=t_idt>dataFromEP0RxFifo</span>), 
+  .<span id=t_idt>dataFromEP1RxFifo</span>(<span id=t_idt>dataFromEP1RxFifo</span>), 
+  .<span id=t_idt>dataFromEP2RxFifo</span>(<span id=t_idt>dataFromEP2RxFifo</span>), 
+  .<span id=t_idt>dataFromEP3RxFifo</span>(<span id=t_idt>dataFromEP3RxFifo</span>),
+  .<span id=t_idt>dataFromEP0TxFifo</span>(<span id=t_idt>dataFromEP0TxFifo</span>), 
+  .<span id=t_idt>dataFromEP1TxFifo</span>(<span id=t_idt>dataFromEP1TxFifo</span>), 
+  .<span id=t_idt>dataFromEP2TxFifo</span>(<span id=t_idt>dataFromEP2TxFifo</span>), 
+  .<span id=t_idt>dataFromEP3TxFifo</span>(<span id=t_idt>dataFromEP3TxFifo</span>),
+  .<span id=t_idt>dataFromHostSlaveMux</span>(<span id=t_idt>dataFromHostSlaveMux</span>)
+   );
+
+<span id=t_idt>hostSlaveMux</span> <span id=t_idt>u_hostSlaveMux</span>(
+  .<span id=t_idt>SIEPortCtrlInToSIE</span>(<span id=t_idt>SIEPortCtrlInToSIE</span>),
+  .<span id=t_idt>SIEPortCtrlInFromHost</span>(<span id=t_idt>SIEPortCtrlInFromHost</span>),
+  .<span id=t_idt>SIEPortCtrlInFromSlave</span>(<span id=t_idt>SIEPortCtrlInFromSlave</span>),
+  .<span id=t_idt>SIEPortDataInToSIE</span>(<span id=t_idt>SIEPortDataInToSIE</span>), 
+  .<span id=t_idt>SIEPortDataInFromHost</span>(<span id=t_idt>SIEPortDataInFromHost</span>), 
+  .<span id=t_idt>SIEPortDataInFromSlave</span>(<span id=t_idt>SIEPortDataInFromSlave</span>), 
+  .<span id=t_idt>SIEPortWEnToSIE</span>(<span id=t_idt>SIEPortWEnToSIE</span>), 
+  .<span id=t_idt>SIEPortWEnFromHost</span>(<span id=t_idt>SIEPortWEnFromHost</span>), 
+  .<span id=t_idt>SIEPortWEnFromSlave</span>(<span id=t_idt>SIEPortWEnFromSlave</span>), 
+  .<span id=t_idt>fullSpeedPolarityToSIE</span>(<span id=t_idt>fullSpeedPolarityToSIE</span>),
+  .<span id=t_idt>fullSpeedPolarityFromHost</span>(<span id=t_idt>fullSpeedPolarityFromHost</span>),
+  .<span id=t_idt>fullSpeedPolarityFromSlave</span>(<span id=t_idt>fullSpeedPolarityFromSlave</span>),
+  .<span id=t_idt>fullSpeedBitRateToSIE</span>(<span id=t_idt>fullSpeedBitRateToSIE</span>),
+  .<span id=t_idt>fullSpeedBitRateFromHost</span>(<span id=t_idt>fullSpeedBitRateFromHost</span>),
+  .<span id=t_idt>fullSpeedBitRateFromSlave</span>(<span id=t_idt>fullSpeedBitRateFromSlave</span>),
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>dataOut</span>(<span id=t_idt>dataFromHostSlaveMux</span>), 
+  .<span id=t_idt>writeEn</span>(<span id=t_idt>writeEn</span>),
+  .<span id=t_idt>strobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>hostSlaveMuxSel</span>(<span id=t_idt>hostSlaveMuxSel</span>)  );
+
+<span id=t_idt>usbSerialInterfaceEngine</span> <span id=t_idt>u_usbSerialInterfaceEngine</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>USBWireDataIn</span>(<span id=t_idt>USBWireDataIn</span>),
+  .<span id=t_idt>USBWireDataOut</span>(<span id=t_idt>USBWireDataOut</span>),
+  .<span id=t_idt>USBWireDataInTick</span>(<span id=t_idt>USBWireDataInTick</span>),
+  .<span id=t_idt>USBWireDataOutTick</span>(<span id=t_idt>USBWireDataOutTick</span>),
+  .<span id=t_idt>USBWireCtrlOut</span>(<span id=t_idt>USBWireCtrlOut</span>),
+  .<span id=t_idt>connectState</span>(<span id=t_idt>connectState</span>),
+  .<span id=t_idt>resumeDetected</span>(<span id=t_idt>resumeDetected</span>),
+  .<span id=t_idt>RxCtrlOut</span>(<span id=t_idt>RxCtrlOut</span>), 
+  .<span id=t_idt>RxDataOutWEn</span>(<span id=t_idt>RxDataOutWEn</span>), 
+  .<span id=t_idt>RxDataOut</span>(<span id=t_idt>RxDataFromSIE</span>), 
+  .<span id=t_idt>SIEPortCtrlIn</span>(<span id=t_idt>SIEPortCtrlInToSIE</span>),
+  .<span id=t_idt>SIEPortDataIn</span>(<span id=t_idt>SIEPortDataInToSIE</span>), 
+  .<span id=t_idt>SIEPortTxRdy</span>(<span id=t_idt>SIEPortTxRdy</span>), 
+  .<span id=t_idt>SIEPortWEn</span>(<span id=t_idt>SIEPortWEnToSIE</span>), 
+  .<span id=t_idt>fullSpeedPolarity</span>(<span id=t_idt>fullSpeedPolarityToSIE</span>),
+  .<span id=t_idt>fullSpeedBitRate</span>(<span id=t_idt>fullSpeedBitRateToSIE</span>),
+  .<span id=t_idt>noActivityTimeOut</span>(<span id=t_idt>noActivityTimeOut</span>)
+);
+
+<span id=t_com>//---Host fifos</span>
+<span id=t_idt>TxFifo</span> #(<span id=t_idt>HOST_FIFO_DEPTH</span>, <span id=t_idt>HOST_FIFO_ADDR_WIDTH</span>) <span id=t_idt>HostTxFifo</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoREn</span>(<span id=t_idt>hostTxFifoRE</span>), 
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>hostTxFifoEmpty</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>hostTxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromHostTxFifo</span>),
+  .<span id=t_idt>fifoDataOut</span>(<span id=t_idt>hostTxFifoData</span>) );
+
+
+<span id=t_idt>RxFifo</span> #(<span id=t_idt>HOST_FIFO_DEPTH</span>, <span id=t_idt>HOST_FIFO_ADDR_WIDTH</span>) <span id=t_idt>HostRxFifo</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoWEn</span>(<span id=t_idt>hostRxFifoWE</span>), 
+  .<span id=t_idt>fifoFull</span>(<span id=t_idt>hostRxFifoFull</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>hostRxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromHostRxFifo</span>),
+  .<span id=t_idt>fifoDataIn</span>(<span id=t_idt>hostRxFifoData</span>)  );
+
+<span id=t_com>//---Slave fifos</span>
+
+<span id=t_idt>TxFifo</span> #(<span id=t_idt>EP0_FIFO_DEPTH</span>, <span id=t_idt>EP0_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP0TxFifo</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoREn</span>(<span id=t_idt>TxFifoEP0REn</span>), 
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>TxFifoEP0Empty</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP0TxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP0TxFifo</span>),
+  .<span id=t_idt>fifoDataOut</span>(<span id=t_idt>TxFifoEP0Data</span>) );
+
+<span id=t_idt>TxFifo</span> #(<span id=t_idt>EP1_FIFO_DEPTH</span>, <span id=t_idt>EP1_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP1TxFifo</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoREn</span>(<span id=t_idt>TxFifoEP1REn</span>), 
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>TxFifoEP1Empty</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP1TxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP1TxFifo</span>),
+  .<span id=t_idt>fifoDataOut</span>(<span id=t_idt>TxFifoEP1Data</span>) );
+
+  <span id=t_idt>TxFifo</span> #(<span id=t_idt>EP2_FIFO_DEPTH</span>, <span id=t_idt>EP2_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP2TxFifo</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoREn</span>(<span id=t_idt>TxFifoEP2REn</span>), 
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>TxFifoEP2Empty</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP2TxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP2TxFifo</span>),
+  .<span id=t_idt>fifoDataOut</span>(<span id=t_idt>TxFifoEP2Data</span>) );
+
+  <span id=t_idt>TxFifo</span> #(<span id=t_idt>EP3_FIFO_DEPTH</span>, <span id=t_idt>EP3_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP3TxFifo</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoREn</span>(<span id=t_idt>TxFifoEP3REn</span>), 
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>TxFifoEP3Empty</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP3TxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP3TxFifo</span>),
+  .<span id=t_idt>fifoDataOut</span>(<span id=t_idt>TxFifoEP3Data</span>) );
+
+<span id=t_idt>RxFifo</span> #(<span id=t_idt>EP0_FIFO_DEPTH</span>, <span id=t_idt>EP0_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP0RxFifo</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoWEn</span>(<span id=t_idt>RxFifoEP0WEn</span>), 
+  .<span id=t_idt>fifoFull</span>(<span id=t_idt>RxFifoEP0Full</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP0RxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP0RxFifo</span>),
+  .<span id=t_idt>fifoDataIn</span>(<span id=t_idt>slaveRxFifoData</span>)  );
+
+<span id=t_idt>RxFifo</span> #(<span id=t_idt>EP1_FIFO_DEPTH</span>, <span id=t_idt>EP1_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP1RxFifo</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoWEn</span>(<span id=t_idt>RxFifoEP1WEn</span>), 
+  .<span id=t_idt>fifoFull</span>(<span id=t_idt>RxFifoEP1Full</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP1RxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP1RxFifo</span>),
+  .<span id=t_idt>fifoDataIn</span>(<span id=t_idt>slaveRxFifoData</span>)  );
+
+<span id=t_idt>RxFifo</span> #(<span id=t_idt>EP2_FIFO_DEPTH</span>, <span id=t_idt>EP2_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP2RxFifo</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoWEn</span>(<span id=t_idt>RxFifoEP2WEn</span>), 
+  .<span id=t_idt>fifoFull</span>(<span id=t_idt>RxFifoEP2Full</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP2RxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP2RxFifo</span>),
+  .<span id=t_idt>fifoDataIn</span>(<span id=t_idt>slaveRxFifoData</span>)  );
+
+<span id=t_idt>RxFifo</span> #(<span id=t_idt>EP3_FIFO_DEPTH</span>, <span id=t_idt>EP3_FIFO_ADDR_WIDTH</span>) <span id=t_idt>EP3RxFifo</span>(
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>fifoWEn</span>(<span id=t_idt>RxFifoEP3WEn</span>), 
+  .<span id=t_idt>fifoFull</span>(<span id=t_idt>RxFifoEP3Full</span>),
+  .<span id=t_idt>busAddress</span>(<span id=t_idt>address_i</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]), 
+  .<span id=t_idt>busWriteEn</span>(<span id=t_idt>writeEn</span>), 
+  .<span id=t_idt>busStrobe_i</span>(<span id=t_idt>strobe_i</span>),
+  .<span id=t_idt>busFifoSelect</span>(<span id=t_idt>slaveEP3RxFifoSel</span>),
+  .<span id=t_idt>busDataIn</span>(<span id=t_idt>data_i</span>), 
+  .<span id=t_idt>busDataOut</span>(<span id=t_idt>dataFromEP3RxFifo</span>),
+  .<span id=t_idt>fifoDataIn</span>(<span id=t_idt>slaveRxFifoData</span>)  );
+
+<span id=t_kwd>endmodule</span>
+
+  
+  
+
+
+
+
+
+</pre>
+</body>
+</html>

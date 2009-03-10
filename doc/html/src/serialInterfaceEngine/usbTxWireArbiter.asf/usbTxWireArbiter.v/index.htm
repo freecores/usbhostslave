@@ -1,0 +1,215 @@
+<html>
+<head>
+<title>usbTxWireArbiter.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// USBWireTxArbiter</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:07 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>USBWireTxArbiter</span> (<span id=t_idt>SIETxCtrl</span>, <span id=t_idt>SIETxData</span>, <span id=t_idt>SIETxGnt</span>, <span id=t_idt>SIETxReq</span>, <span id=t_idt>SIETxWEn</span>, <span id=t_idt>TxBits</span>, <span id=t_idt>TxCtl</span>, <span id=t_idt>USBWireRdyIn</span>, <span id=t_idt>USBWireRdyOut</span>, <span id=t_idt>USBWireWEn</span>, <span id=t_idt>clk</span>, <span id=t_idt>prcTxByteCtrl</span>, <span id=t_idt>prcTxByteData</span>, <span id=t_idt>prcTxByteGnt</span>, <span id=t_idt>prcTxByteReq</span>, <span id=t_idt>prcTxByteWEn</span>, <span id=t_idt>rst</span>);
+<span id=t_kwd>input</span>   <span id=t_idt>SIETxCtrl</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>SIETxData</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SIETxReq</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SIETxWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>USBWireRdyIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>prcTxByteCtrl</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>prcTxByteData</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>prcTxByteReq</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>prcTxByteWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SIETxGnt</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBits</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>TxCtl</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireRdyOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireWEn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>prcTxByteGnt</span>;
+
+<span id=t_kwd>wire</span>    <span id=t_idt>SIETxCtrl</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>SIETxData</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SIETxGnt</span>, <span id=t_idt>next_SIETxGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SIETxReq</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SIETxWEn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBits</span>, <span id=t_idt>next_TxBits</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>TxCtl</span>, <span id=t_idt>next_TxCtl</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>USBWireRdyIn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireRdyOut</span>, <span id=t_idt>next_USBWireRdyOut</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireWEn</span>, <span id=t_idt>next_USBWireWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>prcTxByteCtrl</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>prcTxByteData</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>prcTxByteGnt</span>, <span id=t_idt>next_prcTxByteGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>prcTxByteReq</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>prcTxByteWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  <span id=t_idt>muxSIENotPTXB</span>, <span id=t_idt>next_muxSIENotPTXB</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: txWireArb</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_TARB</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>TARB_WAIT_REQ</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>PTXB_ACT</span> <span id=t_cns>2'b10</span>
+<span id=t_dir>`define</span> <span id=t_idt>SIE_TX_ACT</span> <span id=t_cns>2'b11</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_txWireArb</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_txWireArb</span>;
+
+<span id=t_com>// Diagram actions (continuous assignments allowed only: assign ...)</span>
+<span id=t_com>// processTxByte/SIETransmitter mux</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>USBWireRdyIn</span>)
+<span id=t_kwd>begin</span>
+    <span id=t_idt>USBWireRdyOut</span> &lt;= <span id=t_idt>USBWireRdyIn</span>;
+<span id=t_kwd>end</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>muxSIENotPTXB</span> <span id=t_kwd>or</span> <span id=t_idt>SIETxWEn</span> <span id=t_kwd>or</span> <span id=t_idt>SIETxData</span> <span id=t_kwd>or</span>
+<span id=t_idt>SIETxCtrl</span> <span id=t_kwd>or</span> <span id=t_idt>prcTxByteWEn</span> <span id=t_kwd>or</span> <span id=t_idt>prcTxByteData</span> <span id=t_kwd>or</span> <span id=t_idt>prcTxByteCtrl</span>)
+<span id=t_kwd>begin</span>
+    <span id=t_kwd>if</span> (<span id=t_idt>muxSIENotPTXB</span>  == <span id=t_cns>1'b1</span>)
+    <span id=t_kwd>begin</span>
+        <span id=t_idt>USBWireWEn</span> &lt;= <span id=t_idt>SIETxWEn</span>;
+        <span id=t_idt>TxBits</span> &lt;= <span id=t_idt>SIETxData</span>;
+        <span id=t_idt>TxCtl</span> &lt;= <span id=t_idt>SIETxCtrl</span>;
+    <span id=t_kwd>end</span>
+    <span id=t_kwd>else</span>
+    <span id=t_kwd>begin</span>
+        <span id=t_idt>USBWireWEn</span> &lt;= <span id=t_idt>prcTxByteWEn</span>;
+        <span id=t_idt>TxBits</span> &lt;= <span id=t_idt>prcTxByteData</span>;
+        <span id=t_idt>TxCtl</span> &lt;= <span id=t_idt>prcTxByteCtrl</span>;
+    <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: txWireArb</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>prcTxByteReq</span> <span id=t_kwd>or</span> <span id=t_idt>SIETxReq</span> <span id=t_kwd>or</span> <span id=t_idt>prcTxByteGnt</span> <span id=t_kwd>or</span> <span id=t_idt>muxSIENotPTXB</span> <span id=t_kwd>or</span> <span id=t_idt>SIETxGnt</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_txWireArb</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>txWireArb_NextState</span>
+  <span id=t_idt>NextState_txWireArb</span> &lt;= <span id=t_idt>CurrState_txWireArb</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_prcTxByteGnt</span> &lt;= <span id=t_idt>prcTxByteGnt</span>;
+  <span id=t_idt>next_muxSIENotPTXB</span> &lt;= <span id=t_idt>muxSIENotPTXB</span>;
+  <span id=t_idt>next_SIETxGnt</span> &lt;= <span id=t_idt>SIETxGnt</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_txWireArb</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>START_TARB</span>:
+     <span id=t_idt>NextState_txWireArb</span> &lt;= `<span id=t_idt>TARB_WAIT_REQ</span>;
+   `<span id=t_idt>TARB_WAIT_REQ</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>prcTxByteReq</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_txWireArb</span> &lt;= `<span id=t_idt>PTXB_ACT</span>;
+      <span id=t_idt>next_prcTxByteGnt</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_muxSIENotPTXB</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIETxReq</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_txWireArb</span> &lt;= `<span id=t_idt>SIE_TX_ACT</span>;
+      <span id=t_idt>next_SIETxGnt</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_muxSIENotPTXB</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PTXB_ACT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>prcTxByteReq</span> == <span id=t_cns>1'b0</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_txWireArb</span> &lt;= `<span id=t_idt>TARB_WAIT_REQ</span>;
+      <span id=t_idt>next_prcTxByteGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SIE_TX_ACT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SIETxReq</span> == <span id=t_cns>1'b0</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_txWireArb</span> &lt;= `<span id=t_idt>TARB_WAIT_REQ</span>;
+      <span id=t_idt>next_SIETxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>txWireArb_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_txWireArb</span> &lt;= `<span id=t_idt>START_TARB</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_txWireArb</span> &lt;= <span id=t_idt>NextState_txWireArb</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>txWireArb_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>muxSIENotPTXB</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>prcTxByteGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SIETxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>muxSIENotPTXB</span> &lt;= <span id=t_idt>next_muxSIENotPTXB</span>;
+   <span id=t_idt>prcTxByteGnt</span> &lt;= <span id=t_idt>next_prcTxByteGnt</span>;
+   <span id=t_idt>SIETxGnt</span> &lt;= <span id=t_idt>next_SIETxGnt</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

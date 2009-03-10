@@ -1,0 +1,340 @@
+<html>
+<head>
+<title>sendpacket.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// sendPacket</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:01 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+
+
+<span id=t_kwd>module</span> <span id=t_idt>sendPacket</span> (<span id=t_idt>HCTxPortCntl</span>, <span id=t_idt>HCTxPortData</span>, <span id=t_idt>HCTxPortGnt</span>, <span id=t_idt>HCTxPortRdy</span>, <span id=t_idt>HCTxPortReq</span>, <span id=t_idt>HCTxPortWEn</span>, <span id=t_idt>PID</span>, <span id=t_idt>TxAddr</span>, <span id=t_idt>TxEndP</span>, <span id=t_idt>clk</span>, <span id=t_idt>fifoData</span>, <span id=t_idt>fifoEmpty</span>, <span id=t_idt>fifoReadEn</span>, <span id=t_idt>frameNum</span>, <span id=t_idt>rst</span>, <span id=t_idt>sendPacketRdy</span>, <span id=t_idt>sendPacketWEn</span>);
+<span id=t_kwd>input</span>   <span id=t_idt>HCTxPortGnt</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>HCTxPortRdy</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>PID</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>TxAddr</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>fifoData</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>fifoEmpty</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>sendPacketWEn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>HCTxPortCntl</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>HCTxPortData</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>HCTxPortReq</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>HCTxPortWEn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>TxEndP</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>fifoReadEn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>sendPacketRdy</span>;
+
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>HCTxPortCntl</span>, <span id=t_idt>next_HCTxPortCntl</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>HCTxPortData</span>, <span id=t_idt>next_HCTxPortData</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>HCTxPortGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>HCTxPortRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>HCTxPortReq</span>, <span id=t_idt>next_HCTxPortReq</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>HCTxPortWEn</span>, <span id=t_idt>next_HCTxPortWEn</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>PID</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>TxAddr</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>TxEndP</span>, <span id=t_idt>next_TxEndP</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>fifoData</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>fifoEmpty</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>fifoReadEn</span>, <span id=t_idt>next_fifoReadEn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>, <span id=t_idt>next_frameNum</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>sendPacketRdy</span>, <span id=t_idt>next_sendPacketRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>sendPacketWEn</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>PIDNotPID</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: sndPkt</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_SP</span> <span id=t_cns>5'b00000</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_ENABLE</span> <span id=t_cns>5'b00001</span>
+<span id=t_dir>`define</span> <span id=t_idt>SP_WAIT_GNT</span> <span id=t_cns>5'b00010</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_PID_WAIT_RDY</span> <span id=t_cns>5'b00011</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_PID_FIN</span> <span id=t_cns>5'b00100</span>
+<span id=t_dir>`define</span> <span id=t_idt>FIN_SP</span> <span id=t_cns>5'b00101</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT_IN_SETUP_WAIT_RDY1</span> <span id=t_cns>5'b00110</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT_IN_SETUP_WAIT_RDY2</span> <span id=t_cns>5'b00111</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT_IN_SETUP_FIN</span> <span id=t_cns>5'b01000</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_SOF_FIN1</span> <span id=t_cns>5'b01001</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_SOF_WAIT_RDY3</span> <span id=t_cns>5'b01010</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_SOF_WAIT_RDY4</span> <span id=t_cns>5'b01011</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_READ_FIFO</span> <span id=t_cns>5'b01100</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_WAIT_READ_FIFO</span> <span id=t_cns>5'b01101</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_FIFO_EMPTY</span> <span id=t_cns>5'b01110</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_FIN</span> <span id=t_cns>5'b01111</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_TERM_BYTE</span> <span id=t_cns>5'b10000</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT_IN_SETUP_CLR_WEN1</span> <span id=t_cns>5'b10001</span>
+<span id=t_dir>`define</span> <span id=t_idt>SEND_SOF_CLR_WEN1</span> <span id=t_cns>5'b10010</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_CLR_WEN</span> <span id=t_cns>5'b10011</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA0_DATA1_CLR_REN</span> <span id=t_cns>5'b10100</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_sndPkt</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_sndPkt</span>;
+
+<span id=t_com>// Diagram actions (continuous assignments allowed only: assign ...)</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>PID</span>)
+<span id=t_kwd>begin</span>
+    <span id=t_idt>PIDNotPID</span> &lt;=  { (<span id=t_idt>PID</span> ^ <span id=t_cns>4'hf</span>), <span id=t_idt>PID</span> };
+<span id=t_kwd>end</span>
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: sndPkt</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>PIDNotPID</span> <span id=t_kwd>or</span> <span id=t_idt>TxEndP</span> <span id=t_kwd>or</span> <span id=t_idt>TxAddr</span> <span id=t_kwd>or</span> <span id=t_idt>frameNum</span> <span id=t_kwd>or</span> <span id=t_idt>fifoData</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketWEn</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortGnt</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortRdy</span> <span id=t_kwd>or</span> <span id=t_idt>PID</span> <span id=t_kwd>or</span> <span id=t_idt>fifoEmpty</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketRdy</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortReq</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortWEn</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortData</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxPortCntl</span> <span id=t_kwd>or</span> <span id=t_idt>fifoReadEn</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_sndPkt</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sndPkt_NextState</span>
+  <span id=t_idt>NextState_sndPkt</span> &lt;= <span id=t_idt>CurrState_sndPkt</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_sendPacketRdy</span> &lt;= <span id=t_idt>sendPacketRdy</span>;
+  <span id=t_idt>next_HCTxPortReq</span> &lt;= <span id=t_idt>HCTxPortReq</span>;
+  <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_idt>HCTxPortWEn</span>;
+  <span id=t_idt>next_HCTxPortData</span> &lt;= <span id=t_idt>HCTxPortData</span>;
+  <span id=t_idt>next_HCTxPortCntl</span> &lt;= <span id=t_idt>HCTxPortCntl</span>;
+  <span id=t_idt>next_frameNum</span> &lt;= <span id=t_idt>frameNum</span>;
+  <span id=t_idt>next_fifoReadEn</span> &lt;= <span id=t_idt>fifoReadEn</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_sndPkt</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>START_SP</span>:
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>WAIT_ENABLE</span>;
+   `<span id=t_idt>WAIT_ENABLE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketWEn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SP_WAIT_GNT</span>;
+      <span id=t_idt>next_sendPacketRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_HCTxPortReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SP_WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortGnt</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_PID_WAIT_RDY</span>;
+   `<span id=t_idt>FIN_SP</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>WAIT_ENABLE</span>;
+     <span id=t_idt>next_sendPacketRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_HCTxPortReq</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_PID_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_PID_FIN</span>;
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= <span id=t_idt>PIDNotPID</span>;
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_START</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_PID_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>PID</span> == `<span id=t_idt>DATA0</span> || <span id=t_idt>PID</span> == `<span id=t_idt>DATA1</span>)  
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_FIFO_EMPTY</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>PID</span> == `<span id=t_idt>SOF</span>)  
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_SOF_WAIT_RDY3</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>PID</span> == `<span id=t_idt>OUT</span> || 
+      <span id=t_idt>PID</span> == `<span id=t_idt>IN</span> || 
+      <span id=t_idt>PID</span> == `<span id=t_idt>SETUP</span>)  
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>OUT_IN_SETUP_WAIT_RDY1</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>FIN_SP</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT_IN_SETUP_WAIT_RDY1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>OUT_IN_SETUP_CLR_WEN1</span>;
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= {<span id=t_idt>TxEndP</span>[<span id=t_cns>0</span>], <span id=t_idt>TxAddr</span>[<span id=t_cns>6</span>:<span id=t_cns>0</span>]};
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STREAM</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT_IN_SETUP_WAIT_RDY2</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>OUT_IN_SETUP_FIN</span>;
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= {<span id=t_cns>5'b00000</span>, <span id=t_idt>TxEndP</span>[<span id=t_cns>3</span>:<span id=t_cns>1</span>]};
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STREAM</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT_IN_SETUP_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>FIN_SP</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT_IN_SETUP_CLR_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>OUT_IN_SETUP_WAIT_RDY2</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_SOF_FIN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_frameNum</span> &lt;= <span id=t_idt>frameNum</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>FIN_SP</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_SOF_WAIT_RDY3</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_SOF_CLR_WEN1</span>;
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= <span id=t_idt>frameNum</span>[<span id=t_cns>7</span>:<span id=t_cns>0</span>];
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STREAM</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_SOF_WAIT_RDY4</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_SOF_FIN1</span>;
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= {<span id=t_cns>5'b00000</span>, <span id=t_idt>frameNum</span>[<span id=t_cns>10</span>:<span id=t_cns>8</span>]};
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STREAM</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SEND_SOF_CLR_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>SEND_SOF_WAIT_RDY4</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_READ_FIFO</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_HCTxPortData</span> &lt;= <span id=t_idt>fifoData</span>;
+     <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STREAM</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_CLR_WEN</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_WAIT_READ_FIFO</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_CLR_REN</span>;
+      <span id=t_idt>next_fifoReadEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_FIFO_EMPTY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>fifoEmpty</span> == <span id=t_cns>1'b0</span>) 
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_WAIT_READ_FIFO</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_TERM_BYTE</span>;
+   `<span id=t_idt>DATA0_DATA1_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>FIN_SP</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_TERM_BYTE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_FIN</span>;
+      <span id=t_com>//Last byte is not valid data,</span>
+      <span id=t_com>//but the 'TX_PACKET_STOP' flag is required</span>
+      <span id=t_com>//by the SIE state machine to detect end of data packet</span>
+      <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_HCTxPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+      <span id=t_idt>next_HCTxPortCntl</span> &lt;= `<span id=t_idt>TX_PACKET_STOP</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_CLR_WEN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_FIFO_EMPTY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA0_DATA1_CLR_REN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_fifoReadEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_sndPkt</span> &lt;= `<span id=t_idt>DATA0_DATA1_READ_FIFO</span>;
+   <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sndPkt_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_sndPkt</span> &lt;= `<span id=t_idt>START_SP</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_sndPkt</span> &lt;= <span id=t_idt>NextState_sndPkt</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sndPkt_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>sendPacketRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_idt>HCTxPortReq</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>HCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>HCTxPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>HCTxPortCntl</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>frameNum</span> &lt;= <span id=t_cns>11'h000</span>;
+   <span id=t_idt>fifoReadEn</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>sendPacketRdy</span> &lt;= <span id=t_idt>next_sendPacketRdy</span>;
+   <span id=t_idt>HCTxPortReq</span> &lt;= <span id=t_idt>next_HCTxPortReq</span>;
+   <span id=t_idt>HCTxPortWEn</span> &lt;= <span id=t_idt>next_HCTxPortWEn</span>;
+   <span id=t_idt>HCTxPortData</span> &lt;= <span id=t_idt>next_HCTxPortData</span>;
+   <span id=t_idt>HCTxPortCntl</span> &lt;= <span id=t_idt>next_HCTxPortCntl</span>;
+   <span id=t_idt>frameNum</span> &lt;= <span id=t_idt>next_frameNum</span>;
+   <span id=t_idt>fifoReadEn</span> &lt;= <span id=t_idt>next_fifoReadEn</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

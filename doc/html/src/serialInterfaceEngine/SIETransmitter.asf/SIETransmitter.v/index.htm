@@ -1,0 +1,717 @@
+<html>
+<head>
+<title>SIETransmitter.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// SIETransmitter</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:02 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+
+<span id=t_kwd>module</span> <span id=t_idt>SIETransmitter</span> (<span id=t_idt>CRC16En</span>, <span id=t_idt>CRC16Result</span>, <span id=t_idt>CRC16UpdateRdy</span>, <span id=t_idt>CRC5En</span>, <span id=t_idt>CRC5Result</span>, <span id=t_idt>CRC5UpdateRdy</span>, <span id=t_idt>CRC5_8Bit</span>, <span id=t_idt>CRCData</span>, <span id=t_idt>JBit</span>, <span id=t_idt>KBit</span>, <span id=t_idt>SIEPortCtrlIn</span>, <span id=t_idt>SIEPortDataIn</span>, <span id=t_idt>SIEPortTxRdy</span>, <span id=t_idt>SIEPortWEn</span>, <span id=t_idt>TxByteOutCtrl</span>, <span id=t_idt>TxByteOut</span>, <span id=t_idt>USBWireCtrl</span>, <span id=t_idt>USBWireData</span>, <span id=t_idt>USBWireGnt</span>, <span id=t_idt>USBWireRdy</span>, <span id=t_idt>USBWireReq</span>, <span id=t_idt>USBWireWEn</span>, <span id=t_idt>clk</span>, <span id=t_idt>processTxByteRdy</span>, <span id=t_idt>processTxByteWEn</span>, <span id=t_idt>rst</span>, <span id=t_idt>rstCRC</span>);
+<span id=t_kwd>input</span>   [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC16Result</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>CRC16UpdateRdy</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC5Result</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>CRC5UpdateRdy</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>JBit</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>KBit</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlIn</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SIEPortWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>USBWireGnt</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>USBWireRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>processTxByteRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC16En</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC5En</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC5_8Bit</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>CRCData</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SIEPortTxRdy</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxByteOutCtrl</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxByteOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireCtrl</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireData</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireReq</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireWEn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>processTxByteWEn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>rstCRC</span>;
+
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC16En</span>, <span id=t_idt>next_CRC16En</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC16Result</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>CRC16UpdateRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC5En</span>, <span id=t_idt>next_CRC5En</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC5Result</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>CRC5UpdateRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC5_8Bit</span>, <span id=t_idt>next_CRC5_8Bit</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>CRCData</span>, <span id=t_idt>next_CRCData</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>JBit</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>KBit</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlIn</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataIn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SIEPortTxRdy</span>, <span id=t_idt>next_SIEPortTxRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SIEPortWEn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxByteOutCtrl</span>, <span id=t_idt>next_TxByteOutCtrl</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxByteOut</span>, <span id=t_idt>next_TxByteOut</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireCtrl</span>, <span id=t_idt>next_USBWireCtrl</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireData</span>, <span id=t_idt>next_USBWireData</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>USBWireGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>USBWireRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireReq</span>, <span id=t_idt>next_USBWireReq</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireWEn</span>, <span id=t_idt>next_USBWireWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>processTxByteRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>processTxByteWEn</span>, <span id=t_idt>next_processTxByteWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>rstCRC</span>, <span id=t_idt>next_rstCRC</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>SIEPortCtrl</span>, <span id=t_idt>next_SIEPortCtrl</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>SIEPortData</span>, <span id=t_idt>next_SIEPortData</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>4</span>:<span id=t_cns>0</span>]<span id=t_idt>i</span>, <span id=t_idt>next_i</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: SIETx</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_CHK_FIN</span> <span id=t_cns>6'b000000</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_CHK_FIN</span> <span id=t_cns>6'b000001</span>
+<span id=t_dir>`define</span> <span id=t_idt>DIR_CTL_CHK_FIN</span> <span id=t_cns>6'b000010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_CHK_PID</span> <span id=t_cns>6'b000011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_CHK_STOP</span> <span id=t_cns>6'b000100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_PKT_SENT</span> <span id=t_cns>6'b000101</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_CRC_PKT_SENT</span> <span id=t_cns>6'b000110</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_PID_PKT_SENT</span> <span id=t_cns>6'b000111</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_PKT_SENT</span> <span id=t_cns>6'b001000</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_PID_PKT_SENT</span> <span id=t_cns>6'b001001</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_HS_PKT_SENT</span> <span id=t_cns>6'b001010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT1</span> <span id=t_cns>6'b001011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_BYTE1_PKT_SENT1</span> <span id=t_cns>6'b001100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT2</span> <span id=t_cns>6'b001101</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_S1</span> <span id=t_cns>6'b001110</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_S3</span> <span id=t_cns>6'b001111</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_S4</span> <span id=t_cns>6'b010000</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_S5</span> <span id=t_cns>6'b010001</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_S6</span> <span id=t_cns>6'b010010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_SEND_IDLE1</span> <span id=t_cns>6'b010011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_SEND_IDLE2</span> <span id=t_cns>6'b010100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_SEND_IDLE3</span> <span id=t_cns>6'b010101</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_SIETX</span> <span id=t_cns>6'b010110</span>
+<span id=t_dir>`define</span> <span id=t_idt>STX_CHK_ST</span> <span id=t_cns>6'b010111</span>
+<span id=t_dir>`define</span> <span id=t_idt>STX_WAIT_BYTE</span> <span id=t_cns>6'b011000</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_STX_WAIT_GNT</span> <span id=t_cns>6'b011001</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_STX_WAIT_RDY</span> <span id=t_cns>6'b011010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_CRC_UPD_CRC</span> <span id=t_cns>6'b011011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_UPD_CRC</span> <span id=t_cns>6'b011100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_BYTE1_UPD_CRC</span> <span id=t_cns>6'b011101</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_CRC_WAIT_BYTE</span> <span id=t_cns>6'b011110</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_BYTE</span> <span id=t_cns>6'b011111</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_WAIT_BYTE</span> <span id=t_cns>6'b100000</span>
+<span id=t_dir>`define</span> <span id=t_idt>DIR_CTL_WAIT_GNT</span> <span id=t_cns>6'b100001</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_WAIT_GNT</span> <span id=t_cns>6'b100010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_HS_WAIT_RDY</span> <span id=t_cns>6'b100011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_PID_WAIT_RDY</span> <span id=t_cns>6'b100100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_WAIT_RDY</span> <span id=t_cns>6'b100101</span>
+<span id=t_dir>`define</span> <span id=t_idt>RES_ST_WAIT_RDY</span> <span id=t_cns>6'b100110</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_WAIT_RDY</span> <span id=t_cns>6'b100111</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_PID_WAIT_RDY</span> <span id=t_cns>6'b101000</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_CRC_WAIT_RDY</span> <span id=t_cns>6'b101001</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_RDY</span> <span id=t_cns>6'b101010</span>
+<span id=t_dir>`define</span> <span id=t_idt>DIR_CTL_WAIT_RDY</span> <span id=t_cns>6'b101011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY1</span> <span id=t_cns>6'b101100</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY2</span> <span id=t_cns>6'b101101</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_WAIT_RDY_PKT</span> <span id=t_cns>6'b101110</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_SPCL_WAIT_WIRE</span> <span id=t_cns>6'b101111</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_WAIT_RDY_WIRE</span> <span id=t_cns>6'b110000</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_WAIT_GNT</span> <span id=t_cns>6'b110001</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_CRC_WAIT_CRC_RDY</span> <span id=t_cns>6'b110010</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_DATA_DATA_WAIT_CRC_RDY</span> <span id=t_cns>6'b110011</span>
+<span id=t_dir>`define</span> <span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_CRC_RDY</span> <span id=t_cns>6'b110100</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>5</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_SIETx</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>5</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_SIETx</span>;
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: SIETx</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>SIEPortDataIn</span> <span id=t_kwd>or</span> <span id=t_idt>SIEPortCtrlIn</span> <span id=t_kwd>or</span> <span id=t_idt>i</span> <span id=t_kwd>or</span> <span id=t_idt>SIEPortData</span> <span id=t_kwd>or</span> <span id=t_idt>JBit</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16Result</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5Result</span> <span id=t_kwd>or</span> <span id=t_idt>KBit</span> <span id=t_kwd>or</span> <span id=t_idt>SIEPortCtrl</span> <span id=t_kwd>or</span> <span id=t_idt>SIEPortWEn</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireGnt</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireRdy</span> <span id=t_kwd>or</span> <span id=t_idt>processTxByteRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16UpdateRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5UpdateRdy</span> <span id=t_kwd>or</span> <span id=t_idt>processTxByteWEn</span> <span id=t_kwd>or</span> <span id=t_idt>TxByteOut</span> <span id=t_kwd>or</span> <span id=t_idt>TxByteOutCtrl</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireData</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireCtrl</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireReq</span> <span id=t_kwd>or</span> <span id=t_idt>USBWireWEn</span> <span id=t_kwd>or</span> <span id=t_idt>rstCRC</span> <span id=t_kwd>or</span> <span id=t_idt>CRCData</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5En</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5_8Bit</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16En</span> <span id=t_kwd>or</span> <span id=t_idt>SIEPortTxRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_SIETx</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>SIETx_NextState</span>
+  <span id=t_idt>NextState_SIETx</span> &lt;= <span id=t_idt>CurrState_SIETx</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_idt>processTxByteWEn</span>;
+  <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>TxByteOut</span>;
+  <span id=t_idt>next_TxByteOutCtrl</span> &lt;= <span id=t_idt>TxByteOutCtrl</span>;
+  <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>USBWireData</span>;
+  <span id=t_idt>next_USBWireCtrl</span> &lt;= <span id=t_idt>USBWireCtrl</span>;
+  <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_idt>USBWireReq</span>;
+  <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_idt>USBWireWEn</span>;
+  <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_idt>rstCRC</span>;
+  <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>CRCData</span>;
+  <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_idt>CRC5En</span>;
+  <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_idt>CRC5_8Bit</span>;
+  <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_idt>CRC16En</span>;
+  <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_idt>SIEPortTxRdy</span>;
+  <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_idt>SIEPortData</span>;
+  <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_idt>SIEPortCtrl</span>;
+  <span id=t_idt>next_i</span> &lt;= <span id=t_idt>i</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_SIETx</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>START_SIETX</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_TxByteOutCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_cns>2'b00</span>;
+     <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+     <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRCData</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_i</span> &lt;= <span id=t_cns>5'h0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>STX_CHK_ST</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortCtrl</span> == `<span id=t_idt>TX_PACKET_START</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_WAIT_GNT</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortCtrl</span> == `<span id=t_idt>TX_IDLE</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>IDLE_STX_WAIT_GNT</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortCtrl</span> == `<span id=t_idt>TX_DIRECT_CONTROL</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>DIR_CTL_WAIT_GNT</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortCtrl</span> == `<span id=t_idt>TX_RESUME_START</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_WAIT_GNT</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_i</span> &lt;= <span id=t_cns>5'h0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>STX_WAIT_BYTE</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortWEn</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_CHK_ST</span>;
+      <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_idt>SIEPortDataIn</span>;
+      <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_idt>SIEPortCtrlIn</span>;
+      <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DIR_CTL_CHK_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_i</span> &lt;= <span id=t_idt>i</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>i</span> == <span id=t_cns>5'h7</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>DIR_CTL_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DIR_CTL_WAIT_GNT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_i</span> &lt;= <span id=t_cns>5'h0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireGnt</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>DIR_CTL_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DIR_CTL_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>DIR_CTL_CHK_FIN</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>SIEPortData</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>];
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_CHK_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_i</span> &lt;= <span id=t_idt>i</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>i</span> == <span id=t_cns>5'h7</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+      <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>IDLE_STX_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_STX_WAIT_GNT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_i</span> &lt;= <span id=t_cns>5'h0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireGnt</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>IDLE_STX_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_STX_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>IDLE_CHK_FIN</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_cns>2'b00</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_CHK_PID</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortData</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == `<span id=t_idt>HANDSHAKE</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_HS_WAIT_RDY</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortData</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == `<span id=t_idt>TOKEN</span>) 
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_PID_WAIT_RDY</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortData</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == `<span id=t_idt>SPECIAL</span>) 
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_WAIT_RDY</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>SIEPortData</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == `<span id=t_idt>DATA</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_PID_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_WAIT_RDY_PKT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_CHK_PID</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= `<span id=t_idt>SYNC_BYTE</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_START</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_WAIT_RDY_WIRE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_WAIT_RDY_PKT</span>;
+      <span id=t_com>//actively drive the first J bit</span>
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireGnt</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_WAIT_RDY_WIRE</span>;
+   `<span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY2</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT1</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= ~<span id=t_idt>CRC16Result</span>[<span id=t_cns>7</span>:<span id=t_cns>0</span>];
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STREAM</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY2</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_CRC_PKT_SENT2</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= ~<span id=t_idt>CRC16Result</span>[<span id=t_cns>15</span>:<span id=t_cns>8</span>];
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STOP</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_DATA_CHK_STOP</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortCtrl</span> == `<span id=t_idt>TX_PACKET_STOP</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_CRC_WAIT_RDY1</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_CRC_RDY</span>;
+   `<span id=t_idt>PKT_ST_DATA_DATA_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_DATA_UPD_CRC</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>SIEPortData</span>;
+     <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_BYTE</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortWEn</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_CHK_STOP</span>;
+      <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_idt>SIEPortDataIn</span>;
+      <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_idt>SIEPortCtrlIn</span>;
+      <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_RDY</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STREAM</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_CRC_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>CRC16UpdateRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_UPD_CRC</span>;
+   `<span id=t_idt>PKT_ST_DATA_PID_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_DATA_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_DATA_PID_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_DATA_PID_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STREAM</span>;
+      <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_HS_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_HS_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_HS_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STOP</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_WAIT_WIRE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE2</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE3</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE3</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STOP</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_SPCL_WAIT_WIRE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_SPCL_SEND_IDLE1</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_BYTE1_PKT_SENT1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_BYTE1_UPD_CRC</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>SIEPortData</span>;
+     <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_BYTE</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortWEn</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_CRC_RDY</span>;
+      <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_idt>SIEPortDataIn</span>;
+      <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_idt>SIEPortCtrlIn</span>;
+      <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_RDY</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_BYTE1_PKT_SENT1</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STREAM</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_CRC_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>CRC5UpdateRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_BYTE1_UPD_CRC</span>;
+   `<span id=t_idt>PKT_ST_TKN_CRC_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_CRC_UPD_CRC</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>SIEPortData</span>;
+     <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_BYTE</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>SIEPortWEn</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_CRC_RDY</span>;
+      <span id=t_idt>next_SIEPortData</span> &lt;= <span id=t_idt>SIEPortDataIn</span>;
+      <span id=t_idt>next_SIEPortCtrl</span> &lt;= <span id=t_idt>SIEPortCtrlIn</span>;
+      <span id=t_idt>next_SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_RDY</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_CRC_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= {~<span id=t_idt>CRC5Result</span>, <span id=t_idt>SIEPortData</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>] };
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STOP</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_CRC_WAIT_CRC_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>CRC5UpdateRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_CRC_UPD_CRC</span>;
+   `<span id=t_idt>PKT_ST_TKN_PID_PKT_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_BYTE1_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>PKT_ST_TKN_PID_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processTxByteRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>PKT_ST_TKN_PID_PKT_SENT</span>;
+      <span id=t_idt>next_processTxByteWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_TxByteOut</span> &lt;= <span id=t_idt>SIEPortData</span>;
+      <span id=t_idt>next_TxByteOutCtrl</span> &lt;= `<span id=t_idt>DATA_STREAM</span>;
+      <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_CHK_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>i</span> == `<span id=t_idt>RESUME_LEN</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_S1</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_S1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_S3</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= `<span id=t_idt>SE0</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_S3</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_S4</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= `<span id=t_idt>SE0</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_S4</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_S5</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_S5</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_S6</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>JBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_S6</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>STX_WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>RES_ST_WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireGnt</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_WAIT_RDY</span>;
+   `<span id=t_idt>RES_ST_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBWireRdy</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_SIETx</span> &lt;= `<span id=t_idt>RES_ST_CHK_FIN</span>;
+      <span id=t_idt>next_USBWireData</span> &lt;= <span id=t_idt>KBit</span>;
+      <span id=t_idt>next_USBWireCtrl</span> &lt;= `<span id=t_idt>DRIVE</span>;
+      <span id=t_idt>next_USBWireWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_i</span> &lt;= <span id=t_idt>i</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>SIETx_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_SIETx</span> &lt;= `<span id=t_idt>START_SIETX</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_SIETx</span> &lt;= <span id=t_idt>NextState_SIETx</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>SIETx_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>SIEPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>SIEPortCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>i</span> &lt;= <span id=t_cns>5'h0</span>;
+   <span id=t_idt>processTxByteWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>TxByteOut</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>TxByteOutCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>USBWireData</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>USBWireCtrl</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+   <span id=t_idt>USBWireReq</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>USBWireWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRCData</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRC5_8Bit</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SIEPortTxRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>SIEPortData</span> &lt;= <span id=t_idt>next_SIEPortData</span>;
+   <span id=t_idt>SIEPortCtrl</span> &lt;= <span id=t_idt>next_SIEPortCtrl</span>;
+   <span id=t_idt>i</span> &lt;= <span id=t_idt>next_i</span>;
+   <span id=t_idt>processTxByteWEn</span> &lt;= <span id=t_idt>next_processTxByteWEn</span>;
+   <span id=t_idt>TxByteOut</span> &lt;= <span id=t_idt>next_TxByteOut</span>;
+   <span id=t_idt>TxByteOutCtrl</span> &lt;= <span id=t_idt>next_TxByteOutCtrl</span>;
+   <span id=t_idt>USBWireData</span> &lt;= <span id=t_idt>next_USBWireData</span>;
+   <span id=t_idt>USBWireCtrl</span> &lt;= <span id=t_idt>next_USBWireCtrl</span>;
+   <span id=t_idt>USBWireReq</span> &lt;= <span id=t_idt>next_USBWireReq</span>;
+   <span id=t_idt>USBWireWEn</span> &lt;= <span id=t_idt>next_USBWireWEn</span>;
+   <span id=t_idt>rstCRC</span> &lt;= <span id=t_idt>next_rstCRC</span>;
+   <span id=t_idt>CRCData</span> &lt;= <span id=t_idt>next_CRCData</span>;
+   <span id=t_idt>CRC5En</span> &lt;= <span id=t_idt>next_CRC5En</span>;
+   <span id=t_idt>CRC5_8Bit</span> &lt;= <span id=t_idt>next_CRC5_8Bit</span>;
+   <span id=t_idt>CRC16En</span> &lt;= <span id=t_idt>next_CRC16En</span>;
+   <span id=t_idt>SIEPortTxRdy</span> &lt;= <span id=t_idt>next_SIEPortTxRdy</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

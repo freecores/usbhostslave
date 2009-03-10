@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>usbSerialInterfaceEngine_h.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbSerialInterfaceEngine_h.v                                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:13 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+ <span id=t_com>// Sampling at 'OVER_SAMPLE_RATE' * full speed bit rate</span>
+<span id=t_dir>`define</span> <span id=t_idt>OVER_SAMPLE_RATE</span> <span id=t_cns>4</span>
+
+<span id=t_com>//timeOuts</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_PACKET_TOUT</span> <span id=t_cns>18</span>
+
+<span id=t_com>//TXStreamControlTypes</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_DIRECT_CONTROL</span> <span id=t_cns>8'h00</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_RESUME_START</span> <span id=t_cns>8'h01</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_PACKET_START</span> <span id=t_cns>8'h02</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_PACKET_STREAM</span> <span id=t_cns>8'h03</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_PACKET_STOP</span> <span id=t_cns>8'h04</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_IDLE</span> <span id=t_cns>8'h05</span>
+
+<span id=t_com>//RXStreamControlTypes</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_PACKET_START</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_PACKET_STREAM</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_PACKET_STOP</span> <span id=t_cns>2</span>
+
+<span id=t_com>//USBLineStates</span>
+<span id=t_com>// ONE_ZERO corresponds to differential 1. ie D+ = Hi, D- = Lo</span>
+<span id=t_dir>`define</span> <span id=t_idt>ONE_ZERO</span> <span id=t_cns>2'b10</span>
+<span id=t_dir>`define</span> <span id=t_idt>ZERO_ONE</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>SE0</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>SE1</span> <span id=t_cns>2'b11</span>
+
+<span id=t_com>//RXStatusIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>CRC_ERROR_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>BIT_STUFF_ERROR_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_OVERFLOW_BIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>NAK_RXED_BIT</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>STALL_RXED_BIT</span> <span id=t_cns>4</span>
+<span id=t_dir>`define</span> <span id=t_idt>ACK_RXED_BIT</span> <span id=t_cns>5</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_SEQUENCE_BIT</span> <span id=t_cns>6</span>
+
+<span id=t_com>//usbWireControlStates</span>
+<span id=t_dir>`define</span> <span id=t_idt>TRI_STATE</span> <span id=t_cns>1'b0</span>
+<span id=t_dir>`define</span> <span id=t_idt>DRIVE</span> <span id=t_cns>1'b1</span>
+
+<span id=t_com>//limits</span>
+<span id=t_dir>`define</span> <span id=t_idt>MAX_CONSEC_SAME_BITS</span> <span id=t_cns>6</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_WAIT_TIME</span> <span id=t_cns>10</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_WAIT_TIME_MINUS1</span> <span id=t_cns>9</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_LEN</span> <span id=t_cns>20</span>
+<span id=t_dir>`define</span> <span id=t_idt>CONNECT_WAIT_TIME</span> <span id=t_cns>8'd20</span>
+<span id=t_dir>`define</span> <span id=t_idt>DISCONNECT_WAIT_TIME</span> <span id=t_cns>8'd20</span>
+
+<span id=t_com>//RXConnectStates</span>
+<span id=t_dir>`define</span> <span id=t_idt>DISCONNECT</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>LOW_SPEED_CONNECT</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>FULL_SPEED_CONNECT</span> <span id=t_cns>2'b10</span>
+
+<span id=t_com>//TX_RX_InternalStreamTypes</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_START</span> <span id=t_cns>8'h00</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_STOP</span> <span id=t_cns>8'h01</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_STREAM</span> <span id=t_cns>8'h02</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_BIT_STUFF_ERROR</span> <span id=t_cns>8'h03</span>
+
+<span id=t_com>//RXStMach states</span>
+<span id=t_dir>`define</span> <span id=t_idt>DISCONNECT_ST</span> <span id=t_cns>4'h0</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_FULL_SPEED_CONN_ST</span> <span id=t_cns>4'h1</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LOW_SPEED_CONN_ST</span> <span id=t_cns>4'h2</span>
+<span id=t_dir>`define</span> <span id=t_idt>CONNECT_LOW_SPEED_ST</span> <span id=t_cns>4'h3</span>
+<span id=t_dir>`define</span> <span id=t_idt>CONNECT_FULL_SPEED_ST</span> <span id=t_cns>4'h4</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LOW_SP_DISCONNECT_ST</span> <span id=t_cns>4'h5</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_FULL_SP_DISCONNECT_ST</span> <span id=t_cns>4'h6</span>
+
+<span id=t_com>//RXBitStateMachStates</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_BIT_ST</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_RECEIVE_BIT_ST</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_RESUME_ST</span> <span id=t_cns>2'b10</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_END_WAIT_ST</span> <span id=t_cns>2'b11</span>
+
+<span id=t_com>//RXByteStateMachStates </span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_BYTE_ST</span> <span id=t_cns>3'b000</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHECK_SYNC_ST</span> <span id=t_cns>3'b001</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHECK_PID_ST</span> <span id=t_cns>3'b010</span>
+<span id=t_dir>`define</span> <span id=t_idt>HS_BYTE_ST</span> <span id=t_cns>3'b011</span>
+<span id=t_dir>`define</span> <span id=t_idt>TOKEN_BYTE_ST</span> <span id=t_cns>3'b100</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_BYTE_ST</span> <span id=t_cns>3'b101</span>
+
+
+
+
+</pre>
+</body>
+</html>

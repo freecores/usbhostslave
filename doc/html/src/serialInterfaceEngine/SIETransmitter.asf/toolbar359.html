@@ -1,0 +1,57 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 4;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(990,1164,1092,1266,Click455,Over455);
+FUB[1] = new Array(1010,1864,1112,1966,Click465,Over465);
+FUB[2] = new Array(1005,1606,1107,1708,Click474,Over474);
+FUB[3] = new Array(1007,1335,1110,1437,Click483,Over483);
+
+//----------------------------------------------------------------------------
+function Click455(){fubclick('./index455.htm');}
+function Over455(){window.status='Hierarchical State SPCL';};
+function Click465(){fubclick('./index465.htm');}
+function Over465(){window.status='Hierarchical State DATA';};
+function Click474(){fubclick('./index474.htm');}
+function Over474(){window.status='Hierarchical State HS';};
+function Click483(){fubclick('./index483.htm');}
+function Over483(){window.status='Hierarchical State TKN';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 359 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./SIETransmitter_PKT_ST.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./SIETransmitter.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

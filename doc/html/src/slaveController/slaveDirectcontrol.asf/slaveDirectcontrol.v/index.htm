@@ -1,0 +1,210 @@
+<html>
+<head>
+<title>slaveDirectcontrol.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// slaveDirectControl</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:26 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>slaveDirectControl</span> (<span id=t_idt>SCTxPortCntl</span>, <span id=t_idt>SCTxPortData</span>, <span id=t_idt>SCTxPortGnt</span>, <span id=t_idt>SCTxPortRdy</span>, <span id=t_idt>SCTxPortReq</span>, <span id=t_idt>SCTxPortWEn</span>, <span id=t_idt>clk</span>, <span id=t_idt>directControlEn</span>, <span id=t_idt>directControlLineState</span>, <span id=t_idt>rst</span>);
+<span id=t_kwd>input</span>   <span id=t_idt>SCTxPortGnt</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SCTxPortRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>directControlEn</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>directControlLineState</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortCntl</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortData</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SCTxPortReq</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SCTxPortWEn</span>;
+
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortCntl</span>, <span id=t_idt>next_SCTxPortCntl</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortData</span>, <span id=t_idt>next_SCTxPortData</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SCTxPortGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SCTxPortRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SCTxPortReq</span>, <span id=t_idt>next_SCTxPortReq</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SCTxPortWEn</span>, <span id=t_idt>next_SCTxPortWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>directControlEn</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>directControlLineState</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: slvDrctCntl</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_SDC</span> <span id=t_cns>3'b000</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_DRCT_CNTL</span> <span id=t_cns>3'b001</span>
+<span id=t_dir>`define</span> <span id=t_idt>DRCT_CNTL_WAIT_GNT</span> <span id=t_cns>3'b010</span>
+<span id=t_dir>`define</span> <span id=t_idt>DRCT_CNTL_CHK_LOOP</span> <span id=t_cns>3'b011</span>
+<span id=t_dir>`define</span> <span id=t_idt>DRCT_CNTL_WAIT_RDY</span> <span id=t_cns>3'b100</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_FIN</span> <span id=t_cns>3'b101</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_WAIT_GNT</span> <span id=t_cns>3'b110</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_WAIT_RDY</span> <span id=t_cns>3'b111</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>2</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_slvDrctCntl</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>2</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_slvDrctCntl</span>;
+
+<span id=t_com>// Diagram actions (continuous assignments allowed only: assign ...)</span>
+<span id=t_com>// diagram ACTION</span>
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: slvDrctCntl</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>directControlLineState</span> <span id=t_kwd>or</span> <span id=t_idt>directControlEn</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortGnt</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortRdy</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortReq</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortWEn</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortData</span> <span id=t_kwd>or</span> <span id=t_idt>SCTxPortCntl</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_slvDrctCntl</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvDrctCntl_NextState</span>
+  <span id=t_idt>NextState_slvDrctCntl</span> &lt;= <span id=t_idt>CurrState_slvDrctCntl</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_SCTxPortReq</span> &lt;= <span id=t_idt>SCTxPortReq</span>;
+  <span id=t_idt>next_SCTxPortWEn</span> &lt;= <span id=t_idt>SCTxPortWEn</span>;
+  <span id=t_idt>next_SCTxPortData</span> &lt;= <span id=t_idt>SCTxPortData</span>;
+  <span id=t_idt>next_SCTxPortCntl</span> &lt;= <span id=t_idt>SCTxPortCntl</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_slvDrctCntl</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>START_SDC</span>:
+     <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>CHK_DRCT_CNTL</span>;
+   `<span id=t_idt>CHK_DRCT_CNTL</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>directControlEn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>DRCT_CNTL_WAIT_GNT</span>;
+      <span id=t_idt>next_SCTxPortReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>IDLE_WAIT_GNT</span>;
+      <span id=t_idt>next_SCTxPortReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>DRCT_CNTL_WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SCTxPortGnt</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>DRCT_CNTL_WAIT_RDY</span>;
+   `<span id=t_idt>DRCT_CNTL_CHK_LOOP</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>directControlEn</span> == <span id=t_cns>1'b0</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>CHK_DRCT_CNTL</span>;
+      <span id=t_idt>next_SCTxPortReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>DRCT_CNTL_WAIT_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DRCT_CNTL_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>DRCT_CNTL_CHK_LOOP</span>;
+      <span id=t_idt>next_SCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_SCTxPortData</span> &lt;= {<span id=t_cns>6'b000000</span>, <span id=t_idt>directControlLineState</span>};
+      <span id=t_idt>next_SCTxPortCntl</span> &lt;= `<span id=t_idt>TX_DIRECT_CONTROL</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_SCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_SCTxPortReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>CHK_DRCT_CNTL</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SCTxPortGnt</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>IDLE_WAIT_RDY</span>;
+   `<span id=t_idt>IDLE_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SCTxPortRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvDrctCntl</span> &lt;= `<span id=t_idt>IDLE_FIN</span>;
+      <span id=t_idt>next_SCTxPortWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_SCTxPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+      <span id=t_idt>next_SCTxPortCntl</span> &lt;= `<span id=t_idt>TX_IDLE</span>;
+     <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvDrctCntl_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_slvDrctCntl</span> &lt;= `<span id=t_idt>START_SDC</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_slvDrctCntl</span> &lt;= <span id=t_idt>NextState_slvDrctCntl</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvDrctCntl_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>SCTxPortCntl</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>SCTxPortData</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>SCTxPortWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SCTxPortReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>SCTxPortCntl</span> &lt;= <span id=t_idt>next_SCTxPortCntl</span>;
+   <span id=t_idt>SCTxPortData</span> &lt;= <span id=t_idt>next_SCTxPortData</span>;
+   <span id=t_idt>SCTxPortWEn</span> &lt;= <span id=t_idt>next_SCTxPortWEn</span>;
+   <span id=t_idt>SCTxPortReq</span> &lt;= <span id=t_idt>next_SCTxPortReq</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

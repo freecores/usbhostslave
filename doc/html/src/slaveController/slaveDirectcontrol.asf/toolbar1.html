@@ -1,0 +1,51 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 2;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(488,1130,591,1232,Click78,Over78);
+FUB[1] = new Array(1112,1183,1215,1285,Click127,Over127);
+
+//----------------------------------------------------------------------------
+function Click78(){fubclick('./index78.htm');}
+function Over78(){window.status='Hierarchical State DRCT_CNTL';};
+function Click127(){fubclick('./index127.htm');}
+function Over127(){window.status='Hierarchical State IDLE';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./slaveDirectcontrol.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./slaveDirectcontrol.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

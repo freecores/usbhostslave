@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>usbHostSlave_TB.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//--------------------------------------------------------------------------------------------------</span>
+<span id=t_com>//</span>
+<span id=t_com>// Title       : usbHostSlave_tb</span>
+<span id=t_com>// Design      : usbhostslave</span>
+<span id=t_com>// Author      : Steve</span>
+<span id=t_com>// Company     : Base2Designs</span>
+<span id=t_com>//</span>
+<span id=t_com>//-------------------------------------------------------------------------------------------------</span>
+<span id=t_com>//</span>
+<span id=t_com>// File        : usbHostSlave_TB.v</span>
+<span id=t_com>// Generated   : Thu Jun 10 22:02:35 2004</span>
+<span id=t_com>// From        : usbHostSlave_TB_settings.txt</span>
+<span id=t_com>// By          : tb_verilog.pl ver. ver 1.2s</span>
+<span id=t_com>//</span>
+<span id=t_com>//-------------------------------------------------------------------------------------------------</span>
+<span id=t_com>//</span>
+<span id=t_com>// Description : </span>
+<span id=t_com>//</span>
+<span id=t_com>//-------------------------------------------------------------------------------------------------</span>
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ps</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_kwd>module</span> <span id=t_idt>usbHostSlave_tb</span>;
+<span id=t_com>//Parameters declaration: </span>
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>HOST_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>HOST_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>HOST_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>HOST_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP0_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP0_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP0_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP0_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP1_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP1_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP1_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP1_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP2_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP2_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP2_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP2_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP3_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP3_FIFO_DEPTH</span> = <span id=t_cns>64</span>;
+<span id=t_kwd>defparam</span> <span id=t_idt>UUT</span>.<span id=t_idt>EP3_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+<span id=t_kwd>parameter</span> <span id=t_idt>EP3_FIFO_ADDR_WIDTH</span> = <span id=t_cns>6</span>;
+
+<span id=t_com>//Internal signals declarations:</span>
+<span id=t_kwd>reg</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>address_i</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>data_i</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>data_o</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>writeEn</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>ack_o</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostSOFSentIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostConnEventIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostResumeIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostTransDoneIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveSOFRxedIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveResetEventIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveResumeIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveTransDoneIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveNAKSentIntOut</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>USBWireDataIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataInTick</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>USBWireDataOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataOutTick</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireCtrlOut</span>;
+
+
+
+<span id=t_com>// Unit Under Test port map</span>
+  <span id=t_idt>usbHostSlave</span> <span id=t_idt>UUT</span> (
+   .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+   .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+   .<span id=t_idt>address_i</span>(<span id=t_idt>address_i</span>),
+   .<span id=t_idt>data_i</span>(<span id=t_idt>data_i</span>),
+   .<span id=t_idt>data_o</span>(<span id=t_idt>data_o</span>),
+   .<span id=t_idt>writeEn</span>(<span id=t_idt>writeEn</span>),
+   .<span id=t_idt>strobe_i</span>(<span id=t_idt>strobe_i</span>),
+   .<span id=t_idt>ack_o</span>(<span id=t_idt>ack_o</span>),
+   .<span id=t_idt>hostSOFSentIntOut</span>(<span id=t_idt>hostSOFSentIntOut</span>),
+   .<span id=t_idt>hostConnEventIntOut</span>(<span id=t_idt>hostConnEventIntOut</span>),
+   .<span id=t_idt>hostResumeIntOut</span>(<span id=t_idt>hostResumeIntOut</span>),
+   .<span id=t_idt>hostTransDoneIntOut</span>(<span id=t_idt>hostTransDoneIntOut</span>),
+   .<span id=t_idt>slaveSOFRxedIntOut</span>(<span id=t_idt>slaveSOFRxedIntOut</span>),
+   .<span id=t_idt>slaveResetEventIntOut</span>(<span id=t_idt>slaveResetEventIntOut</span>),
+   .<span id=t_idt>slaveResumeIntOut</span>(<span id=t_idt>slaveResumeIntOut</span>),
+   .<span id=t_idt>slaveTransDoneIntOut</span>(<span id=t_idt>slaveTransDoneIntOut</span>),
+    .<span id=t_idt>slaveNAKSentIntOut</span>(<span id=t_idt>slaveNAKSentIntOut</span>),
+   .<span id=t_idt>USBWireDataIn</span>(<span id=t_idt>USBWireDataIn</span>),
+   .<span id=t_idt>USBWireDataInTick</span>(<span id=t_idt>USBWireDataInTick</span>),
+   .<span id=t_idt>USBWireDataOut</span>(<span id=t_idt>USBWireDataOut</span>),
+   .<span id=t_idt>USBWireDataOutTick</span>(<span id=t_idt>USBWireDataOutTick</span>),
+   .<span id=t_idt>USBWireCtrlOut</span>(<span id=t_idt>USBWireCtrlOut</span>));
+
+<span id=t_kwd>initial</span>
+  <span id=t_sys>$monitor</span>(<span id=t_sys>$realtime</span>,,<span id=t_cns>"ps %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h "</span>,<span id=t_idt>clk</span>,<span id=t_idt>rst</span>,<span id=t_idt>address_i</span>,<span id=t_idt>data_i</span>,<span id=t_idt>data_o</span>,<span id=t_idt>writeEn</span>,<span id=t_idt>strobe_i</span>,<span id=t_idt>ack_o</span>,<span id=t_idt>hostSOFSentIntOut</span>,<span id=t_idt>hostConnEventIntOut</span>,<span id=t_idt>hostResumeIntOut</span>,<span id=t_idt>hostTransDoneIntOut</span>,<span id=t_idt>slaveSOFRxedIntOut</span>,<span id=t_idt>slaveResetEventIntOut</span>,<span id=t_idt>slaveResumeIntOut</span>,<span id=t_idt>slaveTransDoneIntOut</span>,<span id=t_idt>USBWireDataIn</span>,<span id=t_idt>USBWireDataInTick</span>,<span id=t_idt>USBWireDataOut</span>,<span id=t_idt>USBWireDataOutTick</span>,<span id=t_idt>USBWireCtrlOut</span>);
+<span id=t_kwd>endmodule</span>
+
+</pre>
+</body>
+</html>

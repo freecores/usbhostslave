@@ -1,0 +1,29 @@
+<html>
+<script language="JavaScript">
+function XNotify(){}
+function LoadExp(){window.parent.frames["Map"].window.location.href="./map_e.htm";}
+function LoadColl(){window.parent.frames["Map"].window.location.href="./map_c.htm";}
+if(!document.all){
+	document.captureEvents(Event.CLICK | Event.ONLOAD);
+	document.images["COLL"].onclick = LoadColl;
+	document.images["EXP"].onclick = LoadExp;
+	document.onload = XNotify;
+}
+</script>
+
+<body leftmargin="4" topmargin="2" rightmargin="0" bottommargin="2" marhinheight="0" marginwidth="0" 
+bgcolor="white" background="./../images/aldec.gif"
+onLoad="XNotify()"
+>
+<table align="left" border="0" cellspacing="0" cellpadding="0" valign="center" align="center" height="100%">
+ <tr>
+  <td>
+	<img onClick="LoadColl()" name="COLL" src="./../images/set/coll.gif" alt="Load collapsed tree" width="18" height="16"></a>
+  </td>
+  <td>
+	<img onClick="LoadExp()" name="EXP"  src="./../images/set/exp.gif" alt="Load expanded tree" width="18" height="16">
+  </td>
+ </tr>
+</table>
+</body>
+</html>

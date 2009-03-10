@@ -1,0 +1,388 @@
+<html>
+<head>
+<title>usbSerialInterfaceEngine.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbSerialInterfaceEngine.v                                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:05 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>usbSerialInterfaceEngine</span>(
+  <span id=t_idt>clk</span>, <span id=t_idt>rst</span>,
+  <span id=t_com>//readUSBWireData</span>
+  <span id=t_idt>USBWireDataIn</span>,
+  <span id=t_idt>USBWireDataInTick</span>,
+  <span id=t_com>//writeUSBWireData</span>
+  <span id=t_idt>USBWireDataOut</span>,
+  <span id=t_idt>USBWireCtrlOut</span>,
+  <span id=t_idt>USBWireDataOutTick</span>,
+  <span id=t_com>//SIEReceiver</span>
+  <span id=t_idt>connectState</span>,
+  <span id=t_com>//processRxBit</span>
+  <span id=t_idt>resumeDetected</span>,
+  <span id=t_com>//processRxByte</span>
+  <span id=t_idt>RxCtrlOut</span>, 
+  <span id=t_idt>RxDataOutWEn</span>, 
+  <span id=t_idt>RxDataOut</span>, 
+    <span id=t_com>//SIETransmitter</span>
+  <span id=t_idt>SIEPortCtrlIn</span>,
+  <span id=t_idt>SIEPortDataIn</span>, 
+  <span id=t_idt>SIEPortTxRdy</span>, 
+  <span id=t_idt>SIEPortWEn</span>, 
+    <span id=t_com>//lineControlUpdate</span>
+  <span id=t_idt>fullSpeedPolarity</span>,
+  <span id=t_idt>fullSpeedBitRate</span>,
+  <span id=t_idt>noActivityTimeOut</span>
+);
+
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>, <span id=t_idt>rst</span>;
+<span id=t_com>//readUSBWireData</span>
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataIn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireDataInTick</span>;
+
+<span id=t_com>//writeUSBWireData</span>
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireCtrlOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>noActivityTimeOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>USBWireDataOutTick</span>;
+
+<span id=t_com>//SIEReceiver</span>
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectState</span>;
+<span id=t_com>//processRxBit</span>
+<span id=t_kwd>output</span> <span id=t_idt>resumeDetected</span>;
+<span id=t_com>//processRxByte</span>
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>RxDataOutWEn</span>; 
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataOut</span>; 
+<span id=t_com>//SIETransmitter</span>
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlIn</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataIn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SIEPortTxRdy</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>SIEPortWEn</span>;
+<span id=t_com>//lineControlUpdate</span>
+<span id=t_kwd>input</span> <span id=t_idt>fullSpeedPolarity</span>;
+<span id=t_kwd>input</span> <span id=t_idt>fullSpeedBitRate</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>, <span id=t_idt>rst</span>;
+<span id=t_com>//readUSBWireData</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataInTick</span>;
+<span id=t_com>//writeUSBWireData</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBWireDataOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireCtrlOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>noActivityTimeOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireDataOutTick</span>;
+<span id=t_com>//SIEReceiver</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectState</span>;
+<span id=t_com>//processRxBit</span>
+<span id=t_kwd>wire</span> <span id=t_idt>resumeDetected</span>;
+<span id=t_com>//processRxByte</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RxDataOutWEn</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataOut</span>; 
+<span id=t_com>//SIETransmitter</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortCtrlIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SIEPortDataIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortTxRdy</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>SIEPortWEn</span>;
+<span id=t_com>//lineControlUpdate</span>
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedPolarity</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedBitRate</span>;
+
+<span id=t_com>//internal wiring</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxBitsFromSIERxToPrRxBit</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>processRxBitsWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>processRxBitRdy</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxWireDataFromWireRxToSIERx</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxWireDataWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIERxRdyOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>disableWireRead</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBitsFromArbToWire</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxCtrlFromArbToWire</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireRdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>USBWireReadyFromTxArb</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>prcTxByteCtrl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>prcTxByteData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>prcTxByteGnt</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>prcTxByteReq</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>prcTxByteWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIETxCtrl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>SIETxData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIETxGnt</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIETxReq</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIETxWEn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxByteFromSIEToPrcTxByte</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxCtrlFromSIEToPrcTxByte</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>JBit</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>KBit</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>processRxByteWEn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataFromPrcRxBitToPrcRxByte</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlFromPrcRxBitToPrcRxByte</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>processRxByteRdy</span>;
+<span id=t_com>//Rx CRC</span>
+<span id=t_kwd>wire</span> <span id=t_idt>RxCRC16En</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCRC16Result</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxCRC16UpdateRdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxCRC5En</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCRC5Result</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RxCRC5_8Bit</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCRCData</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RxRstCRC</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxCRC5UpdateRdy</span>;
+<span id=t_com>//Tx CRC</span>
+<span id=t_kwd>wire</span> <span id=t_idt>TxCRC16En</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>TxCRC16Result</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxCRC16UpdateRdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxCRC5En</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>TxCRC5Result</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>TxCRC5_8Bit</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxCRCData</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>TxRstCRC</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>TxCRC5UpdateRdy</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>processTxByteRdy</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>processTxByteWEn</span>; 
+
+<span id=t_idt>lineControlUpdate</span> <span id=t_idt>u_lineControlUpdate</span>
+  (.<span id=t_idt>fullSpeedPolarity</span>(<span id=t_idt>fullSpeedPolarity</span>),
+  .<span id=t_idt>fullSpeedBitRate</span>(<span id=t_idt>fullSpeedBitRate</span>),
+  .<span id=t_idt>JBit</span>(<span id=t_idt>JBit</span>),
+  .<span id=t_idt>KBit</span>(<span id=t_idt>KBit</span>) );
+
+<span id=t_idt>SIEReceiver</span> <span id=t_idt>u_SIEReceiver</span>
+  (.<span id=t_idt>RxBitsOut</span>(<span id=t_idt>RxBitsFromSIERxToPrRxBit</span>),
+  .<span id=t_idt>RxWireDataIn</span>(<span id=t_idt>RxWireDataFromWireRxToSIERx</span>), 
+  .<span id=t_idt>RxWireDataWEn</span>(<span id=t_idt>RxWireDataWEn</span>), 
+  .<span id=t_idt>SIERxRdyOut</span>(<span id=t_idt>SIERxRdyOut</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>connectState</span>(<span id=t_idt>connectState</span>),
+  .<span id=t_idt>processRxBitRdyIn</span>(<span id=t_idt>processRxBitRdy</span>), 
+  .<span id=t_idt>processRxBitsWEn</span>(<span id=t_idt>processRxBitsWEn</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) );
+  
+<span id=t_idt>processRxBit</span> <span id=t_idt>u_processRxBit</span>
+  (.<span id=t_idt>JBit</span>(<span id=t_idt>JBit</span>), 
+  .<span id=t_idt>KBit</span>(<span id=t_idt>KBit</span>), 
+  .<span id=t_idt>RxBitsIn</span>(<span id=t_idt>RxBitsFromSIERxToPrRxBit</span>), 
+  .<span id=t_idt>RxCtrlOut</span>(<span id=t_idt>RxCtrlFromPrcRxBitToPrcRxByte</span>), 
+  .<span id=t_idt>RxDataOut</span>(<span id=t_idt>RxDataFromPrcRxBitToPrcRxByte</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>processRxBitRdy</span>(<span id=t_idt>processRxBitRdy</span>), 
+  .<span id=t_idt>processRxBitsWEn</span>(<span id=t_idt>processRxBitsWEn</span>), 
+  .<span id=t_idt>processRxByteWEn</span>(<span id=t_idt>processRxByteWEn</span>), 
+  .<span id=t_idt>resumeDetected</span>(<span id=t_idt>resumeDetected</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>processRxByteRdy</span>(<span id=t_idt>processRxByteRdy</span>) );
+  
+<span id=t_idt>processRxByte</span> <span id=t_idt>u_processRxByte</span>
+  (.<span id=t_idt>CRC16En</span>(<span id=t_idt>RxCRC16En</span>), 
+  .<span id=t_idt>CRC16Result</span>(<span id=t_idt>RxCRC16Result</span>), 
+  .<span id=t_idt>CRC16UpdateRdy</span>(<span id=t_idt>RxCRC16UpdateRdy</span>),
+  .<span id=t_idt>CRC5En</span>(<span id=t_idt>RxCRC5En</span>), 
+  .<span id=t_idt>CRC5Result</span>(<span id=t_idt>RxCRC5Result</span>), 
+  .<span id=t_idt>CRC5_8Bit</span>(<span id=t_idt>RxCRC5_8Bit</span>),
+  .<span id=t_idt>CRC5UpdateRdy</span>(<span id=t_idt>RxCRC5UpdateRdy</span>),
+  .<span id=t_idt>CRCData</span>(<span id=t_idt>RxCRCData</span>), 
+  .<span id=t_idt>RxByteIn</span>(<span id=t_idt>RxDataFromPrcRxBitToPrcRxByte</span>), 
+  .<span id=t_idt>RxCtrlIn</span>(<span id=t_idt>RxCtrlFromPrcRxBitToPrcRxByte</span>), 
+  .<span id=t_idt>RxCtrlOut</span>(<span id=t_idt>RxCtrlOut</span>), 
+  .<span id=t_idt>RxDataOutWEn</span>(<span id=t_idt>RxDataOutWEn</span>), 
+  .<span id=t_idt>RxDataOut</span>(<span id=t_idt>RxDataOut</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>processRxDataInWEn</span>(<span id=t_idt>processRxByteWEn</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>rstCRC</span>(<span id=t_idt>RxRstCRC</span>),
+  .<span id=t_idt>processRxByteRdy</span>(<span id=t_idt>processRxByteRdy</span>) ); 
+  
+  
+<span id=t_idt>updateCRC5</span> <span id=t_idt>RxUpdateCRC5</span>
+  (.<span id=t_idt>rstCRC</span>(<span id=t_idt>RxRstCRC</span>), 
+  .<span id=t_idt>CRCResult</span>(<span id=t_idt>RxCRC5Result</span>), 
+  .<span id=t_idt>CRCEn</span>(<span id=t_idt>RxCRC5En</span>), 
+  .<span id=t_idt>CRC5_8BitIn</span>(<span id=t_idt>RxCRC5_8Bit</span>), 
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>RxCRCData</span>), 
+  .<span id=t_idt>ready</span>(<span id=t_idt>RxCRC5UpdateRdy</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) );  
+  
+<span id=t_idt>updateCRC16</span> <span id=t_idt>RxUpdateCRC16</span>
+  (.<span id=t_idt>rstCRC</span>(<span id=t_idt>RxRstCRC</span>), 
+  .<span id=t_idt>CRCResult</span>(<span id=t_idt>RxCRC16Result</span>), 
+  .<span id=t_idt>CRCEn</span>(<span id=t_idt>RxCRC16En</span>), 
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>RxCRCData</span>), 
+  .<span id=t_idt>ready</span>(<span id=t_idt>RxCRC16UpdateRdy</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+  
+<span id=t_idt>SIETransmitter</span> <span id=t_idt>u_SIETransmitter</span>
+  (.<span id=t_idt>CRC16En</span>(<span id=t_idt>TxCRC16En</span>), 
+  .<span id=t_idt>CRC16Result</span>(<span id=t_idt>TxCRC16Result</span>), 
+  .<span id=t_idt>CRC5En</span>(<span id=t_idt>TxCRC5En</span>), 
+  .<span id=t_idt>CRC5Result</span>(<span id=t_idt>TxCRC5Result</span>), 
+  .<span id=t_idt>CRC5_8Bit</span>(<span id=t_idt>TxCRC5_8Bit</span>), 
+  .<span id=t_idt>CRCData</span>(<span id=t_idt>TxCRCData</span>),
+  .<span id=t_idt>CRC5UpdateRdy</span>(<span id=t_idt>TxCRC5UpdateRdy</span>),
+  .<span id=t_idt>CRC16UpdateRdy</span>(<span id=t_idt>TxCRC16UpdateRdy</span>),
+  .<span id=t_idt>JBit</span>(<span id=t_idt>JBit</span>), 
+  .<span id=t_idt>KBit</span>(<span id=t_idt>KBit</span>), 
+  .<span id=t_idt>SIEPortCtrlIn</span>(<span id=t_idt>SIEPortCtrlIn</span>),
+  .<span id=t_idt>SIEPortDataIn</span>(<span id=t_idt>SIEPortDataIn</span>), 
+  .<span id=t_idt>SIEPortTxRdy</span>(<span id=t_idt>SIEPortTxRdy</span>), 
+  .<span id=t_idt>SIEPortWEn</span>(<span id=t_idt>SIEPortWEn</span>), 
+  .<span id=t_idt>TxByteOutCtrl</span>(<span id=t_idt>TxCtrlFromSIEToPrcTxByte</span>), 
+  .<span id=t_idt>TxByteOut</span>(<span id=t_idt>TxByteFromSIEToPrcTxByte</span>), 
+  .<span id=t_idt>USBWireCtrl</span>(<span id=t_idt>SIETxCtrl</span>), 
+  .<span id=t_idt>USBWireData</span>(<span id=t_idt>SIETxData</span>), 
+  .<span id=t_idt>USBWireGnt</span>(<span id=t_idt>SIETxGnt</span>), 
+  .<span id=t_idt>USBWireRdy</span>(<span id=t_idt>USBWireReadyFromTxArb</span>), 
+  .<span id=t_idt>USBWireReq</span>(<span id=t_idt>SIETxReq</span>), 
+  .<span id=t_idt>USBWireWEn</span>(<span id=t_idt>SIETxWEn</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>processTxByteRdy</span>(<span id=t_idt>processTxByteRdy</span>), 
+  .<span id=t_idt>processTxByteWEn</span>(<span id=t_idt>processTxByteWEn</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>rstCRC</span>(<span id=t_idt>TxRstCRC</span>) );   
+
+<span id=t_idt>updateCRC5</span> <span id=t_idt>TxUpdateCRC5</span>
+  (.<span id=t_idt>rstCRC</span>(<span id=t_idt>TxRstCRC</span>), 
+  .<span id=t_idt>CRCResult</span>(<span id=t_idt>TxCRC5Result</span>), 
+  .<span id=t_idt>CRCEn</span>(<span id=t_idt>TxCRC5En</span>), 
+  .<span id=t_idt>CRC5_8BitIn</span>(<span id=t_idt>TxCRC5_8Bit</span>), 
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>TxCRCData</span>),
+  .<span id=t_idt>ready</span>(<span id=t_idt>TxCRC5UpdateRdy</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) );  
+  
+<span id=t_idt>updateCRC16</span> <span id=t_idt>TxUpdateCRC16</span>
+  (.<span id=t_idt>rstCRC</span>(<span id=t_idt>TxRstCRC</span>), 
+  .<span id=t_idt>CRCResult</span>(<span id=t_idt>TxCRC16Result</span>), 
+  .<span id=t_idt>CRCEn</span>(<span id=t_idt>TxCRC16En</span>), 
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>TxCRCData</span>), 
+  .<span id=t_idt>ready</span>(<span id=t_idt>TxCRC16UpdateRdy</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+
+<span id=t_idt>processTxByte</span> <span id=t_idt>u_processTxByte</span>
+  (.<span id=t_idt>JBit</span>(<span id=t_idt>JBit</span>), 
+  .<span id=t_idt>KBit</span>(<span id=t_idt>KBit</span>), 
+  .<span id=t_idt>TxByteCtrlIn</span>(<span id=t_idt>TxCtrlFromSIEToPrcTxByte</span>), 
+  .<span id=t_idt>TxByteIn</span>(<span id=t_idt>TxByteFromSIEToPrcTxByte</span>), 
+  .<span id=t_idt>USBWireCtrl</span>(<span id=t_idt>prcTxByteCtrl</span>), 
+  .<span id=t_idt>USBWireData</span>(<span id=t_idt>prcTxByteData</span>), 
+  .<span id=t_idt>USBWireGnt</span>(<span id=t_idt>prcTxByteGnt</span>), 
+  .<span id=t_idt>USBWireRdy</span>(<span id=t_idt>USBWireReadyFromTxArb</span>), 
+  .<span id=t_idt>USBWireReq</span>(<span id=t_idt>prcTxByteReq</span>), 
+  .<span id=t_idt>USBWireWEn</span>(<span id=t_idt>prcTxByteWEn</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>processTxByteRdy</span>(<span id=t_idt>processTxByteRdy</span>), 
+  .<span id=t_idt>processTxByteWEn</span>(<span id=t_idt>processTxByteWEn</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+  
+<span id=t_idt>USBWireTxArbiter</span> <span id=t_idt>u_USBWireTxArbiter</span>
+  (.<span id=t_idt>SIETxCtrl</span>(<span id=t_idt>SIETxCtrl</span>), 
+  .<span id=t_idt>SIETxData</span>(<span id=t_idt>SIETxData</span>), 
+  .<span id=t_idt>SIETxGnt</span>(<span id=t_idt>SIETxGnt</span>), 
+  .<span id=t_idt>SIETxReq</span>(<span id=t_idt>SIETxReq</span>), 
+  .<span id=t_idt>SIETxWEn</span>(<span id=t_idt>SIETxWEn</span>), 
+  .<span id=t_idt>TxBits</span>(<span id=t_idt>TxBitsFromArbToWire</span>), 
+  .<span id=t_idt>TxCtl</span>(<span id=t_idt>TxCtrlFromArbToWire</span>), 
+  .<span id=t_idt>USBWireRdyIn</span>(<span id=t_idt>USBWireRdy</span>), 
+  .<span id=t_idt>USBWireRdyOut</span>(<span id=t_idt>USBWireReadyFromTxArb</span>), 
+  .<span id=t_idt>USBWireWEn</span>(<span id=t_idt>USBWireWEn</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>prcTxByteCtrl</span>(<span id=t_idt>prcTxByteCtrl</span>), 
+  .<span id=t_idt>prcTxByteData</span>(<span id=t_idt>prcTxByteData</span>), 
+  .<span id=t_idt>prcTxByteGnt</span>(<span id=t_idt>prcTxByteGnt</span>), 
+  .<span id=t_idt>prcTxByteReq</span>(<span id=t_idt>prcTxByteReq</span>), 
+  .<span id=t_idt>prcTxByteWEn</span>(<span id=t_idt>prcTxByteWEn</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+  
+<span id=t_idt>writeUSBWireData</span> <span id=t_idt>u_writeUSBWireData</span>
+  (.<span id=t_idt>TxBitsIn</span>(<span id=t_idt>TxBitsFromArbToWire</span>), 
+  .<span id=t_idt>TxBitsOut</span>(<span id=t_idt>USBWireDataOut</span>), 
+  .<span id=t_idt>TxDataOutTick</span>(<span id=t_idt>USBWireDataOutTick</span>),
+  .<span id=t_idt>TxCtrlIn</span>(<span id=t_idt>TxCtrlFromArbToWire</span>), 
+  .<span id=t_idt>TxCtrlOut</span>(<span id=t_idt>USBWireCtrlOut</span>), 
+  .<span id=t_idt>USBWireRdy</span>(<span id=t_idt>USBWireRdy</span>), 
+  .<span id=t_idt>USBWireWEn</span>(<span id=t_idt>USBWireWEn</span>),
+  .<span id=t_idt>disableWireReadOut</span>(<span id=t_idt>disableWireRead</span>),
+  .<span id=t_idt>fullSpeedRate</span>(<span id=t_idt>fullSpeedBitRate</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>noActivityTimeOut</span>(<span id=t_idt>noActivityTimeOut</span>) );  
+  
+<span id=t_idt>readUSBWireData</span> <span id=t_idt>u_readUSBWireData</span>
+  (.<span id=t_idt>RxBitsIn</span>(<span id=t_idt>USBWireDataIn</span>), 
+  .<span id=t_idt>RxDataInTick</span>(<span id=t_idt>USBWireDataInTick</span>),
+  .<span id=t_idt>RxBitsOut</span>(<span id=t_idt>RxWireDataFromWireRxToSIERx</span>), 
+  .<span id=t_idt>SIERxRdyIn</span>(<span id=t_idt>SIERxRdyOut</span>), 
+  .<span id=t_idt>SIERxWEn</span>(<span id=t_idt>RxWireDataWEn</span>), 
+  .<span id=t_idt>fullSpeedRate</span>(<span id=t_idt>fullSpeedBitRate</span>), 
+  .<span id=t_idt>disableWireRead</span>(<span id=t_idt>disableWireRead</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) );
+
+
+<span id=t_kwd>endmodule</span>
+
+  
+  
+
+
+
+
+
+</pre>
+</body>
+</html>

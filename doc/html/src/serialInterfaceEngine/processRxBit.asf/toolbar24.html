@@ -1,0 +1,54 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 3;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(471,1029,574,1132,Click97,Over97);
+FUB[1] = new Array(274,1611,376,1714,Click113,Over113);
+FUB[2] = new Array(865,1611,967,1714,Click115,Over115);
+
+//----------------------------------------------------------------------------
+function Click97(){fubclick('./index97.htm');}
+function Over97(){window.status='Hierarchical State DATA';};
+function Click113(){fubclick('./index113.htm');}
+function Over113(){window.status='Hierarchical State BYTE';};
+function Click115(){fubclick('./index115.htm');}
+function Over115(){window.status='Hierarchical State ERROR';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 24 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./processRxBit_DATA_RX.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./processRxBit.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

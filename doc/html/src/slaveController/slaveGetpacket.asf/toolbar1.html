@@ -1,0 +1,48 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 1;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(1061,1577,1163,1679,Click33,Over33);
+
+//----------------------------------------------------------------------------
+function Click33(){fubclick('./index33.htm');}
+function Over33(){window.status='Hierarchical State PROC_PKT';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./slaveGetpacket.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./slaveGetpacket.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

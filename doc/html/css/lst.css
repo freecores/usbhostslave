@@ -1,0 +1,14 @@
+body   { background-color: silver; margin: 0 }
+#title { color: #000000; background-color: silver;
+         font-family: Arial; font-size: 10pt;
+         text-align: center; }
+#divider { background-color: #808080; }
+#value { color: #000000; background-color: #FFFFFF;
+         font-family: Arial; font-size: 10pt;
+         text-align: center }
+#time  { color: #000000; background-color: #FFFFDE;
+         font-family: Arial; font-size: 10pt;
+         text-align: right }
+#delta { color: #000000; background-color: #FFFFDE;
+         font-family: Arial; font-size: 10pt;
+         text-align: right }

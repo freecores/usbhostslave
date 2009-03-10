@@ -1,0 +1,196 @@
+<html>
+<head>
+<title>sendpacketarbiter.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// sendPacketArbiter</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:02 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>sendPacketArbiter</span> (<span id=t_idt>HCTxGnt</span>, <span id=t_idt>HCTxReq</span>, <span id=t_idt>HC_PID</span>, <span id=t_idt>HC_SP_WEn</span>, <span id=t_idt>SOFTxGnt</span>, <span id=t_idt>SOFTxReq</span>, <span id=t_idt>SOF_SP_WEn</span>, <span id=t_idt>clk</span>, <span id=t_idt>rst</span>, <span id=t_idt>sendPacketPID</span>, <span id=t_idt>sendPacketWEnable</span>);
+<span id=t_kwd>input</span>   <span id=t_idt>HCTxReq</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>HC_PID</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>HC_SP_WEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SOFTxReq</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SOF_SP_WEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>HCTxGnt</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SOFTxGnt</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>sendPacketWEnable</span>;
+
+<span id=t_kwd>reg</span>     <span id=t_idt>HCTxGnt</span>, <span id=t_idt>next_HCTxGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>HCTxReq</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>HC_PID</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>HC_SP_WEn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SOFTxGnt</span>, <span id=t_idt>next_SOFTxGnt</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SOFTxReq</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SOF_SP_WEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>, <span id=t_idt>next_sendPacketPID</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>sendPacketWEnable</span>, <span id=t_idt>next_sendPacketWEnable</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  <span id=t_idt>muxSOFNotHC</span>, <span id=t_idt>next_muxSOFNotHC</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: sendPktArb</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_ACT</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_ACT</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>SARB_WAIT_REQ</span> <span id=t_cns>2'b10</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_SARB</span> <span id=t_cns>2'b11</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_sendPktArb</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_sendPktArb</span>;
+
+<span id=t_com>// Diagram actions (continuous assignments allowed only: assign ...)</span>
+<span id=t_com>// hostController/SOFTransmit mux</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>muxSOFNotHC</span> <span id=t_kwd>or</span> <span id=t_idt>SOF_SP_WEn</span> <span id=t_kwd>or</span> <span id=t_idt>HC_SP_WEn</span> <span id=t_kwd>or</span> <span id=t_idt>HC_PID</span>)
+<span id=t_kwd>begin</span>
+    <span id=t_kwd>if</span> (<span id=t_idt>muxSOFNotHC</span>  == <span id=t_cns>1'b1</span>)
+    <span id=t_kwd>begin</span>
+        <span id=t_idt>sendPacketWEnable</span> &lt;= <span id=t_idt>SOF_SP_WEn</span>;
+        <span id=t_idt>sendPacketPID</span> &lt;= `<span id=t_idt>SOF</span>;
+    <span id=t_kwd>end</span>
+    <span id=t_kwd>else</span>
+    <span id=t_kwd>begin</span>
+        <span id=t_idt>sendPacketWEnable</span> &lt;= <span id=t_idt>HC_SP_WEn</span>;
+        <span id=t_idt>sendPacketPID</span> &lt;= <span id=t_idt>HC_PID</span>;
+    <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: sendPktArb</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>HCTxReq</span> <span id=t_kwd>or</span> <span id=t_idt>SOFTxReq</span> <span id=t_kwd>or</span> <span id=t_idt>HCTxGnt</span> <span id=t_kwd>or</span> <span id=t_idt>SOFTxGnt</span> <span id=t_kwd>or</span> <span id=t_idt>muxSOFNotHC</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_sendPktArb</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sendPktArb_NextState</span>
+  <span id=t_idt>NextState_sendPktArb</span> &lt;= <span id=t_idt>CurrState_sendPktArb</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_HCTxGnt</span> &lt;= <span id=t_idt>HCTxGnt</span>;
+  <span id=t_idt>next_SOFTxGnt</span> &lt;= <span id=t_idt>SOFTxGnt</span>;
+  <span id=t_idt>next_muxSOFNotHC</span> &lt;= <span id=t_idt>muxSOFNotHC</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_sendPktArb</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>HC_ACT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>HCTxReq</span> == <span id=t_cns>1'b0</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sendPktArb</span> &lt;= `<span id=t_idt>SARB_WAIT_REQ</span>;
+      <span id=t_idt>next_HCTxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SOF_ACT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SOFTxReq</span> == <span id=t_cns>1'b0</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sendPktArb</span> &lt;= `<span id=t_idt>SARB_WAIT_REQ</span>;
+      <span id=t_idt>next_SOFTxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SARB_WAIT_REQ</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>SOFTxReq</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sendPktArb</span> &lt;= `<span id=t_idt>SOF_ACT</span>;
+      <span id=t_idt>next_SOFTxGnt</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_muxSOFNotHC</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>HCTxReq</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_sendPktArb</span> &lt;= `<span id=t_idt>HC_ACT</span>;
+      <span id=t_idt>next_HCTxGnt</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_muxSOFNotHC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>START_SARB</span>:
+     <span id=t_idt>NextState_sendPktArb</span> &lt;= `<span id=t_idt>SARB_WAIT_REQ</span>;
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sendPktArb_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_sendPktArb</span> &lt;= `<span id=t_idt>START_SARB</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_sendPktArb</span> &lt;= <span id=t_idt>NextState_sendPktArb</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>sendPktArb_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>muxSOFNotHC</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SOFTxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>HCTxGnt</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>muxSOFNotHC</span> &lt;= <span id=t_idt>next_muxSOFNotHC</span>;
+   <span id=t_idt>SOFTxGnt</span> &lt;= <span id=t_idt>next_SOFTxGnt</span>;
+   <span id=t_idt>HCTxGnt</span> &lt;= <span id=t_idt>next_HCTxGnt</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

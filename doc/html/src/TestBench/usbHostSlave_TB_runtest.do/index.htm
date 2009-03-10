@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>usbHostSlave_TB_runtest.do</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_kwd>SetActiveLib</span> -work
+<span id=t_com>#Compiling UUT module design files</span>
+
+<span id=t_kwd>comp</span> -include "$DSN\src\TestBench\usbHostSlave_TB.v"
+<span id=t_kwd>asim</span> usbHostSlave_tb
+
+<span id=t_kwd>wave</span>
+<span id=t_kwd>wave</span> -noreg clk
+<span id=t_kwd>wave</span> -noreg rst
+<span id=t_kwd>wave</span> -noreg address_i
+<span id=t_kwd>wave</span> -noreg data_i
+<span id=t_kwd>wave</span> -noreg data_o
+<span id=t_kwd>wave</span> -noreg writeEn
+<span id=t_kwd>wave</span> -noreg strobe_i
+<span id=t_kwd>wave</span> -noreg ack_o
+<span id=t_kwd>wave</span> -noreg hostSOFSentIntOut
+<span id=t_kwd>wave</span> -noreg hostConnEventIntOut
+<span id=t_kwd>wave</span> -noreg hostResumeIntOut
+<span id=t_kwd>wave</span> -noreg hostTransDoneIntOut
+<span id=t_kwd>wave</span> -noreg slaveSOFRxedIntOut
+<span id=t_kwd>wave</span> -noreg slaveResetEventIntOut
+<span id=t_kwd>wave</span> -noreg slaveResumeIntOut
+<span id=t_kwd>wave</span> -noreg slaveTransDoneIntOut
+<span id=t_kwd>wave</span> -noreg USBWireDataIn
+<span id=t_kwd>wave</span> -noreg USBWireDataInTick
+<span id=t_kwd>wave</span> -noreg USBWireDataOut
+<span id=t_kwd>wave</span> -noreg USBWireDataOutTick
+<span id=t_kwd>wave</span> -noreg USBWireCtrlOut
+
+<span id=t_kwd>run</span>
+
+<span id=t_com>#End simulation macro</span>
+
+</pre>
+</body>
+</html>

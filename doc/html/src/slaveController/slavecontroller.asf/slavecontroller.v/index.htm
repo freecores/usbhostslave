@@ -1,0 +1,449 @@
+<html>
+<head>
+<title>slavecontroller.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// slaveController</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:21 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSlaveControl_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+
+<span id=t_kwd>module</span> <span id=t_idt>slavecontroller</span> (<span id=t_idt>CRCError</span>, <span id=t_idt>NAKSent</span>, <span id=t_idt>RxByte</span>, <span id=t_idt>RxDataWEn</span>, <span id=t_idt>RxOverflow</span>, <span id=t_idt>RxStatus</span>, <span id=t_idt>RxTimeOut</span>, <span id=t_idt>SCGlobalEn</span>, <span id=t_idt>SOFRxed</span>, <span id=t_idt>USBEndPControlReg</span>, <span id=t_idt>USBEndPNakTransTypeReg</span>, <span id=t_idt>USBEndPTransTypeReg</span>, <span id=t_idt>USBEndP</span>, <span id=t_idt>USBTgtAddress</span>, <span id=t_idt>bitStuffError</span>, <span id=t_idt>clk</span>, <span id=t_idt>clrEPRdy</span>, <span id=t_idt>endPMuxErrorsWEn</span>, <span id=t_idt>frameNum</span>, <span id=t_idt>getPacketREn</span>, <span id=t_idt>getPacketRdy</span>, <span id=t_idt>rst</span>, <span id=t_idt>sendPacketPID</span>, <span id=t_idt>sendPacketRdy</span>, <span id=t_idt>sendPacketWEn</span>, <span id=t_idt>stallSent</span>, <span id=t_idt>transDone</span>);
+<span id=t_kwd>input</span>   <span id=t_idt>CRCError</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByte</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>RxDataWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>RxOverflow</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxStatus</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>RxTimeOut</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>SCGlobalEn</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPControlReg</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>USBTgtAddress</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>bitStuffError</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>getPacketRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>sendPacketRdy</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>NAKSent</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SOFRxed</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPNakTransTypeReg</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPTransTypeReg</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndP</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>clrEPRdy</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>endPMuxErrorsWEn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>getPacketREn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>sendPacketWEn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>stallSent</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>transDone</span>;
+
+<span id=t_kwd>wire</span>    <span id=t_idt>CRCError</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>NAKSent</span>, <span id=t_idt>next_NAKSent</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByte</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>RxDataWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>RxOverflow</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxStatus</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>RxTimeOut</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>SCGlobalEn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SOFRxed</span>, <span id=t_idt>next_SOFRxed</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPControlReg</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPNakTransTypeReg</span>, <span id=t_idt>next_USBEndPNakTransTypeReg</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndPTransTypeReg</span>, <span id=t_idt>next_USBEndPTransTypeReg</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>USBEndP</span>, <span id=t_idt>next_USBEndP</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>USBTgtAddress</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>bitStuffError</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>clrEPRdy</span>, <span id=t_idt>next_clrEPRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>endPMuxErrorsWEn</span>, <span id=t_idt>next_endPMuxErrorsWEn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>, <span id=t_idt>next_frameNum</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>getPacketREn</span>, <span id=t_idt>next_getPacketREn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>getPacketRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>, <span id=t_idt>next_sendPacketPID</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>sendPacketRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>sendPacketWEn</span>, <span id=t_idt>next_sendPacketWEn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>stallSent</span>, <span id=t_idt>next_stallSent</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>transDone</span>, <span id=t_idt>next_transDone</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>PIDByte</span>, <span id=t_idt>next_PIDByte</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>6</span>:<span id=t_cns>0</span>]<span id=t_idt>USBAddress</span>, <span id=t_idt>next_USBAddress</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>addrEndPTemp</span>, <span id=t_idt>next_addrEndPTemp</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>endpCRCTemp</span>, <span id=t_idt>next_endpCRCTemp</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>tempUSBEndPTransTypeReg</span>, <span id=t_idt>next_tempUSBEndPTransTypeReg</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: slvCntrl</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_RX1</span> <span id=t_cns>5'b00000</span>
+<span id=t_dir>`define</span> <span id=t_idt>FIN_SC</span> <span id=t_cns>5'b00001</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_WAIT_CRC</span> <span id=t_cns>5'b00010</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_WAIT_ADDR</span> <span id=t_cns>5'b00011</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_WAIT_STOP</span> <span id=t_cns>5'b00100</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_PID</span> <span id=t_cns>5'b00101</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_CHK_SOF</span> <span id=t_cns>5'b00110</span>
+<span id=t_dir>`define</span> <span id=t_idt>PID_ERROR</span> <span id=t_cns>5'b00111</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_RDY</span> <span id=t_cns>5'b01000</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_NAK_STALL</span> <span id=t_cns>5'b01001</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_CHK_RDY</span> <span id=t_cns>5'b01010</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_DATA</span> <span id=t_cns>5'b01011</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_GET_RESP</span> <span id=t_cns>5'b01100</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_OUT_CHK</span> <span id=t_cns>5'b01101</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_OUT_SEND</span> <span id=t_cns>5'b01110</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_OUT_GET_PKT</span> <span id=t_cns>5'b01111</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_S1</span> <span id=t_cns>5'b10000</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_DELAY</span> <span id=t_cns>5'b10001</span>
+<span id=t_dir>`define</span> <span id=t_idt>GET_TOKEN_CHK_ADDR</span> <span id=t_cns>5'b10010</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_slvCntrl</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_slvCntrl</span>;
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: slvCntrl</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>RxByte</span> <span id=t_kwd>or</span> <span id=t_idt>tempUSBEndPTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endpCRCTemp</span> <span id=t_kwd>or</span> <span id=t_idt>addrEndPTemp</span> <span id=t_kwd>or</span> <span id=t_idt>RxDataWEn</span> <span id=t_kwd>or</span> <span id=t_idt>RxStatus</span> <span id=t_kwd>or</span> <span id=t_idt>PIDByte</span> <span id=t_kwd>or</span> <span id=t_idt>USBEndPControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>NAKSent</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketRdy</span> <span id=t_kwd>or</span> <span id=t_idt>getPacketRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CRCError</span> <span id=t_kwd>or</span> <span id=t_idt>bitStuffError</span> <span id=t_kwd>or</span> <span id=t_idt>RxOverflow</span> <span id=t_kwd>or</span> <span id=t_idt>RxTimeOut</span> <span id=t_kwd>or</span> <span id=t_idt>USBEndP</span> <span id=t_kwd>or</span> <span id=t_idt>USBAddress</span> <span id=t_kwd>or</span> <span id=t_idt>USBTgtAddress</span> <span id=t_kwd>or</span> <span id=t_idt>SCGlobalEn</span> <span id=t_kwd>or</span> <span id=t_idt>stallSent</span> <span id=t_kwd>or</span> <span id=t_idt>SOFRxed</span> <span id=t_kwd>or</span> <span id=t_idt>transDone</span> <span id=t_kwd>or</span> <span id=t_idt>clrEPRdy</span> <span id=t_kwd>or</span> <span id=t_idt>endPMuxErrorsWEn</span> <span id=t_kwd>or</span> <span id=t_idt>getPacketREn</span> <span id=t_kwd>or</span> <span id=t_idt>USBEndPTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>USBEndPNakTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketWEn</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketPID</span> <span id=t_kwd>or</span> <span id=t_idt>frameNum</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_slvCntrl</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvCntrl_NextState</span>
+  <span id=t_idt>NextState_slvCntrl</span> &lt;= <span id=t_idt>CurrState_slvCntrl</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_stallSent</span> &lt;= <span id=t_idt>stallSent</span>;
+  <span id=t_idt>next_NAKSent</span> &lt;= <span id=t_idt>NAKSent</span>;
+  <span id=t_idt>next_SOFRxed</span> &lt;= <span id=t_idt>SOFRxed</span>;
+  <span id=t_idt>next_PIDByte</span> &lt;= <span id=t_idt>PIDByte</span>;
+  <span id=t_idt>next_transDone</span> &lt;= <span id=t_idt>transDone</span>;
+  <span id=t_idt>next_clrEPRdy</span> &lt;= <span id=t_idt>clrEPRdy</span>;
+  <span id=t_idt>next_endPMuxErrorsWEn</span> &lt;= <span id=t_idt>endPMuxErrorsWEn</span>;
+  <span id=t_idt>next_tempUSBEndPTransTypeReg</span> &lt;= <span id=t_idt>tempUSBEndPTransTypeReg</span>;
+  <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_idt>getPacketREn</span>;
+  <span id=t_idt>next_USBEndPTransTypeReg</span> &lt;= <span id=t_idt>USBEndPTransTypeReg</span>;
+  <span id=t_idt>next_USBEndPNakTransTypeReg</span> &lt;= <span id=t_idt>USBEndPNakTransTypeReg</span>;
+  <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_idt>sendPacketWEn</span>;
+  <span id=t_idt>next_sendPacketPID</span> &lt;= <span id=t_idt>sendPacketPID</span>;
+  <span id=t_idt>next_endpCRCTemp</span> &lt;= <span id=t_idt>endpCRCTemp</span>;
+  <span id=t_idt>next_addrEndPTemp</span> &lt;= <span id=t_idt>addrEndPTemp</span>;
+  <span id=t_idt>next_frameNum</span> &lt;= <span id=t_idt>frameNum</span>;
+  <span id=t_idt>next_USBAddress</span> &lt;= <span id=t_idt>USBAddress</span>;
+  <span id=t_idt>next_USBEndP</span> &lt;= <span id=t_idt>USBEndP</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_slvCntrl</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>WAIT_RX1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_stallSent</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_NAKSent</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_SOFRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; 
+      <span id=t_idt>RxStatus</span> == `<span id=t_idt>RX_PACKET_START</span> &amp;&amp; 
+      <span id=t_idt>RxByte</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == `<span id=t_idt>TOKEN</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_WAIT_ADDR</span>;
+      <span id=t_idt>next_PIDByte</span> &lt;= <span id=t_idt>RxByte</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>FIN_SC</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_transDone</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_clrEPRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_endPMuxErrorsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>CHK_PID</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>PIDByte</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>] == `<span id=t_idt>SETUP</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_GET_PKT</span>;
+      <span id=t_idt>next_tempUSBEndPTransTypeReg</span> &lt;= `<span id=t_idt>SC_SETUP_TRANS</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>PIDByte</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>] == `<span id=t_idt>OUT</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_GET_PKT</span>;
+      <span id=t_idt>next_tempUSBEndPTransTypeReg</span> &lt;= `<span id=t_idt>SC_OUTDATA_TRANS</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>PIDByte</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>] == `<span id=t_idt>IN</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_CHK_RDY</span>;
+      <span id=t_idt>next_tempUSBEndPTransTypeReg</span> &lt;= `<span id=t_idt>SC_IN_TRANS</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>PID_ERROR</span>;
+   `<span id=t_idt>PID_ERROR</span>:
+     <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   `<span id=t_idt>CHK_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_READY_BIT</span>] == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>FIN_SC</span>;
+      <span id=t_idt>next_transDone</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_clrEPRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_USBEndPTransTypeReg</span> &lt;= <span id=t_idt>tempUSBEndPTransTypeReg</span>;
+      <span id=t_idt>next_endPMuxErrorsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>NAKSent</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>FIN_SC</span>;
+      <span id=t_idt>next_USBEndPNakTransTypeReg</span> &lt;= <span id=t_idt>tempUSBEndPTransTypeReg</span>;
+      <span id=t_idt>next_endPMuxErrorsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>FIN_SC</span>;
+   `<span id=t_idt>SETUP_OUT_CHK</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_READY_BIT</span>] == <span id=t_cns>1'b0</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_SEND</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>NAK</span>;
+      <span id=t_idt>next_NAKSent</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_SEND_STALL_BIT</span>] == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_SEND</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>STALL</span>;
+      <span id=t_idt>next_stallSent</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_SEND</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>ACK</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_OUT_SEND</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>CHK_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_OUT_GET_PKT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> ((<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>CRCError</span> == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>bitStuffError</span> == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RxOverflow</span> == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RxTimeOut</span> == <span id=t_cns>1'b0</span>)) 
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>SETUP_OUT_CHK</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>CHK_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_NAK_STALL</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>CHK_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_CHK_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_READY_BIT</span>] == <span id=t_cns>1'b0</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_NAK_STALL</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>NAK</span>;
+      <span id=t_idt>next_NAKSent</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_SEND_STALL_BIT</span>] == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_NAK_STALL</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>STALL</span>;
+      <span id=t_idt>next_stallSent</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>USBEndPControlReg</span> [`<span id=t_idt>ENDPOINT_OUTDATA_SEQUENCE_BIT</span>] == <span id=t_cns>1'b0</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_DATA</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>DATA0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_DATA</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>DATA1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_DATA</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>IN_GET_RESP</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_GET_RESP</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>CHK_RDY</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>START_S1</span>:
+     <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   `<span id=t_idt>GET_TOKEN_WAIT_CRC</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; 
+      <span id=t_idt>RxStatus</span> == `<span id=t_idt>RX_PACKET_STREAM</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_WAIT_STOP</span>;
+      <span id=t_idt>next_endpCRCTemp</span> &lt;= <span id=t_idt>RxByte</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; 
+      <span id=t_idt>RxStatus</span> != `<span id=t_idt>RX_PACKET_STREAM</span>)  
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   `<span id=t_idt>GET_TOKEN_WAIT_ADDR</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; 
+      <span id=t_idt>RxStatus</span> == `<span id=t_idt>RX_PACKET_STREAM</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_WAIT_CRC</span>;
+      <span id=t_idt>next_addrEndPTemp</span> &lt;= <span id=t_idt>RxByte</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; 
+      <span id=t_idt>RxStatus</span> != `<span id=t_idt>RX_PACKET_STREAM</span>)  
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   `<span id=t_idt>GET_TOKEN_WAIT_STOP</span>:
+     <span id=t_kwd>if</span> ((<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RxByte</span>[`<span id=t_idt>CRC_ERROR_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RxByte</span>[`<span id=t_idt>BIT_STUFF_ERROR_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RxByte</span> [`<span id=t_idt>RX_OVERFLOW_BIT</span>] == <span id=t_cns>1'b0</span>)) 
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_CHK_SOF</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RxDataWEn</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+   `<span id=t_idt>GET_TOKEN_CHK_SOF</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>PIDByte</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>] == `<span id=t_idt>SOF</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+      <span id=t_idt>next_frameNum</span> &lt;= {<span id=t_idt>endpCRCTemp</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>],<span id=t_idt>addrEndPTemp</span>};
+      <span id=t_idt>next_SOFRxed</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_DELAY</span>;
+      <span id=t_idt>next_USBAddress</span> &lt;= <span id=t_idt>addrEndPTemp</span>[<span id=t_cns>6</span>:<span id=t_cns>0</span>];
+      <span id=t_idt>next_USBEndP</span> &lt;= { <span id=t_idt>endpCRCTemp</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>], <span id=t_idt>addrEndPTemp</span>[<span id=t_cns>7</span>]};
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>GET_TOKEN_DELAY</span>:   <span id=t_com>// Insert delay to allow USBEndPControlReg to update</span>
+     <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>GET_TOKEN_CHK_ADDR</span>;
+   `<span id=t_idt>GET_TOKEN_CHK_ADDR</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>USBEndP</span> &lt; `<span id=t_idt>NUM_OF_ENDPOINTS</span>  &amp;&amp;
+      <span id=t_idt>USBAddress</span> == <span id=t_idt>USBTgtAddress</span> &amp;&amp;
+      <span id=t_idt>SCGlobalEn</span> == <span id=t_cns>1'b1</span> &amp;&amp;
+      <span id=t_idt>USBEndPControlReg</span>[`<span id=t_idt>ENDPOINT_ENABLE_BIT</span>] == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>CHK_PID</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_slvCntrl</span> &lt;= `<span id=t_idt>WAIT_RX1</span>;
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvCntrl_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_slvCntrl</span> &lt;= `<span id=t_idt>START_S1</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_slvCntrl</span> &lt;= <span id=t_idt>NextState_slvCntrl</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>slvCntrl_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>tempUSBEndPTransTypeReg</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>addrEndPTemp</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>endpCRCTemp</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>USBAddress</span> &lt;= <span id=t_cns>7'b0000000</span>;
+   <span id=t_idt>PIDByte</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>transDone</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>sendPacketPID</span> &lt;= <span id=t_cns>4'b0</span>;
+   <span id=t_idt>sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>clrEPRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>USBEndPTransTypeReg</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>USBEndPNakTransTypeReg</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>NAKSent</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>stallSent</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SOFRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>endPMuxErrorsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>frameNum</span> &lt;= <span id=t_cns>11'b00000000000</span>;
+   <span id=t_idt>USBEndP</span> &lt;= <span id=t_cns>4'h0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>tempUSBEndPTransTypeReg</span> &lt;= <span id=t_idt>next_tempUSBEndPTransTypeReg</span>;
+   <span id=t_idt>addrEndPTemp</span> &lt;= <span id=t_idt>next_addrEndPTemp</span>;
+   <span id=t_idt>endpCRCTemp</span> &lt;= <span id=t_idt>next_endpCRCTemp</span>;
+   <span id=t_idt>USBAddress</span> &lt;= <span id=t_idt>next_USBAddress</span>;
+   <span id=t_idt>PIDByte</span> &lt;= <span id=t_idt>next_PIDByte</span>;
+   <span id=t_idt>transDone</span> &lt;= <span id=t_idt>next_transDone</span>;
+   <span id=t_idt>getPacketREn</span> &lt;= <span id=t_idt>next_getPacketREn</span>;
+   <span id=t_idt>sendPacketPID</span> &lt;= <span id=t_idt>next_sendPacketPID</span>;
+   <span id=t_idt>sendPacketWEn</span> &lt;= <span id=t_idt>next_sendPacketWEn</span>;
+   <span id=t_idt>clrEPRdy</span> &lt;= <span id=t_idt>next_clrEPRdy</span>;
+   <span id=t_idt>USBEndPTransTypeReg</span> &lt;= <span id=t_idt>next_USBEndPTransTypeReg</span>;
+   <span id=t_idt>USBEndPNakTransTypeReg</span> &lt;= <span id=t_idt>next_USBEndPNakTransTypeReg</span>;
+   <span id=t_idt>NAKSent</span> &lt;= <span id=t_idt>next_NAKSent</span>;
+   <span id=t_idt>stallSent</span> &lt;= <span id=t_idt>next_stallSent</span>;
+   <span id=t_idt>SOFRxed</span> &lt;= <span id=t_idt>next_SOFRxed</span>;
+   <span id=t_idt>endPMuxErrorsWEn</span> &lt;= <span id=t_idt>next_endPMuxErrorsWEn</span>;
+   <span id=t_idt>frameNum</span> &lt;= <span id=t_idt>next_frameNum</span>;
+   <span id=t_idt>USBEndP</span> &lt;= <span id=t_idt>next_USBEndP</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

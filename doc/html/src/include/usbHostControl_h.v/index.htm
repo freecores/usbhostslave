@@ -1,0 +1,124 @@
+<html>
+<head>
+<title>usbHostControl_h.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbHostControl_h.v                                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:13 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_com>//HCRegIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_CONTROL_REG</span> <span id=t_cns>4'h0</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_TRANS_TYPE_REG</span> <span id=t_cns>4'h1</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_LINE_CONTROL_REG</span> <span id=t_cns>4'h2</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_SOF_ENABLE_REG</span> <span id=t_cns>4'h3</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_ADDR_REG</span> <span id=t_cns>4'h4</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_ENDP_REG</span> <span id=t_cns>4'h5</span>
+<span id=t_dir>`define</span> <span id=t_idt>FRAME_NUM_MSB_REG</span> <span id=t_cns>4'h6</span>
+<span id=t_dir>`define</span> <span id=t_idt>FRAME_NUM_LSB_REG</span> <span id=t_cns>4'h7</span>
+<span id=t_dir>`define</span> <span id=t_idt>INTERRUPT_STATUS_REG</span> <span id=t_cns>4'h8</span>
+<span id=t_dir>`define</span> <span id=t_idt>INTERRUPT_MASK_REG</span> <span id=t_cns>4'h9</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_STATUS_REG</span> <span id=t_cns>4'ha</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_PID_REG</span> <span id=t_cns>4'hb</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_ADDR_REG</span> <span id=t_cns>4'hc</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_ENDP_REG</span> <span id=t_cns>4'hd</span>
+<span id=t_dir>`define</span> <span id=t_idt>RX_CONNECT_STATE_REG</span> <span id=t_cns>4'he</span>
+<span id=t_dir>`define</span> <span id=t_idt>HCREG_BUFFER_LEN</span> <span id=t_cns>4'hf</span>
+<span id=t_dir>`define</span> <span id=t_idt>HCREG_MASK</span> <span id=t_cns>4'hf</span>
+
+<span id=t_com>//TXControlRegIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>TRANS_REQ_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_SYNC_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>PREAMBLE_ENABLE_BIT</span> <span id=t_cns>2</span>
+
+<span id=t_com>//interruptRegIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>TRANS_DONE_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_INT_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>CONNECTION_EVENT_BIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_SENT_BIT</span> <span id=t_cns>3</span>
+
+<span id=t_com>//TXTransactionTypes</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_TRANS</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_TRANS</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUTDATA0_TRANS</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUTDATA1_TRANS</span> <span id=t_cns>3</span>
+ 
+ <span id=t_com>//TXLineControlIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_LINE_STATE_LSBIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_LINE_STATE_MSBIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>DIRECT_CONTROL_BIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>FULL_SPEED_LINE_POLARITY_BIT</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>FULL_SPEED_LINE_RATE_BIT</span> <span id=t_cns>4</span>
+
+<span id=t_com>//TXSOFEnableIndices</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_EN_BIT</span> <span id=t_cns>0</span>
+
+<span id=t_com>//SOFTimeConstants </span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_TX_TIME</span> <span id=t_cns>80</span>     <span id=t_com>//Fix this. Need correct SOF TX interval</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_TX_MARGIN</span> <span id=t_cns>2</span>
+       
+<span id=t_com>//Host RXStatusRegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_CRC_ERROR_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_BIT_STUFF_ERROR_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_RX_OVERFLOW_BIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_RX_TIME_OUT_BIT</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_NAK_RXED_BIT</span> <span id=t_cns>4</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_STALL_RXED_BIT</span> <span id=t_cns>5</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_ACK_RXED_BIT</span> <span id=t_cns>6</span>
+<span id=t_dir>`define</span> <span id=t_idt>HC_DATA_SEQUENCE_BIT</span> <span id=t_cns>7</span>
+
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<html>
+<head>
+<title>processRxByte.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// processRxByte</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:34 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>processRxByte</span> (<span id=t_idt>CRC16En</span>, <span id=t_idt>CRC16Result</span>, <span id=t_idt>CRC16UpdateRdy</span>, <span id=t_idt>CRC5En</span>, <span id=t_idt>CRC5Result</span>, <span id=t_idt>CRC5UpdateRdy</span>, <span id=t_idt>CRC5_8Bit</span>, <span id=t_idt>CRCData</span>, <span id=t_idt>RxByteIn</span>, <span id=t_idt>RxCtrlIn</span>, <span id=t_idt>RxCtrlOut</span>, <span id=t_idt>RxDataOutWEn</span>, <span id=t_idt>RxDataOut</span>, <span id=t_idt>clk</span>, <span id=t_idt>processRxByteRdy</span>, <span id=t_idt>processRxDataInWEn</span>, <span id=t_idt>rst</span>, <span id=t_idt>rstCRC</span>);
+<span id=t_kwd>input</span>   [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC16Result</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>CRC16UpdateRdy</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC5Result</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>CRC5UpdateRdy</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByteIn</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>processRxDataInWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC16En</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC5En</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>CRC5_8Bit</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>CRCData</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>RxDataOutWEn</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>processRxByteRdy</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>rstCRC</span>;
+
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC16En</span>, <span id=t_idt>next_CRC16En</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC16Result</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>CRC16UpdateRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC5En</span>, <span id=t_idt>next_CRC5En</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CRC5Result</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>CRC5UpdateRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>CRC5_8Bit</span>, <span id=t_idt>next_CRC5_8Bit</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>CRCData</span>, <span id=t_idt>next_CRCData</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByteIn</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlIn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxCtrlOut</span>, <span id=t_idt>next_RxCtrlOut</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>RxDataOutWEn</span>, <span id=t_idt>next_RxDataOutWEn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxDataOut</span>, <span id=t_idt>next_RxDataOut</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>processRxByteRdy</span>, <span id=t_idt>next_processRxByteRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>processRxDataInWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>rstCRC</span>, <span id=t_idt>next_rstCRC</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  <span id=t_idt>ACKRxed</span>, <span id=t_idt>next_ACKRxed</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>CRCError</span>, <span id=t_idt>next_CRCError</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>NAKRxed</span>, <span id=t_idt>next_NAKRxed</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>RXByteStMachCurrState</span>, <span id=t_idt>next_RXByteStMachCurrState</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>9</span>:<span id=t_cns>0</span>]<span id=t_idt>RXDataByteCnt</span>, <span id=t_idt>next_RXDataByteCnt</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>RxByte</span>, <span id=t_idt>next_RxByte</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>RxCtrl</span>, <span id=t_idt>next_RxCtrl</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>RxOverflow</span>, <span id=t_idt>next_RxOverflow</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>RxStatus</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>RxTimeOut</span>, <span id=t_idt>next_RxTimeOut</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>Signal1</span>, <span id=t_idt>next_Signal1</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>bitStuffError</span>, <span id=t_idt>next_bitStuffError</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>dataSequence</span>, <span id=t_idt>next_dataSequence</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>stallRxed</span>, <span id=t_idt>next_stallRxed</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: prRxByte</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_ST</span> <span id=t_cns>4'b0000</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_PRBY</span> <span id=t_cns>4'b0001</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_BYTE</span> <span id=t_cns>4'b0010</span>
+<span id=t_dir>`define</span> <span id=t_idt>IDLE_CHK_START</span> <span id=t_cns>4'b0011</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_SYNC_DO</span> <span id=t_cns>4'b0100</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_PID_DO_CHK</span> <span id=t_cns>4'b0101</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_PID_FIRST_BYTE_PROC</span> <span id=t_cns>4'b0110</span>
+<span id=t_dir>`define</span> <span id=t_idt>HSHAKE_FIN</span> <span id=t_cns>4'b0111</span>
+<span id=t_dir>`define</span> <span id=t_idt>HSHAKE_CHK</span> <span id=t_cns>4'b1000</span>
+<span id=t_dir>`define</span> <span id=t_idt>TOKEN_CHK_STRM</span> <span id=t_cns>4'b1001</span>
+<span id=t_dir>`define</span> <span id=t_idt>TOKEN_FIN</span> <span id=t_cns>4'b1010</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_FIN</span> <span id=t_cns>4'b1011</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_CHK_STRM</span> <span id=t_cns>4'b1100</span>
+<span id=t_dir>`define</span> <span id=t_idt>TOKEN_WAIT_CRC</span> <span id=t_cns>4'b1101</span>
+<span id=t_dir>`define</span> <span id=t_idt>DATA_WAIT_CRC</span> <span id=t_cns>4'b1110</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_prRxByte</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_prRxByte</span>;
+
+<span id=t_com>// Diagram actions (continuous assignments allowed only: assign ...)</span>
+<span id=t_kwd>always</span> @
+(<span id=t_idt>next_CRCError</span> <span id=t_kwd>or</span> <span id=t_idt>next_bitStuffError</span> <span id=t_kwd>or</span>
+  <span id=t_idt>next_RxOverflow</span> <span id=t_kwd>or</span> <span id=t_idt>next_NAKRxed</span> <span id=t_kwd>or</span>
+  <span id=t_idt>next_stallRxed</span> <span id=t_kwd>or</span> <span id=t_idt>next_ACKRxed</span> <span id=t_kwd>or</span>
+  <span id=t_idt>next_dataSequence</span>)
+<span id=t_kwd>begin</span>
+    <span id=t_idt>RxStatus</span> &lt;=
+    {<span id=t_cns>1'b0</span>, <span id=t_idt>next_dataSequence</span>,
+    <span id=t_idt>next_ACKRxed</span>,
+    <span id=t_idt>next_stallRxed</span>, <span id=t_idt>next_NAKRxed</span>,
+    <span id=t_idt>next_RxOverflow</span>,
+    <span id=t_idt>next_bitStuffError</span>, <span id=t_idt>next_CRCError</span> };
+<span id=t_kwd>end</span>
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: prRxByte</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>RxByteIn</span> <span id=t_kwd>or</span> <span id=t_idt>RxCtrlIn</span> <span id=t_kwd>or</span> <span id=t_idt>RxCtrl</span> <span id=t_kwd>or</span> <span id=t_idt>RxStatus</span> <span id=t_kwd>or</span> <span id=t_idt>RxByte</span> <span id=t_kwd>or</span> <span id=t_idt>RXDataByteCnt</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16Result</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5Result</span> <span id=t_kwd>or</span> <span id=t_idt>RXByteStMachCurrState</span> <span id=t_kwd>or</span> <span id=t_idt>processRxDataInWEn</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16UpdateRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5UpdateRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CRCError</span> <span id=t_kwd>or</span> <span id=t_idt>bitStuffError</span> <span id=t_kwd>or</span> <span id=t_idt>RxOverflow</span> <span id=t_kwd>or</span> <span id=t_idt>RxTimeOut</span> <span id=t_kwd>or</span> <span id=t_idt>NAKRxed</span> <span id=t_kwd>or</span> <span id=t_idt>stallRxed</span> <span id=t_kwd>or</span> <span id=t_idt>ACKRxed</span> <span id=t_kwd>or</span> <span id=t_idt>dataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>RxDataOut</span> <span id=t_kwd>or</span> <span id=t_idt>RxCtrlOut</span> <span id=t_kwd>or</span> <span id=t_idt>RxDataOutWEn</span> <span id=t_kwd>or</span> <span id=t_idt>rstCRC</span> <span id=t_kwd>or</span> <span id=t_idt>CRCData</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5En</span> <span id=t_kwd>or</span> <span id=t_idt>CRC5_8Bit</span> <span id=t_kwd>or</span> <span id=t_idt>CRC16En</span> <span id=t_kwd>or</span> <span id=t_idt>processRxByteRdy</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_prRxByte</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>prRxByte_NextState</span>
+  <span id=t_idt>NextState_prRxByte</span> &lt;= <span id=t_idt>CurrState_prRxByte</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_RxByte</span> &lt;= <span id=t_idt>RxByte</span>;
+  <span id=t_idt>next_RxCtrl</span> &lt;= <span id=t_idt>RxCtrl</span>;
+  <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= <span id=t_idt>RXByteStMachCurrState</span>;
+  <span id=t_idt>next_CRCError</span> &lt;= <span id=t_idt>CRCError</span>;
+  <span id=t_idt>next_bitStuffError</span> &lt;= <span id=t_idt>bitStuffError</span>;
+  <span id=t_idt>next_RxOverflow</span> &lt;= <span id=t_idt>RxOverflow</span>;
+  <span id=t_idt>next_RxTimeOut</span> &lt;= <span id=t_idt>RxTimeOut</span>;
+  <span id=t_idt>next_NAKRxed</span> &lt;= <span id=t_idt>NAKRxed</span>;
+  <span id=t_idt>next_stallRxed</span> &lt;= <span id=t_idt>stallRxed</span>;
+  <span id=t_idt>next_ACKRxed</span> &lt;= <span id=t_idt>ACKRxed</span>;
+  <span id=t_idt>next_dataSequence</span> &lt;= <span id=t_idt>dataSequence</span>;
+  <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxDataOut</span>;
+  <span id=t_idt>next_RxCtrlOut</span> &lt;= <span id=t_idt>RxCtrlOut</span>;
+  <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_idt>RxDataOutWEn</span>;
+  <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_idt>rstCRC</span>;
+  <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>CRCData</span>;
+  <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_idt>CRC5En</span>;
+  <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_idt>CRC5_8Bit</span>;
+  <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_idt>CRC16En</span>;
+  <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_idt>RXDataByteCnt</span>;
+  <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_idt>processRxByteRdy</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_prRxByte</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>CHK_ST</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>TOKEN_BYTE_ST</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>TOKEN_WAIT_CRC</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>HS_BYTE_ST</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>HSHAKE_CHK</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>CHECK_PID_ST</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>CHK_PID_DO_CHK</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>CHECK_SYNC_ST</span>)  
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>CHK_SYNC_DO</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>IDLE_BYTE_ST</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>IDLE_CHK_START</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RXByteStMachCurrState</span> == `<span id=t_idt>DATA_BYTE_ST</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>DATA_WAIT_CRC</span>;
+   `<span id=t_idt>START_PRBY</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_RxByte</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_RxCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+     <span id=t_idt>next_CRCError</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_bitStuffError</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxOverflow</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxTimeOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_NAKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_stallRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_ACKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_dataSequence</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_RxCtrlOut</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRCData</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_cns>10'h00</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_BYTE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processRxDataInWEn</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>CHK_ST</span>;
+      <span id=t_idt>next_RxByte</span> &lt;= <span id=t_idt>RxByteIn</span>;
+      <span id=t_idt>next_RxCtrl</span> &lt;= <span id=t_idt>RxCtrlIn</span>;
+      <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>HSHAKE_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>HSHAKE_CHK</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>HSHAKE_FIN</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>RxCtrl</span> != `<span id=t_idt>DATA_STOP</span>) <span id=t_com>//If more than PID rxed, then report error</span>
+       <span id=t_idt>next_RxOverflow</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+     <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>CHK_PID_DO_CHK</span>:
+     <span id=t_kwd>if</span> ((<span id=t_idt>RxByte</span>[<span id=t_cns>7</span>:<span id=t_cns>4</span>] ^ <span id=t_idt>RxByte</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>] ) != <span id=t_cns>4'hf</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+      <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+      <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>CHK_PID_FIRST_BYTE_PROC</span>;
+      <span id=t_idt>next_CRCError</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_bitStuffError</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_RxOverflow</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_NAKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_stallRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_ACKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_dataSequence</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_RxTimeOut</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_cns>0</span>;
+      <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxByte</span>;
+      <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_START</span>;
+      <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>CHK_PID_FIRST_BYTE_PROC</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>case</span> (<span id=t_idt>RxByte</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] )
+         `<span id=t_idt>SPECIAL</span>:                              <span id=t_com>//Special PID.</span>
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+         `<span id=t_idt>TOKEN</span>:                                <span id=t_com>//Token PID</span>
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>TOKEN_BYTE_ST</span>;
+         <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_cns>0</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>HANDSHAKE</span>:                            <span id=t_com>//Handshake PID</span>
+         <span id=t_kwd>begin</span>
+             <span id=t_kwd>case</span> (<span id=t_idt>RxByte</span>[<span id=t_cns>3</span>:<span id=t_cns>2</span>] )
+                 <span id=t_cns>2'b00</span>:
+             <span id=t_idt>next_ACKRxed</span> &lt;= <span id=t_cns>1'b1</span>;
+                 <span id=t_cns>2'b10</span>:
+             <span id=t_idt>next_NAKRxed</span> &lt;= <span id=t_cns>1'b1</span>;
+                 <span id=t_cns>2'b11</span>:
+             <span id=t_idt>next_stallRxed</span> &lt;= <span id=t_cns>1'b1</span>;
+                 <span id=t_kwd>default</span>:
+                 <span id=t_kwd>begin</span>
+                     <span id=t_sys>$display</span> (<span id=t_cns>"Invalid Handshake PID detected in ProcessRXByte\n"</span>);
+                 <span id=t_kwd>end</span>
+             <span id=t_kwd>endcase</span>
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>HS_BYTE_ST</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>DATA</span>:                                  <span id=t_com>//Data PID</span>
+         <span id=t_kwd>begin</span>
+             <span id=t_kwd>case</span> (<span id=t_idt>RxByte</span>[<span id=t_cns>3</span>:<span id=t_cns>2</span>] )
+                 <span id=t_cns>2'b00</span>:
+             <span id=t_idt>next_dataSequence</span> &lt;= <span id=t_cns>1'b0</span>;
+                 <span id=t_cns>2'b10</span>:
+             <span id=t_idt>next_dataSequence</span> &lt;= <span id=t_cns>1'b1</span>;
+                 <span id=t_kwd>default</span>:
+                     <span id=t_sys>$display</span> (<span id=t_cns>"Invalid DATA PID detected in ProcessRXByte\n"</span>);
+             <span id=t_kwd>endcase</span>
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>DATA_BYTE_ST</span>;
+         <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_cns>0</span>;
+         <span id=t_kwd>end</span>
+     <span id=t_kwd>endcase</span>
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA_CHK_STRM</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_idt>RXDataByteCnt</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>case</span> (<span id=t_idt>RxCtrl</span>)
+         `<span id=t_idt>DATA_STOP</span>:
+         <span id=t_kwd>begin</span>
+             <span id=t_kwd>if</span> (<span id=t_idt>CRC16Result</span> != <span id=t_cns>16'hb001</span>)
+           <span id=t_idt>next_CRCError</span> &lt;= <span id=t_cns>1'b1</span>;
+         <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+         <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>DATA_BIT_STUFF_ERROR</span>:
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_bitStuffError</span> &lt;= <span id=t_cns>1'b1</span>;
+         <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+         <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>DATA_STREAM</span>:
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxByte</span>;
+         <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STREAM</span>;
+         <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>RxByte</span>;
+         <span id=t_idt>next_CRC16En</span> &lt;= <span id=t_cns>1'b1</span>;
+         <span id=t_kwd>end</span>
+     <span id=t_kwd>endcase</span>
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>DATA_FIN</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DATA_WAIT_CRC</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>CRC16UpdateRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>DATA_CHK_STRM</span>;
+   `<span id=t_idt>TOKEN_CHK_STRM</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_RXDataByteCnt</span> &lt;= <span id=t_idt>RXDataByteCnt</span> + <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>case</span> (<span id=t_idt>RxCtrl</span>)
+         `<span id=t_idt>DATA_STOP</span>:
+         <span id=t_kwd>begin</span>
+             <span id=t_kwd>if</span> (<span id=t_idt>CRC5Result</span> != <span id=t_cns>5'h6</span>)
+           <span id=t_idt>next_CRCError</span> &lt;= <span id=t_cns>1'b1</span>;
+         <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+         <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>DATA_BIT_STUFF_ERROR</span>:
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_bitStuffError</span> &lt;= <span id=t_cns>1'b1</span>;
+         <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+         <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+         <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+         <span id=t_kwd>end</span>
+         `<span id=t_idt>DATA_STREAM</span>:
+         <span id=t_kwd>begin</span>
+             <span id=t_kwd>if</span> (<span id=t_idt>RXDataByteCnt</span> &gt; <span id=t_cns>10'h2</span>)
+             <span id=t_kwd>begin</span>
+           <span id=t_idt>next_RxOverflow</span> &lt;= <span id=t_cns>1'b1</span>;
+           <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxStatus</span>;
+           <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STOP</span>;
+           <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+             <span id=t_kwd>end</span>
+             <span id=t_kwd>else</span>
+             <span id=t_kwd>begin</span>
+           <span id=t_idt>next_RxDataOut</span> &lt;= <span id=t_idt>RxByte</span>;
+           <span id=t_idt>next_RxCtrlOut</span> &lt;= `<span id=t_idt>RX_PACKET_STREAM</span>;
+           <span id=t_idt>next_CRCData</span> &lt;= <span id=t_idt>RxByte</span>;
+           <span id=t_idt>next_CRC5_8Bit</span> &lt;= <span id=t_cns>1'b1</span>;
+           <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b1</span>;
+             <span id=t_kwd>end</span>
+         <span id=t_kwd>end</span>
+     <span id=t_kwd>endcase</span>
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>TOKEN_FIN</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>TOKEN_FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>TOKEN_WAIT_CRC</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>CRC5UpdateRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>TOKEN_CHK_STRM</span>;
+   `<span id=t_idt>CHK_SYNC_DO</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_kwd>if</span> (<span id=t_idt>RxByte</span> == `<span id=t_idt>SYNC_BYTE</span>)
+       <span id=t_idt>next_RXByteStMachCurrState</span> = `<span id=t_idt>CHECK_PID_ST</span>;
+     <span id=t_kwd>else</span>
+       <span id=t_idt>next_RXByteStMachCurrState</span> = `<span id=t_idt>IDLE_BYTE_ST</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IDLE_CHK_START</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_kwd>if</span> (<span id=t_idt>RxCtrl</span> == `<span id=t_idt>DATA_START</span>)
+       <span id=t_idt>next_RXByteStMachCurrState</span> &lt;= `<span id=t_idt>CHECK_SYNC_ST</span>;
+     <span id=t_idt>NextState_prRxByte</span> &lt;= `<span id=t_idt>WAIT_BYTE</span>;
+     <span id=t_idt>next_processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>prRxByte_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_prRxByte</span> &lt;= `<span id=t_idt>START_PRBY</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_prRxByte</span> &lt;= <span id=t_idt>NextState_prRxByte</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>prRxByte_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>RxByte</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>RxCtrl</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>RXByteStMachCurrState</span> &lt;= `<span id=t_idt>IDLE_BYTE_ST</span>;
+   <span id=t_idt>CRCError</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>bitStuffError</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>RxOverflow</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>RxTimeOut</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>NAKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>stallRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>ACKRxed</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>dataSequence</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>RXDataByteCnt</span> &lt;= <span id=t_cns>10'h00</span>;
+   <span id=t_idt>RxDataOut</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>RxCtrlOut</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>RxDataOutWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>rstCRC</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRCData</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>CRC5En</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRC5_8Bit</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>CRC16En</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>processRxByteRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>RxByte</span> &lt;= <span id=t_idt>next_RxByte</span>;
+   <span id=t_idt>RxCtrl</span> &lt;= <span id=t_idt>next_RxCtrl</span>;
+   <span id=t_idt>RXByteStMachCurrState</span> &lt;= <span id=t_idt>next_RXByteStMachCurrState</span>;
+   <span id=t_idt>CRCError</span> &lt;= <span id=t_idt>next_CRCError</span>;
+   <span id=t_idt>bitStuffError</span> &lt;= <span id=t_idt>next_bitStuffError</span>;
+   <span id=t_idt>RxOverflow</span> &lt;= <span id=t_idt>next_RxOverflow</span>;
+   <span id=t_idt>RxTimeOut</span> &lt;= <span id=t_idt>next_RxTimeOut</span>;
+   <span id=t_idt>NAKRxed</span> &lt;= <span id=t_idt>next_NAKRxed</span>;
+   <span id=t_idt>stallRxed</span> &lt;= <span id=t_idt>next_stallRxed</span>;
+   <span id=t_idt>ACKRxed</span> &lt;= <span id=t_idt>next_ACKRxed</span>;
+   <span id=t_idt>dataSequence</span> &lt;= <span id=t_idt>next_dataSequence</span>;
+   <span id=t_idt>RXDataByteCnt</span> &lt;= <span id=t_idt>next_RXDataByteCnt</span>;
+   <span id=t_idt>RxDataOut</span> &lt;= <span id=t_idt>next_RxDataOut</span>;
+   <span id=t_idt>RxCtrlOut</span> &lt;= <span id=t_idt>next_RxCtrlOut</span>;
+   <span id=t_idt>RxDataOutWEn</span> &lt;= <span id=t_idt>next_RxDataOutWEn</span>;
+   <span id=t_idt>rstCRC</span> &lt;= <span id=t_idt>next_rstCRC</span>;
+   <span id=t_idt>CRCData</span> &lt;= <span id=t_idt>next_CRCData</span>;
+   <span id=t_idt>CRC5En</span> &lt;= <span id=t_idt>next_CRC5En</span>;
+   <span id=t_idt>CRC5_8Bit</span> &lt;= <span id=t_idt>next_CRC5_8Bit</span>;
+   <span id=t_idt>CRC16En</span> &lt;= <span id=t_idt>next_CRC16En</span>;
+   <span id=t_idt>processRxByteRdy</span> &lt;= <span id=t_idt>next_processRxByteRdy</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

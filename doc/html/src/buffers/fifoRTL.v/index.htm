@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>fifoRTL.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// fifoRTL.v                                                    ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>////  parameterized fifo. fifo depth is restricted to 2^ADDR_WIDTH</span>
+<span id=t_com>////  No protection against over runs and under runs.</span>
+<span id=t_com>////  User must check full and empty flags before accessing fifo</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:58:28 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>fifoRTL</span>(<span id=t_idt>clk</span>, <span id=t_idt>rst</span>, <span id=t_idt>dataIn</span>, <span id=t_idt>dataOut</span>, <span id=t_idt>fifoWEn</span>, <span id=t_idt>fifoREn</span>, <span id=t_idt>fifoFull</span>, <span id=t_idt>fifoEmpty</span>, <span id=t_idt>forceEmpty</span>, <span id=t_idt>numElementsInFifo</span>);
+<span id=t_com>//FIFO_DEPTH = ADDR_WIDTH^2. Min = 2, Max = 66536</span>
+  <span id=t_kwd>parameter</span> <span id=t_idt>FIFO_WIDTH</span> = <span id=t_cns>8</span>;
+  <span id=t_kwd>parameter</span> <span id=t_idt>FIFO_DEPTH</span> = <span id=t_cns>64</span>; 
+  <span id=t_kwd>parameter</span> <span id=t_idt>ADDR_WIDTH</span> = <span id=t_cns>6</span>;   
+  
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>input</span> [<span id=t_idt>FIFO_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>output</span> [<span id=t_idt>FIFO_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+<span id=t_kwd>input</span> <span id=t_idt>fifoWEn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>fifoREn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>fifoFull</span>;
+<span id=t_kwd>output</span> <span id=t_idt>fifoEmpty</span>;
+<span id=t_kwd>input</span> <span id=t_idt>forceEmpty</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>15</span>:<span id=t_cns>0</span>]<span id=t_idt>numElementsInFifo</span>; <span id=t_com>//note that this implies a max fifo depth of 65536</span>
+
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>wire</span> [<span id=t_idt>FIFO_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>reg</span> [<span id=t_idt>FIFO_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fifoWEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fifoREn</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>fifoFull</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>fifoEmpty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>forceEmpty</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>15</span>:<span id=t_cns>0</span>]<span id=t_idt>numElementsInFifo</span>;
+
+
+<span id=t_com>// local registers</span>
+<span id=t_kwd>reg</span>  [<span id=t_idt>ADDR_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferInIndex</span>;
+<span id=t_kwd>reg</span>  [<span id=t_idt>ADDR_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferOutIndex</span>;
+<span id=t_kwd>reg</span>  [<span id=t_idt>ADDR_WIDTH</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferCnt</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>fifoREnDelayed</span>;
+<span id=t_kwd>wire</span> [<span id=t_idt>FIFO_WIDTH</span>-<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>dataFromMem</span>;
+
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span> == <span id=t_cns>1'b1</span> || <span id=t_idt>forceEmpty</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+    <span id=t_idt>bufferCnt</span> &lt;= <span id=t_cns>0</span>;
+    <span id=t_idt>fifoFull</span> &lt;= <span id=t_cns>1'b0</span>;
+    <span id=t_idt>fifoEmpty</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_idt>bufferInIndex</span> &lt;= <span id=t_cns>0</span>;
+   <span id=t_idt>bufferOutIndex</span> &lt;= <span id=t_cns>0</span>;
+    <span id=t_idt>fifoREnDelayed</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+    <span id=t_kwd>else</span>
+    <span id=t_kwd>begin</span>
+      <span id=t_kwd>if</span> (<span id=t_idt>fifoREn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fifoREnDelayed</span> == <span id=t_cns>1'b0</span>) <span id=t_kwd>begin</span>
+        <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>dataFromMem</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_idt>fifoREnDelayed</span> &lt;= <span id=t_idt>fifoREn</span>;
+      <span id=t_kwd>if</span> (<span id=t_idt>fifoWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fifoREn</span> == <span id=t_cns>1'b0</span>) <span id=t_kwd>begin</span>
+        <span id=t_idt>bufferCnt</span> &lt;= <span id=t_idt>bufferCnt</span> + <span id=t_cns>1</span>;
+        <span id=t_idt>bufferInIndex</span> &lt;= <span id=t_idt>bufferInIndex</span> + <span id=t_cns>1</span>;
+      <span id=t_kwd>end</span> 
+      <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>fifoWEn</span> == <span id=t_cns>1'b0</span> &amp;&amp; <span id=t_idt>fifoREn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fifoREnDelayed</span> == <span id=t_cns>1'b0</span>) <span id=t_kwd>begin</span>
+        <span id=t_idt>bufferCnt</span> &lt;= <span id=t_idt>bufferCnt</span> - <span id=t_cns>1</span>;
+        <span id=t_idt>bufferOutIndex</span> &lt;= <span id=t_idt>bufferOutIndex</span> + <span id=t_cns>1</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>fifoWEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fifoREn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fifoREnDelayed</span> == <span id=t_cns>1'b0</span>) <span id=t_kwd>begin</span>
+        <span id=t_idt>bufferOutIndex</span> &lt;= <span id=t_idt>bufferOutIndex</span> + <span id=t_cns>1</span>;
+        <span id=t_idt>bufferInIndex</span> &lt;= <span id=t_idt>bufferInIndex</span> + <span id=t_cns>1</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_kwd>if</span> (<span id=t_idt>bufferCnt</span>[<span id=t_idt>ADDR_WIDTH</span>] == <span id=t_cns>1'b1</span>)
+        <span id=t_idt>fifoFull</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_kwd>else</span>
+        <span id=t_idt>fifoFull</span> &lt;= <span id=t_cns>1'b0</span>;
+      <span id=t_kwd>if</span> (|<span id=t_idt>bufferCnt</span> == <span id=t_cns>1'b0</span>) 
+        <span id=t_idt>fifoEmpty</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_kwd>else</span>
+        <span id=t_idt>fifoEmpty</span> &lt;= <span id=t_cns>1'b0</span>;
+    <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//pad bufferCnt with leading zeroes</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>bufferCnt</span>) <span id=t_kwd>begin</span>
+  <span id=t_idt>numElementsInFifo</span> &lt;= { {<span id=t_cns>16</span>-<span id=t_idt>ADDR_WIDTH</span>+<span id=t_cns>1</span>{<span id=t_cns>1'b0</span>}}, <span id=t_idt>bufferCnt</span> };
+<span id=t_kwd>end</span>
+
+<span id=t_idt>fifoMem</span> #(<span id=t_idt>FIFO_WIDTH</span>, <span id=t_idt>FIFO_DEPTH</span>, <span id=t_idt>ADDR_WIDTH</span>)  <span id=t_idt>u_fifoMem</span> (
+  .<span id=t_idt>addrIn</span>(<span id=t_idt>bufferInIndex</span>),
+  .<span id=t_idt>addrOut</span>(<span id=t_idt>bufferOutIndex</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>dataIn</span>),
+  .<span id=t_idt>writeEn</span>(<span id=t_idt>fifoWEn</span>),
+  .<span id=t_idt>readEn</span>(<span id=t_idt>fifoREn</span>),
+  .<span id=t_idt>dataOut</span>(<span id=t_idt>dataFromMem</span>));
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,101 @@
+VERSION=1.19
+HEADER
+FILE="softransmit.asf"
+FID=405c2645
+LANGUAGE=VERILOG
+ENTITY="SOFTransmit"
+FREEOID=73
+"LIBRARIES=`timescale 1ns / 1ps\n`include \"usbHostControl_h.v\"\n\n"
+MULTIPLEARCHSTATUS=FALSE
+SYNTHESISATTRIBUTES=TRUE
+HEADER_PARAM="AUTHOR,"
+HEADER_PARAM="COMPANY,"
+HEADER_PARAM="CREATIONDATE,"
+HEADER_PARAM="TITLE,SOFTransmit"
+END
+BUNDLES
+B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3333 0 0000 0 "Arial" 0
+B T "Conditions" 236,0,236 0 0 0 255,255,255 0 3333 0 0110 0 "Arial" 0
+B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0 "Arial" 0
+B T "Actions" 0,0,0 0 0 1 255,255,255 0 3333 0 0000 0 "Arial" 0
+B T "Labels" 0,0,0 0 0 0 255,255,255 0 3333 0 0000 0 "Arial" 0
+B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0 "Arial" 0
+B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0 "Arial" 0
+B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0 "Arial" 0
+B T "State Labels" 0,0,0 0 0 0 255,255,255 0 3333 0 0000 0 "Arial" 4
+B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0 "Arial" 0
+B T "Comments" 157,157,157 0 0 1 255,255,255 0 3333 0 0000 0 "Arial" 0
+B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0 "Arial" 0
+B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0 "Arial" 0
+B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0 "Arial" 0
+END
+INSTHEADER 1
+PAGE 0,0 215900,279400
+MARGINS 25400,0 0,25400
+END
+OBJECTS
+S 15 6 12288 ELLIPSE "States" | 122537,67111 6500 6500
+L 14 15 0 TEXT "State Labels" | 122537,67111 1 0 0 "WAIT_SOF_NOW\n/3/"
+S 13 6 8192 ELLIPSE "States" | 121510,105827 6500 6500
+L 12 13 0 TEXT "State Labels" | 121510,105827 1 0 0 "WAIT_SP_GNT\n/2/"
+S 11 6 4096 ELLIPSE "States" | 120061,145105 6500 6500
+L 10 11 0 TEXT "State Labels" | 120061,145105 1 0 0 "WAIT_SOF_NEAR\n/1/"
+S 9 6 0 ELLIPSE "States" | 118204,174817 6500 6500
+L 8 9 0 TEXT "State Labels" | 118204,174817 1 0 0 "START_STX\n/0/"
+L 7 6 0 TEXT "Labels" | 56120,190808 1 0 0 "SOFTx"
+F 6 0 671089152 54 0 "" 0 RECT 0,0,0 0 0 1 255,255,255 0 | 28222,2382 211664,199561
+G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0 "Arial" 0 | 110650,251000 1 0 0 "Module: SOFTransmit"
+A 29 27 16 TEXT "Actions" | 136781,44343 1 0 0 "sendPacketWEn <= 1'b1;\nSOFTimerClr <= 1'b1;\nSOFSent <= 1'b1;"
+C 28 27 0 TEXT "Conditions" | 141873,64536 1 0 0 "SOFTimer >= `SOF_TX_TIME"
+W 27 6 8193 15 26 BEZIER "Transitions" | 127758,63214 198581,44766 138746,22583 123372,21429
+S 26 6 16384 ELLIPSE "States" | 123851,14954 6500 6500
+L 25 26 0 TEXT "State Labels" | 123851,14954 1 0 0 "SOF_FIN\n/4/"
+C 23 20 0 TEXT "Conditions" | 123101,97583 1 0 0 "sendPacketArbiterGnt == 1'b1 && sendPacketRdy == 1'b1"
+C 22 19 0 TEXT "Conditions" | 121150,136806 1 0 0 "SOFTimer >= `SOF_TX_TIME - `SOF_TX_MARGIN ||\n(SOFSyncEn == 1'b1 &&\nSOFEnable == 1'b1)"
+W 20 6 0 13 15 BEZIER "Transitions" | 121100,99349 121564,91767 121564,81165 122028,73583
+W 19 6 0 11 13 BEZIER "Transitions" | 120145,138606 120299,132262 120897,118647 121051,112303
+W 18 6 0 9 11 BEZIER "Transitions" | 118406,168343 118715,164010 119133,156247 119287,154003\
+                                     119442,151760 119430,151725 119430,151571
+W 17 6 0 16 9 BEZIER "Transitions" | 76112,190530 85242,187531 103162,180515 112292,177516
+I 16 6 0 Builtin Reset | 76112,190530
+L 30 31 0 TEXT "Labels" | 92106,205240 1 0 0 "SOFTimer[15:0]"
+I 31 0 130 Builtin InPort | 86106,205240 "" ""
+I 32 0 2 Builtin OutPort | 29866,205279 "" ""
+L 33 32 0 TEXT "Labels" | 35866,205279 1 0 0 "sendPacketWEn"
+I 34 0 2 Builtin InPort | 85672,219426 "" ""
+L 35 34 0 TEXT "Labels" | 91672,219426 1 0 0 "SOFSyncEn"
+L 40 41 0 TEXT "Labels" | 89735,214646 1 0 0 "SOFSent"
+I 41 0 2 Builtin OutPort | 83735,214646 "" ""
+K 44 41 0 TEXT "Comments" | 107898,214935 1 0 0 "single cycle pulse"
+A 45 9 2 TEXT "Actions" | 136108,187846 1 0 0 "SOFSent <= 1'b0;\nSOFTimerClr <= 1'b0;\nsendPacketArbiterReq <= 1'b0;\nsendPacketWEn <= 1'b0;"
+L 46 47 0 TEXT "Labels" | 89987,210042 1 0 0 "SOFTimerClr"
+I 47 0 2 Builtin OutPort | 83987,210042 "" ""
+K 49 47 0 TEXT "Comments" | 111272,209575 1 0 0 "Single cycle pulse"
+A 50 26 4 TEXT "Actions" | 141965,16918 1 0 0 "sendPacketWEn <= 1'b0;\nSOFTimerClr <= 1'b0;\nSOFSent <= 1'b0;"
+W 51 6 0 26 11 BEZIER "Transitions" | 117404,14128 103585,14128 76675,12449 68441,16586\
+                                      60208,20724 54912,37274 53629,49148 52346,61023\
+                                      52495,91978 54333,104221 56172,116465 66907,131666\
+                                      73940,137333 80974,143001 92272,144264 98160,144352\
+                                      104049,144440 109926,143957 113732,143626
+L 53 54 0 TEXT "Labels" | 206335,250729 1 0 0 "clk"
+I 54 0 1 Builtin InPort | 200335,250729 "" ""
+C 55 17 0 TEXT "Conditions" | 98239,182492 1 0 0 "rst"
+I 56 0 130 Builtin InPort | 200475,245251 "" ""
+L 57 56 0 TEXT "Labels" | 206475,245251 1 0 0 "rst"
+I 58 0 2 Builtin InPort | 32035,210006 "" ""
+L 59 58 0 TEXT "Labels" | 38035,210006 1 0 0 "sendPacketRdy"
+I 60 0 2 Builtin InPort | 85642,229951 "" ""
+L 61 60 0 TEXT "Labels" | 91642,229951 1 0 0 "SOFEnable"
+I 62 0 2 Builtin OutPort | 29880,214737 "" ""
+L 63 62 0 TEXT "Labels" | 35880,214737 1 0 0 "sendPacketArbiterReq"
+K 69 60 0 TEXT "Comments" | 78222,224799 1 0 0 "After host software asserts SOFEnable, must wait TBD time before asserting SOFSyncEn"
+I 64 0 2 Builtin InPort | 32202,219273 "" ""
+L 65 64 0 TEXT "Labels" | 38202,219273 1 0 0 "sendPacketArbiterGnt"
+A 67 51 16 TEXT "Actions" | 33349,35565 1 0 0 "sendPacketArbiterReq <= 1'b0;"
+A 68 19 16 TEXT "Actions" | 101850,122190 1 0 0 "sendPacketArbiterReq <= 1'b1;"
+W 70 6 8194 15 26 BEZIER "Transitions" | 117343,63205 114476,60245 108317,54810 106883,51064\
+                                         105450,47318 105450,38252 107207,34228 108965,30205\
+                                         115846,23167 119361,19652
+C 71 70 0 TEXT "Conditions" | 81824,61424 1 0 0 "SOFEnable == 1'b0"
+A 72 70 16 TEXT "Actions" | 88430,42600 1 0 0 "SOFTimerClr <= 1'b1;"
+END

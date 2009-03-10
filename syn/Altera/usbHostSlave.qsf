@@ -1,0 +1,93 @@
+# Copyright (C) 1991-2004 Altera Corporation
+# Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+# support information,  device programming or simulation file,  and any other
+# associated  documentation or information  provided by  Altera  or a partner
+# under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+# to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+# other  use  of such  megafunction  design,  netlist,  support  information,
+# device programming or simulation file,  or any other  related documentation
+# or information  is prohibited  for  any  other purpose,  including, but not
+# limited to  modification,  reverse engineering,  de-compiling, or use  with
+# any other  silicon devices,  unless such use is  explicitly  licensed under
+# a separate agreement with  Altera  or a megafunction partner.  Title to the
+# intellectual property,  including patents,  copyrights,  trademarks,  trade
+# secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+# support  information,  device programming or simulation file,  or any other
+# related documentation or information provided by  Altera  or a megafunction
+# partner, remains with Altera, the megafunction partner, or their respective
+# licensors. No other licenses, including any licenses needed under any third
+# party's intellectual property, are provided herein.
+
+
+# The default values for assignments are stored in the file
+#		usbHostSlave_assignment_defaults.qdf
+# If this file doesn't exist, and for assignments not listed, see file
+#		assignment_defaults.qdf
+
+# Altera recommends that you do not modify this file. This
+# file is updated automatically by the Quartus II software
+# and any changes you make may be lost or overwritten.
+
+
+# Project-Wide Assignments
+# ========================
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "05:36:22  OCTOBER 02, 2004"
+set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
+set_global_assignment -name VERILOG_FILE ../../RTL/wrapper/usbHostSlave.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/USBSlaveControlBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/endpMux.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/fifoMux.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/sctxportarbiter.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/slavecontroller.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/slaveDirectcontrol.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/slaveGetpacket.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/slaveRxStatusMonitor.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/slaveSendpacket.v
+set_global_assignment -name VERILOG_FILE ../../RTL/slaveController/usbSlaveControl.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/writeUSBWireData.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/lineControlUpdate.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/processRxBit.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/processRxByte.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/processTxByte.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/readUSBWireData.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/siereceiver.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/SIETransmitter.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/updateCRC5.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/updateCRC16.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/usbSerialInterfaceEngine.v
+set_global_assignment -name VERILOG_FILE ../../RTL/serialInterfaceEngine/usbTxWireArbiter.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostSlaveMux/hostSlaveMuxBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostSlaveMux/hostSlaveMux.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/USBHostControlBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/directcontrol.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/getpacket.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/hctxportarbiter.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/hostcontroller.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/rxStatusMonitor.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/sendpacket.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/sendpacketarbiter.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/sendpacketcheckpreamble.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/sofcontroller.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/softransmit.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/speedCtrlMux.v
+set_global_assignment -name VERILOG_FILE ../../RTL/hostController/usbHostControl.v
+set_global_assignment -name VERILOG_FILE ../../RTL/busInterface/wishBoneBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/TxFifoBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/fifoMem.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/fifoRTL.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/RxFifo.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/RxFifoBI.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/simFifoMem.v
+set_global_assignment -name VERILOG_FILE ../../RTL/buffers/TxFifo.v
+
+# Analysis & Synthesis Assignments
+# ================================
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
+set_global_assignment -name FAMILY Cyclone
+set_global_assignment -name TOP_LEVEL_ENTITY usbHostSlave
+set_global_assignment -name USER_LIBRARIES "c:\\projects\\usbhostslaveforoc\\rtl\\include/"
+
+# Fitter Assignments
+# ==================
+set_global_assignment -name DEVICE EP1C20F400C6

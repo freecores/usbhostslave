@@ -1,0 +1,135 @@
+<html>
+<head>
+<title>usbSlaveControl_h.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbSlaveControl.v                                            ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:13 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_com>//endPointConstants </span>
+<span id=t_dir>`define</span> <span id=t_idt>NUM_OF_ENDPOINTS</span> <span id=t_cns>4</span>
+<span id=t_dir>`define</span> <span id=t_idt>NUM_OF_REGISTERS_PER_ENDPOINT</span> <span id=t_cns>4</span>
+<span id=t_dir>`define</span> <span id=t_idt>BASE_INDEX_FOR_ENDPOINT_REGS</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_CONTROL_REG</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_STATUS_REG</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_TRANSTYPE_STATUS_REG</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>NAK_TRANSTYPE_STATUS_REG</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP0_CTRL_REG</span> <span id=t_cns>5'h0</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP0_STS_REG</span> <span id=t_cns>5'h1</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP0_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'h2</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP0_NAK_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'h3</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP1_CTRL_REG</span> <span id=t_cns>5'h4</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP1_STS_REG</span> <span id=t_cns>5'h5</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP1_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'h6</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP1_NAK_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'h7</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP2_CTRL_REG</span> <span id=t_cns>5'h8</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP2_STS_REG</span> <span id=t_cns>5'h9</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP2_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'ha</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP2_NAK_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'hb</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP3_CTRL_REG</span> <span id=t_cns>5'hc</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP3_STS_REG</span> <span id=t_cns>5'hd</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP3_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'he</span>
+<span id=t_dir>`define</span> <span id=t_idt>EP3_NAK_TRAN_TYPE_STS_REG</span> <span id=t_cns>5'hf</span>
+
+
+<span id=t_com>//SCRegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>LAST_ENDP_REG</span> = `<span id=t_idt>BASE_INDEX_FOR_ENDPOINT_REGS</span> + (`<span id=t_idt>NUM_OF_REGISTERS_PER_ENDPOINT</span> * `<span id=t_idt>NUM_OF_ENDPOINTS</span>) - <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_CONTROL_REG</span> <span id=t_cns>5'h10</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_LINE_STATUS_REG</span> <span id=t_cns>5'h11</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_INTERRUPT_STATUS_REG</span> <span id=t_cns>5'h12</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_INTERRUPT_MASK_REG</span> <span id=t_cns>5'h13</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_ADDRESS</span> <span id=t_cns>5'h14</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_FRAME_NUM_MSP</span> <span id=t_cns>5'h15</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_FRAME_NUM_LSP</span> <span id=t_cns>5'h16</span>
+<span id=t_dir>`define</span> <span id=t_idt>SCREG_BUFFER_LEN</span> <span id=t_cns>5'h17</span>
+<span id=t_com>//SCRXStatusRegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>NAK_SET_MASK</span> <span id=t_cns>8'h10</span>
+<span id=t_com>//`define CRC_ERROR_BIT 0</span>
+<span id=t_com>//`define BIT_STUFF_ERROR_BIT 1</span>
+<span id=t_com>//`define RX_OVERFLOW_BIT 2</span>
+<span id=t_com>//`define RX_TIME_OUT_BIT 3</span>
+<span id=t_com>//`define NAK_SENT_BIT 4</span>
+<span id=t_com>//`define STALL_SENT_BIT 5</span>
+<span id=t_com>//`define ACK_RXED_BIT 6</span>
+<span id=t_com>//`define DATA_SEQUENCE_BIT 7</span>
+<span id=t_com>//SCEndPointControlRegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_ENABLE_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_READY_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_OUTDATA_SEQUENCE_BIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>ENDPOINT_SEND_STALL_BIT</span> <span id=t_cns>3</span>
+<span id=t_com>//SCMasterControlegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_GLOBAL_ENABLE_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_TX_LINE_STATE_LSBIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_TX_LINE_STATE_MSBIT</span> <span id=t_cns>2</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_DIRECT_CONTROL_BIT</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_FULL_SPEED_LINE_POLARITY_BIT</span> <span id=t_cns>4</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_FULL_SPEED_LINE_RATE_BIT</span> <span id=t_cns>5</span>
+<span id=t_com>//SCinterruptRegIndices </span>
+<span id=t_dir>`define</span> <span id=t_idt>TRANS_DONE_BIT</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESUME_INT_BIT</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>RESET_EVENT_BIT</span> <span id=t_cns>2</span>  <span id=t_com>//Line has entered reset state or left reset state</span>
+<span id=t_dir>`define</span> <span id=t_idt>SOF_RECEIVED_BIT</span> <span id=t_cns>3</span>
+<span id=t_dir>`define</span> <span id=t_idt>NAK_SENT_INT_BIT</span> <span id=t_cns>4</span>
+<span id=t_com>//TXTransactionTypes </span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_SETUP_TRANS</span> <span id=t_cns>0</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_IN_TRANS</span> <span id=t_cns>1</span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_OUTDATA_TRANS</span> <span id=t_cns>2</span>
+<span id=t_com>//timeOuts </span>
+<span id=t_dir>`define</span> <span id=t_idt>SC_RX_PACKET_TOUT</span> <span id=t_cns>18</span>
+       
+
+</pre>
+</body>
+</html>

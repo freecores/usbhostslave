@@ -1,0 +1,63 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 6;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(861,1403,963,1505,Click24,Over24);
+FUB[1] = new Array(859,1176,962,1279,Click16,Over16);
+FUB[2] = new Array(883,1858,986,1961,Click42,Over42);
+FUB[3] = new Array(874,1639,976,1741,Click33,Over33);
+FUB[4] = new Array(841,912,944,1014,Click216,Over216);
+FUB[5] = new Array(845,1042,948,1144,Click213,Over213);
+
+//----------------------------------------------------------------------------
+function Click24(){fubclick('./index24.htm');}
+function Over24(){window.status='Hierarchical State HSHAKE';};
+function Click16(){fubclick('./index16.htm');}
+function Over16(){window.status='Hierarchical State CHK_PID';};
+function Click42(){fubclick('./index42.htm');}
+function Over42(){window.status='Hierarchical State DATA';};
+function Click33(){fubclick('./index33.htm');}
+function Over33(){window.status='Hierarchical State TOKEN';};
+function Click216(){fubclick('./index216.htm');}
+function Over216(){window.status='Hierarchical State IDLE';};
+function Click213(){fubclick('./index213.htm');}
+function Over213(){window.status='Hierarchical State CHK_SYNC';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./processRxByte.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./processRxByte.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

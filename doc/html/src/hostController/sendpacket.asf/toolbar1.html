@@ -1,0 +1,57 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 4;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(846,1408,949,1511,Click21,Over21);
+FUB[1] = new Array(1383,1784,1485,1886,Click45,Over45);
+FUB[2] = new Array(863,1765,965,1867,Click43,Over43);
+FUB[3] = new Array(433,1750,536,1853,Click41,Over41);
+
+//----------------------------------------------------------------------------
+function Click21(){fubclick('./index21.htm');}
+function Over21(){window.status='Hierarchical State SEND_PID';};
+function Click45(){fubclick('./index45.htm');}
+function Over45(){window.status='Hierarchical State DATA0_DATA1';};
+function Click43(){fubclick('./index43.htm');}
+function Over43(){window.status='Hierarchical State SEND_SOF';};
+function Click41(){fubclick('./index41.htm');}
+function Over41(){window.status='Hierarchical State OUT_IN_SETUP';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./sendpacket.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./sendpacket.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

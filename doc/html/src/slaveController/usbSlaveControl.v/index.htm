@@ -1,0 +1,511 @@
+<html>
+<head>
+<title>usbSlaveControl.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// usbSlaveControl.v                                            ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:42 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>usbSlaveControl</span>(
+  <span id=t_idt>clk</span>, <span id=t_idt>rst</span>,
+  <span id=t_com>//getPacket</span>
+  <span id=t_idt>RxByteStatus</span>, <span id=t_idt>RxData</span>, <span id=t_idt>RxDataValid</span>,
+  <span id=t_idt>SIERxTimeOut</span>, <span id=t_idt>RxFifoData</span>,
+  <span id=t_com>//speedCtrlMux</span>
+  <span id=t_idt>fullSpeedRate</span>, <span id=t_idt>fullSpeedPol</span>,
+  <span id=t_com>//SCTxPortArbiter</span>
+  <span id=t_idt>SCTxPortEn</span>, <span id=t_idt>SCTxPortRdy</span>,
+  <span id=t_idt>SCTxPortData</span>, <span id=t_idt>SCTxPortCtrl</span>,
+  <span id=t_com>//rxStatusMonitor</span>
+  <span id=t_idt>connectStateIn</span>, 
+  <span id=t_idt>resumeDetectedIn</span>,
+  <span id=t_com>//USBHostControlBI </span>
+  <span id=t_idt>busAddress</span>,
+  <span id=t_idt>busDataIn</span>, 
+  <span id=t_idt>busDataOut</span>, 
+  <span id=t_idt>busWriteEn</span>,
+  <span id=t_idt>busStrobe_i</span>,
+  <span id=t_idt>SOFRxedIntOut</span>, 
+  <span id=t_idt>resetEventIntOut</span>, 
+  <span id=t_idt>resumeIntOut</span>, 
+  <span id=t_idt>transDoneIntOut</span>,
+  <span id=t_idt>NAKSentIntOut</span>,
+  <span id=t_idt>slaveControlSelect</span>,
+  <span id=t_com>//fifoMux</span>
+  <span id=t_idt>TxFifoEP0REn</span>,
+  <span id=t_idt>TxFifoEP1REn</span>,
+  <span id=t_idt>TxFifoEP2REn</span>,
+  <span id=t_idt>TxFifoEP3REn</span>,
+  <span id=t_idt>TxFifoEP0Data</span>,
+  <span id=t_idt>TxFifoEP1Data</span>,
+  <span id=t_idt>TxFifoEP2Data</span>,
+  <span id=t_idt>TxFifoEP3Data</span>,
+  <span id=t_idt>TxFifoEP0Empty</span>,
+  <span id=t_idt>TxFifoEP1Empty</span>,
+  <span id=t_idt>TxFifoEP2Empty</span>,
+  <span id=t_idt>TxFifoEP3Empty</span>,
+  <span id=t_idt>RxFifoEP0WEn</span>,
+  <span id=t_idt>RxFifoEP1WEn</span>,
+  <span id=t_idt>RxFifoEP2WEn</span>,
+  <span id=t_idt>RxFifoEP3WEn</span>,
+  <span id=t_idt>RxFifoEP0Full</span>,
+  <span id=t_idt>RxFifoEP1Full</span>,
+  <span id=t_idt>RxFifoEP2Full</span>,
+  <span id=t_idt>RxFifoEP3Full</span>
+   );
+
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>, <span id=t_idt>rst</span>;
+<span id=t_com>//getPacket</span>
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByteStatus</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxData</span>;
+<span id=t_kwd>input</span> <span id=t_idt>RxDataValid</span>;
+<span id=t_kwd>input</span> <span id=t_idt>SIERxTimeOut</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxFifoData</span>;
+<span id=t_com>//speedCtrlMux</span>
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedPol</span>;
+<span id=t_com>//HCTxPortArbiter</span>
+<span id=t_kwd>output</span> <span id=t_idt>SCTxPortEn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>SCTxPortRdy</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortData</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortCtrl</span>;
+<span id=t_com>//rxStatusMonitor</span>
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>resumeDetectedIn</span>;
+<span id=t_com>//USBHostControlBI </span>
+<span id=t_kwd>input</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>busAddress</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>busDataIn</span>; 
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>busDataOut</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>busWriteEn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>busStrobe_i</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SOFRxedIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>resetEventIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>resumeIntOut</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>transDoneIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>NAKSentIntOut</span>;
+<span id=t_kwd>input</span> <span id=t_idt>slaveControlSelect</span>;
+<span id=t_com>//fifoMux</span>
+<span id=t_kwd>output</span> <span id=t_idt>TxFifoEP0REn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>TxFifoEP1REn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>TxFifoEP2REn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>TxFifoEP3REn</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP0Data</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP1Data</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP2Data</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP3Data</span>;
+<span id=t_kwd>input</span> <span id=t_idt>TxFifoEP0Empty</span>;
+<span id=t_kwd>input</span> <span id=t_idt>TxFifoEP1Empty</span>;
+<span id=t_kwd>input</span> <span id=t_idt>TxFifoEP2Empty</span>;
+<span id=t_kwd>input</span> <span id=t_idt>TxFifoEP3Empty</span>;
+<span id=t_kwd>output</span> <span id=t_idt>RxFifoEP0WEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>RxFifoEP1WEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>RxFifoEP2WEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>RxFifoEP3WEn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>RxFifoEP0Full</span>;
+<span id=t_kwd>input</span> <span id=t_idt>RxFifoEP1Full</span>;
+<span id=t_kwd>input</span> <span id=t_idt>RxFifoEP2Full</span>;
+<span id=t_kwd>input</span> <span id=t_idt>RxFifoEP3Full</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxByteStatus</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxDataValid</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SIERxTimeOut</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxFifoData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>fullSpeedPol</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortData</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>SCTxPortCtrl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resumeDetectedIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>busAddress</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>busDataIn</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>busDataOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>busWriteEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>busStrobe_i</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SOFRxedIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>resetEventIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>resumeIntOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>transDoneIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>NAKSentIntOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveControlSelect</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP0REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP1REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP2REn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP3REn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP0Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP1Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP2Data</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoEP3Data</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP0Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP1Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP2Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEP3Empty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP0WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP1WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP2WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP3WEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP0Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP1Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP2Full</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoEP3Full</span>;
+
+<span id=t_com>//internal wiring</span>
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>directCntlCntl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>directCntlData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>directCntlGnt</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>directCntlReq</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>directCntlWEn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketCntl</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>sendPacketGnt</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>sendPacketReq</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>sendPacketWEn</span>;   
+<span id=t_kwd>wire</span> <span id=t_idt>SCTxPortArbRdyOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>transDone</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>directLineState</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>directLineCtrlEn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>RxPID</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resumeIntFromRxStatusMon</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0TransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1TransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2TransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3TransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0ControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1ControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2ControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3ControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>USBTgtAddress</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP0Rdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP1Rdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP2Rdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP3Rdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SCGlobalEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>ACKRxed</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>CRCError</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RXOverflow</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>RXTimeOut</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>bitStuffError</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>dataSequence</span>; 
+<span id=t_kwd>wire</span> <span id=t_idt>stallSent</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>NAKSent</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>SOFRxed</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endPControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>transTypeNAK</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>transType</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>currEndP</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>getPacketREn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>getPacketRdy</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>slaveControllerPIDOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveControllerReadyIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveControllerWEnOut</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoRE</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>TxFifoData</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>TxFifoEmpty</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoWE</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>RxFifoFull</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resetEventFromRxStatusMon</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEPRdy</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>endPMuxErrorsWEn</span>;
+
+<span id=t_idt>USBSlaveControlBI</span> <span id=t_idt>u_USBSlaveControlBI</span>
+  (.<span id=t_idt>address</span>(<span id=t_idt>busAddress</span>),
+  .<span id=t_idt>dataIn</span>(<span id=t_idt>busDataIn</span>), 
+  .<span id=t_idt>dataOut</span>(<span id=t_idt>busDataOut</span>), 
+  .<span id=t_idt>writeEn</span>(<span id=t_idt>busWriteEn</span>),
+  .<span id=t_idt>strobe_i</span>(<span id=t_idt>busStrobe_i</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>SOFRxedIntOut</span>(<span id=t_idt>SOFRxedIntOut</span>), 
+  .<span id=t_idt>resetEventIntOut</span>(<span id=t_idt>resetEventIntOut</span>), 
+  .<span id=t_idt>resumeIntOut</span>(<span id=t_idt>resumeIntOut</span>), 
+  .<span id=t_idt>transDoneIntOut</span>(<span id=t_idt>transDoneIntOut</span>),
+  .<span id=t_idt>NAKSentIntOut</span>(<span id=t_idt>NAKSentIntOut</span>),
+  .<span id=t_idt>endP0TransTypeReg</span>(<span id=t_idt>endP0TransTypeReg</span>), 
+  .<span id=t_idt>endP0NAKTransTypeReg</span>(<span id=t_idt>endP0NAKTransTypeReg</span>),
+  .<span id=t_idt>endP1TransTypeReg</span>(<span id=t_idt>endP1TransTypeReg</span>), 
+  .<span id=t_idt>endP1NAKTransTypeReg</span>(<span id=t_idt>endP1NAKTransTypeReg</span>),
+  .<span id=t_idt>endP2TransTypeReg</span>(<span id=t_idt>endP2TransTypeReg</span>), 
+  .<span id=t_idt>endP2NAKTransTypeReg</span>(<span id=t_idt>endP2NAKTransTypeReg</span>),
+  .<span id=t_idt>endP3TransTypeReg</span>(<span id=t_idt>endP3TransTypeReg</span>), 
+  .<span id=t_idt>endP3NAKTransTypeReg</span>(<span id=t_idt>endP3NAKTransTypeReg</span>),
+  .<span id=t_idt>endP0ControlReg</span>(<span id=t_idt>endP0ControlReg</span>),
+  .<span id=t_idt>endP1ControlReg</span>(<span id=t_idt>endP1ControlReg</span>),
+  .<span id=t_idt>endP2ControlReg</span>(<span id=t_idt>endP2ControlReg</span>),
+  .<span id=t_idt>endP3ControlReg</span>(<span id=t_idt>endP3ControlReg</span>),
+  .<span id=t_idt>EP0StatusReg</span>(<span id=t_idt>endP0StatusReg</span>),
+  .<span id=t_idt>EP1StatusReg</span>(<span id=t_idt>endP1StatusReg</span>),
+  .<span id=t_idt>EP2StatusReg</span>(<span id=t_idt>endP2StatusReg</span>),
+  .<span id=t_idt>EP3StatusReg</span>(<span id=t_idt>endP3StatusReg</span>),
+  .<span id=t_idt>SCAddrReg</span>(<span id=t_idt>USBTgtAddress</span>), 
+  .<span id=t_idt>frameNum</span>(<span id=t_idt>frameNum</span>),
+  .<span id=t_idt>connectStateIn</span>(<span id=t_idt>connectStateOut</span>),
+  .<span id=t_idt>SOFRxedIn</span>(<span id=t_idt>SOFRxed</span>), 
+  .<span id=t_idt>resetEventIn</span>(<span id=t_idt>resetEventFromRxStatusMon</span>), 
+  .<span id=t_idt>resumeIntIn</span>(<span id=t_idt>resumeIntFromRxStatusMon</span>), 
+  .<span id=t_idt>transDoneIn</span>(<span id=t_idt>transDone</span>),
+  .<span id=t_idt>NAKSentIn</span>(<span id=t_idt>NAKSent</span>),
+  .<span id=t_idt>slaveControlSelect</span>(<span id=t_idt>slaveControlSelect</span>),
+  .<span id=t_idt>clrEP0Ready</span>(<span id=t_idt>clrEP0Rdy</span>), 
+  .<span id=t_idt>clrEP1Ready</span>(<span id=t_idt>clrEP1Rdy</span>), 
+  .<span id=t_idt>clrEP2Ready</span>(<span id=t_idt>clrEP2Rdy</span>), 
+  .<span id=t_idt>clrEP3Ready</span>(<span id=t_idt>clrEP3Rdy</span>),
+  .<span id=t_idt>TxLineState</span>(<span id=t_idt>directLineState</span>),
+  .<span id=t_idt>LineDirectControlEn</span>(<span id=t_idt>directLineCtrlEn</span>),
+  .<span id=t_idt>fullSpeedPol</span>(<span id=t_idt>fullSpeedPol</span>), 
+  .<span id=t_idt>fullSpeedRate</span>(<span id=t_idt>fullSpeedRate</span>),
+  .<span id=t_idt>SCGlobalEn</span>(<span id=t_idt>SCGlobalEn</span>)
+  );
+
+<span id=t_idt>slavecontroller</span> <span id=t_idt>u_slavecontroller</span>
+  (.<span id=t_idt>CRCError</span>(<span id=t_idt>CRCError</span>), 
+  .<span id=t_idt>NAKSent</span>(<span id=t_idt>NAKSent</span>), 
+  .<span id=t_idt>RxByte</span>(<span id=t_idt>RxData</span>), 
+  .<span id=t_idt>RxDataWEn</span>(<span id=t_idt>RxDataValid</span>), 
+  .<span id=t_idt>RxOverflow</span>(<span id=t_idt>RXOverflow</span>), 
+  .<span id=t_idt>RxStatus</span>(<span id=t_idt>RxByteStatus</span>), 
+  .<span id=t_idt>RxTimeOut</span>(<span id=t_idt>RXTimeOut</span>), 
+  .<span id=t_idt>SCGlobalEn</span>(<span id=t_idt>SCGlobalEn</span>), 
+  .<span id=t_idt>SOFRxed</span>(<span id=t_idt>SOFRxed</span>), 
+  .<span id=t_idt>USBEndPControlReg</span>(<span id=t_idt>endPControlReg</span>), 
+  .<span id=t_idt>USBEndPNakTransTypeReg</span>(<span id=t_idt>transTypeNAK</span>), 
+  .<span id=t_idt>USBEndPTransTypeReg</span>(<span id=t_idt>transType</span>), 
+  .<span id=t_idt>USBEndP</span>(<span id=t_idt>currEndP</span>), 
+  .<span id=t_idt>USBTgtAddress</span>(<span id=t_idt>USBTgtAddress</span>),
+  .<span id=t_idt>bitStuffError</span>(<span id=t_idt>bitStuffError</span>), 
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>clrEPRdy</span>(<span id=t_idt>clrEPRdy</span>), 
+  .<span id=t_idt>endPMuxErrorsWEn</span>(<span id=t_idt>endPMuxErrorsWEn</span>), 
+  .<span id=t_idt>frameNum</span>(<span id=t_idt>frameNum</span>), 
+  .<span id=t_idt>getPacketREn</span>(<span id=t_idt>getPacketREn</span>), 
+  .<span id=t_idt>getPacketRdy</span>(<span id=t_idt>getPacketRdy</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>), 
+  .<span id=t_idt>sendPacketPID</span>(<span id=t_idt>slaveControllerPIDOut</span>), 
+  .<span id=t_idt>sendPacketRdy</span>(<span id=t_idt>slaveControllerReadyIn</span>), 
+  .<span id=t_idt>sendPacketWEn</span>(<span id=t_idt>slaveControllerWEnOut</span>), 
+  .<span id=t_idt>stallSent</span>(<span id=t_idt>stallSent</span>), 
+  .<span id=t_idt>transDone</span>(<span id=t_idt>transDone</span>) 
+    );
+
+
+<span id=t_idt>endpMux</span> <span id=t_idt>u_endpMux</span> (
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>), 
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>currEndP</span>(<span id=t_idt>currEndP</span>),
+  .<span id=t_idt>NAKSent</span>(<span id=t_idt>NAKSent</span>),
+  .<span id=t_idt>stallSent</span>(<span id=t_idt>stallSent</span>),
+  .<span id=t_idt>CRCError</span>(<span id=t_idt>CRCError</span>),
+  .<span id=t_idt>bitStuffError</span>(<span id=t_idt>bitStuffError</span>),
+  .<span id=t_idt>RxOverflow</span>(<span id=t_idt>RXOverflow</span>),
+  .<span id=t_idt>RxTimeOut</span>(<span id=t_idt>RXTimeOut</span>),
+  .<span id=t_idt>dataSequence</span>(<span id=t_idt>dataSequence</span>),
+  .<span id=t_idt>ACKRxed</span>(<span id=t_idt>ACKRxed</span>),
+  .<span id=t_idt>transType</span>(<span id=t_idt>transType</span>),
+  .<span id=t_idt>transTypeNAK</span>(<span id=t_idt>transTypeNAK</span>),
+  .<span id=t_idt>endPControlReg</span>(<span id=t_idt>endPControlReg</span>),
+  .<span id=t_idt>clrEPRdy</span>(<span id=t_idt>clrEPRdy</span>),
+  .<span id=t_idt>endPMuxErrorsWEn</span>(<span id=t_idt>endPMuxErrorsWEn</span>),
+  .<span id=t_idt>endP0ControlReg</span>(<span id=t_idt>endP0ControlReg</span>),
+  .<span id=t_idt>endP1ControlReg</span>(<span id=t_idt>endP1ControlReg</span>),
+  .<span id=t_idt>endP2ControlReg</span>(<span id=t_idt>endP2ControlReg</span>),
+  .<span id=t_idt>endP3ControlReg</span>(<span id=t_idt>endP3ControlReg</span>),
+  .<span id=t_idt>endP0StatusReg</span>(<span id=t_idt>endP0StatusReg</span>),
+  .<span id=t_idt>endP1StatusReg</span>(<span id=t_idt>endP1StatusReg</span>),
+  .<span id=t_idt>endP2StatusReg</span>(<span id=t_idt>endP2StatusReg</span>),
+  .<span id=t_idt>endP3StatusReg</span>(<span id=t_idt>endP3StatusReg</span>),
+  .<span id=t_idt>endP0TransTypeReg</span>(<span id=t_idt>endP0TransTypeReg</span>),
+  .<span id=t_idt>endP1TransTypeReg</span>(<span id=t_idt>endP1TransTypeReg</span>),
+  .<span id=t_idt>endP2TransTypeReg</span>(<span id=t_idt>endP2TransTypeReg</span>),
+  .<span id=t_idt>endP3TransTypeReg</span>(<span id=t_idt>endP3TransTypeReg</span>),
+  .<span id=t_idt>endP0NAKTransTypeReg</span>(<span id=t_idt>endP0NAKTransTypeReg</span>),
+  .<span id=t_idt>endP1NAKTransTypeReg</span>(<span id=t_idt>endP1NAKTransTypeReg</span>),
+  .<span id=t_idt>endP2NAKTransTypeReg</span>(<span id=t_idt>endP2NAKTransTypeReg</span>),
+  .<span id=t_idt>endP3NAKTransTypeReg</span>(<span id=t_idt>endP3NAKTransTypeReg</span>),
+  .<span id=t_idt>clrEP0Rdy</span>(<span id=t_idt>clrEP0Rdy</span>),
+  .<span id=t_idt>clrEP1Rdy</span>(<span id=t_idt>clrEP1Rdy</span>),
+  .<span id=t_idt>clrEP2Rdy</span>(<span id=t_idt>clrEP2Rdy</span>),
+  .<span id=t_idt>clrEP3Rdy</span>(<span id=t_idt>clrEP3Rdy</span>)
+    );
+
+<span id=t_idt>slaveSendPacket</span> <span id=t_idt>u_slaveSendPacket</span>
+  (.<span id=t_idt>PID</span>(<span id=t_idt>slaveControllerPIDOut</span>), 
+  .<span id=t_idt>SCTxPortCntl</span>(<span id=t_idt>sendPacketCntl</span>),
+  .<span id=t_idt>SCTxPortData</span>(<span id=t_idt>sendPacketData</span>),
+  .<span id=t_idt>SCTxPortGnt</span>(<span id=t_idt>sendPacketGnt</span>),
+  .<span id=t_idt>SCTxPortRdy</span>(<span id=t_idt>SCTxPortArbRdyOut</span>),
+  .<span id=t_idt>SCTxPortReq</span>(<span id=t_idt>sendPacketReq</span>),
+  .<span id=t_idt>SCTxPortWEn</span>(<span id=t_idt>sendPacketWEn</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>fifoData</span>(<span id=t_idt>TxFifoData</span>),
+  .<span id=t_idt>fifoEmpty</span>(<span id=t_idt>TxFifoEmpty</span>),
+  .<span id=t_idt>fifoReadEn</span>(<span id=t_idt>TxFifoRE</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>sendPacketRdy</span>(<span id=t_idt>slaveControllerReadyIn</span>),
+  .<span id=t_idt>sendPacketWEn</span>(<span id=t_idt>slaveControllerWEnOut</span>) );
+
+<span id=t_idt>slaveDirectControl</span> <span id=t_idt>u_slaveDirectControl</span>
+  (.<span id=t_idt>SCTxPortCntl</span>(<span id=t_idt>directCntlCntl</span>),
+  .<span id=t_idt>SCTxPortData</span>(<span id=t_idt>directCntlData</span>),
+  .<span id=t_idt>SCTxPortGnt</span>(<span id=t_idt>directCntlGnt</span>),
+  .<span id=t_idt>SCTxPortRdy</span>(<span id=t_idt>SCTxPortArbRdyOut</span>),
+  .<span id=t_idt>SCTxPortReq</span>(<span id=t_idt>directCntlReq</span>),
+  .<span id=t_idt>SCTxPortWEn</span>(<span id=t_idt>directCntlWEn</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>directControlEn</span>(<span id=t_idt>directLineCtrlEn</span>),
+  .<span id=t_idt>directControlLineState</span>(<span id=t_idt>directLineState</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+
+<span id=t_idt>SCTxPortArbiter</span> <span id=t_idt>u_SCTxPortArbiter</span>
+  (.<span id=t_idt>SCTxPortCntl</span>(<span id=t_idt>SCTxPortCtrl</span>),
+  .<span id=t_idt>SCTxPortData</span>(<span id=t_idt>SCTxPortData</span>),
+  .<span id=t_idt>SCTxPortRdyIn</span>(<span id=t_idt>SCTxPortRdy</span>),
+  .<span id=t_idt>SCTxPortRdyOut</span>(<span id=t_idt>SCTxPortArbRdyOut</span>),
+  .<span id=t_idt>SCTxPortWEnable</span>(<span id=t_idt>SCTxPortEn</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>directCntlCntl</span>(<span id=t_idt>directCntlCntl</span>),
+  .<span id=t_idt>directCntlData</span>(<span id=t_idt>directCntlData</span>),
+  .<span id=t_idt>directCntlGnt</span>(<span id=t_idt>directCntlGnt</span>),
+  .<span id=t_idt>directCntlReq</span>(<span id=t_idt>directCntlReq</span>),
+  .<span id=t_idt>directCntlWEn</span>(<span id=t_idt>directCntlWEn</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>),
+  .<span id=t_idt>sendPacketCntl</span>(<span id=t_idt>sendPacketCntl</span>),
+  .<span id=t_idt>sendPacketData</span>(<span id=t_idt>sendPacketData</span>),
+  .<span id=t_idt>sendPacketGnt</span>(<span id=t_idt>sendPacketGnt</span>),
+  .<span id=t_idt>sendPacketReq</span>(<span id=t_idt>sendPacketReq</span>),
+  .<span id=t_idt>sendPacketWEn</span>(<span id=t_idt>sendPacketWEn</span>) );   
+
+
+<span id=t_idt>slaveGetPacket</span> <span id=t_idt>u_slaveGetPacket</span>
+  (.<span id=t_idt>ACKRxed</span>(<span id=t_idt>ACKRxed</span>), 
+  .<span id=t_idt>CRCError</span>(<span id=t_idt>CRCError</span>), 
+  .<span id=t_idt>RXDataIn</span>(<span id=t_idt>RxData</span>),
+  .<span id=t_idt>RXDataValid</span>(<span id=t_idt>RxDataValid</span>),
+  .<span id=t_idt>RXFifoData</span>(<span id=t_idt>RxFifoData</span>),
+  .<span id=t_idt>RXFifoFull</span>(<span id=t_idt>RxFifoFull</span>),
+  .<span id=t_idt>RXFifoWEn</span>(<span id=t_idt>RxFifoWE</span>),
+  .<span id=t_idt>RXPacketRdy</span>(<span id=t_idt>getPacketRdy</span>),
+  .<span id=t_idt>RXStreamStatusIn</span>(<span id=t_idt>RxByteStatus</span>),
+  .<span id=t_idt>RxPID</span>(<span id=t_idt>RxPID</span>),
+  .<span id=t_idt>SIERxTimeOut</span>(<span id=t_idt>SIERxTimeOut</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>RXOverflow</span>(<span id=t_idt>RXOverflow</span>), 
+  .<span id=t_idt>RXTimeOut</span>(<span id=t_idt>RXTimeOut</span>), 
+  .<span id=t_idt>bitStuffError</span>(<span id=t_idt>bitStuffError</span>), 
+  .<span id=t_idt>dataSequence</span>(<span id=t_idt>dataSequence</span>), 
+  .<span id=t_idt>getPacketEn</span>(<span id=t_idt>getPacketREn</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>) ); 
+
+<span id=t_idt>slaveRxStatusMonitor</span>  <span id=t_idt>u_slaveRxStatusMonitor</span>
+  (.<span id=t_idt>connectStateIn</span>(<span id=t_idt>connectStateIn</span>),
+  .<span id=t_idt>connectStateOut</span>(<span id=t_idt>connectStateOut</span>),
+  .<span id=t_idt>resumeDetectedIn</span>(<span id=t_idt>resumeDetectedIn</span>),
+  .<span id=t_idt>resetEventOut</span>(<span id=t_idt>resetEventFromRxStatusMon</span>),
+  .<span id=t_idt>resumeIntOut</span>(<span id=t_idt>resumeIntFromRxStatusMon</span>),
+  .<span id=t_idt>clk</span>(<span id=t_idt>clk</span>),
+  .<span id=t_idt>rst</span>(<span id=t_idt>rst</span>)  );    
+  
+<span id=t_idt>fifoMux</span> <span id=t_idt>u_fifoMux</span> (
+  .<span id=t_idt>currEndP</span>(<span id=t_idt>currEndP</span>),
+  <span id=t_com>//TxFifo</span>
+  .<span id=t_idt>TxFifoREn</span>(<span id=t_idt>TxFifoRE</span>),
+  .<span id=t_idt>TxFifoEP0REn</span>(<span id=t_idt>TxFifoEP0REn</span>),
+  .<span id=t_idt>TxFifoEP1REn</span>(<span id=t_idt>TxFifoEP1REn</span>),
+  .<span id=t_idt>TxFifoEP2REn</span>(<span id=t_idt>TxFifoEP2REn</span>),
+  .<span id=t_idt>TxFifoEP3REn</span>(<span id=t_idt>TxFifoEP3REn</span>),
+  .<span id=t_idt>TxFifoData</span>(<span id=t_idt>TxFifoData</span>),
+  .<span id=t_idt>TxFifoEP0Data</span>(<span id=t_idt>TxFifoEP0Data</span>),
+  .<span id=t_idt>TxFifoEP1Data</span>(<span id=t_idt>TxFifoEP1Data</span>),
+  .<span id=t_idt>TxFifoEP2Data</span>(<span id=t_idt>TxFifoEP2Data</span>),
+  .<span id=t_idt>TxFifoEP3Data</span>(<span id=t_idt>TxFifoEP3Data</span>),
+  .<span id=t_idt>TxFifoEmpty</span>(<span id=t_idt>TxFifoEmpty</span>),
+  .<span id=t_idt>TxFifoEP0Empty</span>(<span id=t_idt>TxFifoEP0Empty</span>),
+  .<span id=t_idt>TxFifoEP1Empty</span>(<span id=t_idt>TxFifoEP1Empty</span>),
+  .<span id=t_idt>TxFifoEP2Empty</span>(<span id=t_idt>TxFifoEP2Empty</span>),
+  .<span id=t_idt>TxFifoEP3Empty</span>(<span id=t_idt>TxFifoEP3Empty</span>),
+  <span id=t_com>//RxFifo</span>
+  .<span id=t_idt>RxFifoWEn</span>(<span id=t_idt>RxFifoWE</span>),
+  .<span id=t_idt>RxFifoEP0WEn</span>(<span id=t_idt>RxFifoEP0WEn</span>),
+  .<span id=t_idt>RxFifoEP1WEn</span>(<span id=t_idt>RxFifoEP1WEn</span>),
+  .<span id=t_idt>RxFifoEP2WEn</span>(<span id=t_idt>RxFifoEP2WEn</span>),
+  .<span id=t_idt>RxFifoEP3WEn</span>(<span id=t_idt>RxFifoEP3WEn</span>),
+  .<span id=t_idt>RxFifoFull</span>(<span id=t_idt>RxFifoFull</span>),
+  .<span id=t_idt>RxFifoEP0Full</span>(<span id=t_idt>RxFifoEP0Full</span>),
+  .<span id=t_idt>RxFifoEP1Full</span>(<span id=t_idt>RxFifoEP1Full</span>),
+  .<span id=t_idt>RxFifoEP2Full</span>(<span id=t_idt>RxFifoEP2Full</span>),
+  .<span id=t_idt>RxFifoEP3Full</span>(<span id=t_idt>RxFifoEP3Full</span>)
+    );
+
+<span id=t_kwd>endmodule</span>
+
+  
+  
+
+
+
+
+
+</pre>
+</body>
+</html>

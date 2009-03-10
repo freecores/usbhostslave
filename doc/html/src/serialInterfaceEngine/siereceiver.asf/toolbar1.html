@@ -1,0 +1,66 @@
+<html>
+<script language="JavaScript">
+var RootProject = "../../../";
+//----------------------------------------------------------------------------
+FUBSNUMBER = 7;
+//----------------------------------------------------------------------------
+FUB = new Array();
+//----------------------------------------------------------------------------
+FUB[0] = new Array(1080,1893,1182,1996,Click23,Over23);
+FUB[1] = new Array(1073,1755,1175,1857,Click46,Over46);
+FUB[2] = new Array(1062,1607,1164,1709,Click55,Over55);
+FUB[3] = new Array(1045,1312,1147,1414,Click73,Over73);
+FUB[4] = new Array(1051,1466,1154,1569,Click64,Over64);
+FUB[5] = new Array(1025,981,1127,1083,Click91,Over91);
+FUB[6] = new Array(1034,1153,1136,1255,Click82,Over82);
+
+//----------------------------------------------------------------------------
+function Click23(){fubclick('./index23.htm');}
+function Over23(){window.status='Hierarchical State DISCNCT';};
+function Click46(){fubclick('./index46.htm');}
+function Over46(){window.status='Hierarchical State WAIT_FS_CONN';};
+function Click55(){fubclick('./index55.htm');}
+function Over55(){window.status='Hierarchical State WAIT_LS_CONN';};
+function Click73(){fubclick('./index73.htm');}
+function Over73(){window.status='Hierarchical State FS_CONN';};
+function Click64(){fubclick('./index64.htm');}
+function Over64(){window.status='Hierarchical State LS_CONN';};
+function Click91(){fubclick('./index91.htm');}
+function Over91(){window.status='Hierarchical State WAIT_FS_DIS';};
+function Click82(){fubclick('./index82.htm');}
+function Over82(){window.status='Hierarchical State WAIT_LS_DIS';};
+
+//----------------------------------------------------------------------------
+var PageX = 1700 ;
+var PageY = 2200 ;
+var PageNumber= 1 ; //current page number
+var PagePrev  = -1   ; // if(PagePrev == -1) absent
+var PageNext  = -1   ; // if(PagePrev == -1) absent
+//----------------------------------------------------------------------------
+var w = 1020;
+var h = 1320;
+//----------------------------------------------------------------------------
+SchemImage = new Image();
+SchemImage.src = "./siereceiver.png" ; //Caching image
+//----------------------------------------------------------------------------
+SchemCode = "./siereceiver.v/index.htm";
+//----------------------------------------------------------------------------
+</script>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+<script language="JavaScript" src="./../../../struct/fsmtools.js"></script>
+<script language="JavaScript">function XNotify(){parent.ToolsOn();}</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0" 
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+<script language="JavaScript">
+<!--
+document.writeln(GetToolBar());
+//-->
+</script>
+
+</body>
+
+</html>

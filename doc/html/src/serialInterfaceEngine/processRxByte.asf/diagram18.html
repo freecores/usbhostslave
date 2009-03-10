@@ -1,0 +1,70 @@
+<html>
+
+<script language="JavaScript" src="./../../../struct/is.js"></script>
+
+<script language="JavaScript">
+//----------------------------------------------------------------------------
+	function XNotify() {parent.SchemOn();}
+	function Mapper(arg) {if(GetMouseXY(arg)==0)return;parent.Mapper(MouseX,MouseY);}
+	function MapperOver(arg) {if(GetMouseXY(arg)==0)return;parent.MapperOver(MouseX,MouseY);}
+//----------------------------------------------------------------------------
+if(!ie)
+{
+	document.captureEvents(Event.MOUSEMOVE | Event.CLICK | Event.ONLOAD);
+	document.onmousemove = MapperOver;
+	document.onclick = Mapper;
+	document.onload = XNotify;
+}
+//----------------------------------------------------------------------------
+var MouseX=0;
+var MouseY=0;
+//----------------------------------------------------------------------------
+function GetMouseXY(arg) 
+{
+	var x;var y;var flag=1;
+	if(!nn & !ie){
+		x = arg.pageX - document.images["DIAGRAM"].x;
+		y = arg.pageY - document.images["DIAGRAM"].y;
+		if(!x || !y)
+			flag=0; // Refresh in NN6
+	}
+	if(nn){
+		x = arg.pageX - document.images["DIAGRAM"].x;
+		y = arg.pageY - document.images["DIAGRAM"].y;
+		if(!x || !y)
+			flag=0; // Refresh in NN6
+	}
+	if(ie){
+		x = event.offsetX;
+		y = event.offsetY;
+	}
+	if(flag==0)
+		return 0;
+	MouseX=x;
+	MouseY=y;
+	return 1;
+}
+
+</script>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marhinheight="0" marginwidth="0"
+bgcolor="silver" background="./../../../images/fsm/back.gif"
+onLoad="XNotify()"
+>
+
+<table width="100%" height="100%"  border="0" cellspacing="0" cellpadding="0" valign="center" align="center" background="silver">
+
+<tr background="silver" align="absmiddle" >
+       <td background="silver" align="middle">
+	   	   <img	id="ME" name="DIAGRAM" background="silver"  
+				longdesc="processRxByte FIRST_BYTE" alt="processRxByte FIRST_BYTE"
+				width=1020 height=1320 
+				hspace="0" vspace="0" border="0" 
+				align="absmiddle"
+				onClick="Mapper(this)" onMouseMove="MapperOver(this)"				
+			>
+	   </td>
+</tr>
+
+</body>
+</html>

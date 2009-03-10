@@ -1,0 +1,406 @@
+<html>
+<head>
+<title>USBSlaveControlBI.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// USBSlaveControlBI.v                                          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:43 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_dir>`include</span> <span id=t_cns>"usbSlaveControl_h.v"</span>
+ 
+<span id=t_kwd>module</span> <span id=t_idt>USBSlaveControlBI</span> (<span id=t_idt>address</span>, <span id=t_idt>dataIn</span>, <span id=t_idt>dataOut</span>, <span id=t_idt>writeEn</span>,
+  <span id=t_idt>strobe_i</span>,
+  <span id=t_idt>clk</span>, <span id=t_idt>rst</span>,
+  <span id=t_idt>SOFRxedIntOut</span>, <span id=t_idt>resetEventIntOut</span>, <span id=t_idt>resumeIntOut</span>, <span id=t_idt>transDoneIntOut</span>, <span id=t_idt>NAKSentIntOut</span>,
+  <span id=t_idt>endP0TransTypeReg</span>, <span id=t_idt>endP0NAKTransTypeReg</span>,
+  <span id=t_idt>endP1TransTypeReg</span>, <span id=t_idt>endP1NAKTransTypeReg</span>,
+  <span id=t_idt>endP2TransTypeReg</span>, <span id=t_idt>endP2NAKTransTypeReg</span>,
+  <span id=t_idt>endP3TransTypeReg</span>, <span id=t_idt>endP3NAKTransTypeReg</span>,
+  <span id=t_idt>endP0ControlReg</span>,
+  <span id=t_idt>endP1ControlReg</span>,
+  <span id=t_idt>endP2ControlReg</span>,
+  <span id=t_idt>endP3ControlReg</span>,
+  <span id=t_idt>EP0StatusReg</span>,
+  <span id=t_idt>EP1StatusReg</span>,
+  <span id=t_idt>EP2StatusReg</span>,
+  <span id=t_idt>EP3StatusReg</span>,
+  <span id=t_idt>SCAddrReg</span>, <span id=t_idt>frameNum</span>,
+  <span id=t_idt>connectStateIn</span>,
+  <span id=t_idt>SOFRxedIn</span>, <span id=t_idt>resetEventIn</span>, <span id=t_idt>resumeIntIn</span>, <span id=t_idt>transDoneIn</span>, <span id=t_idt>NAKSentIn</span>,
+  <span id=t_idt>slaveControlSelect</span>,
+  <span id=t_idt>clrEP0Ready</span>, <span id=t_idt>clrEP1Ready</span>, <span id=t_idt>clrEP2Ready</span>, <span id=t_idt>clrEP3Ready</span>,
+  <span id=t_idt>TxLineState</span>,
+  <span id=t_idt>LineDirectControlEn</span>,
+  <span id=t_idt>fullSpeedPol</span>, 
+  <span id=t_idt>fullSpeedRate</span>,
+  <span id=t_idt>SCGlobalEn</span>
+  );
+<span id=t_kwd>input</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>address</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>writeEn</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SOFRxedIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>resetEventIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>resumeIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>transDoneIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>NAKSentIntOut</span>;
+
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0TransTypeReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0NAKTransTypeReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1TransTypeReg</span>; 
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1NAKTransTypeReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2TransTypeReg</span>; 
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2NAKTransTypeReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3TransTypeReg</span>; 
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3NAKTransTypeReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0ControlReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1ControlReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2ControlReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3ControlReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP0StatusReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP1StatusReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP2StatusReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP3StatusReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>SCAddrReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>SOFRxedIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>resetEventIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>resumeIntIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>transDoneIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>NAKSentIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>slaveControlSelect</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clrEP0Ready</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clrEP1Ready</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clrEP2Ready</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clrEP3Ready</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxLineState</span>;
+<span id=t_kwd>output</span> <span id=t_idt>LineDirectControlEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedPol</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SCGlobalEn</span>;
+
+<span id=t_kwd>wire</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>address</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>writeEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+
+<span id=t_kwd>reg</span> <span id=t_idt>SOFRxedIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resetEventIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resumeIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>transDoneIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>NAKSentIntOut</span>;
+
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0TransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1TransTypeReg</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2TransTypeReg</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2NAKTransTypeReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3TransTypeReg</span>; 
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3NAKTransTypeReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP0ControlReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP1ControlReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP2ControlReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>endP3ControlReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP0StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP1StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP2StatusReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>EP3StatusReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>SCAddrReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>TxEndPReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNum</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>SOFRxedIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resetEventIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resumeIntIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>transDoneIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>NAKSentIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>slaveControlSelect</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP0Ready</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP1Ready</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP2Ready</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrEP3Ready</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxLineState</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>LineDirectControlEn</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>fullSpeedPol</span>; 
+<span id=t_kwd>reg</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>SCGlobalEn</span>;
+
+<span id=t_com>//internal wire and regs</span>
+<span id=t_kwd>reg</span> [<span id=t_cns>5</span>:<span id=t_cns>0</span>] <span id=t_idt>SCControlReg</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrNAKReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrSOFReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrResetReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrResInReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrTransDoneReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>SOFRxedInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resetEventInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resumeInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>transDoneInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>NAKSentInt</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>interruptMaskReg</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP0SetReady</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP1SetReady</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP2SetReady</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP3SetReady</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP0SendStall</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP1SendStall</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP2SendStall</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP3SendStall</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP0DataSequence</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP1DataSequence</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP2DataSequence</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP3DataSequence</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP0Enable</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP1Enable</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP2Enable</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP3Enable</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP0Ready</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP1Ready</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP2Ready</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>EP3Ready</span>;
+
+
+<span id=t_com>//sync write demux</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_idt>clrNAKReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrSOFReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrResetReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrResInReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrTransDoneReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>EP0SetReady</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>EP1SetReady</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>EP2SetReady</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>EP3SetReady</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>if</span> (<span id=t_idt>writeEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>strobe_i</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>slaveControlSelect</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+   <span id=t_kwd>case</span> (<span id=t_idt>address</span>)
+      `<span id=t_idt>EP0_CTRL_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>EP0SendStall</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>EP0DataSequence</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>EP0SetReady</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>EP0Enable</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+      `<span id=t_idt>EP1_CTRL_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>EP1SendStall</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>EP1DataSequence</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>EP1SetReady</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>EP1Enable</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+      `<span id=t_idt>EP2_CTRL_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>EP2SendStall</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>EP2DataSequence</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>EP2SetReady</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>EP2Enable</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+      `<span id=t_idt>EP3_CTRL_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>EP3SendStall</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>EP3DataSequence</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>EP3SetReady</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>EP3Enable</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+     `<span id=t_idt>SC_CONTROL_REG</span> : <span id=t_idt>SCControlReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>5</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>SC_ADDRESS</span> : <span id=t_idt>SCAddrReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>6</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>SC_INTERRUPT_STATUS_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>clrNAKReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>4</span>];
+        <span id=t_idt>clrSOFReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>clrResetReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>clrResInReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>clrTransDoneReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+     `<span id=t_idt>SC_INTERRUPT_MASK_REG</span> : <span id=t_idt>interruptMaskReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>4</span>:<span id=t_cns>0</span>];
+   <span id=t_kwd>endcase</span>
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//interrupt control </span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>NAKSentIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>NAKSentInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrNAKReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>NAKSentInt</span> &lt;= <span id=t_cns>1'b0</span>; 
+    
+  <span id=t_kwd>if</span> (<span id=t_idt>SOFRxedIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>SOFRxedInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrSOFReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>SOFRxedInt</span> &lt;= <span id=t_cns>1'b0</span>;
+   
+  <span id=t_kwd>if</span> (<span id=t_idt>resetEventIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resetEventInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrResetReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resetEventInt</span> &lt;= <span id=t_cns>1'b0</span>;
+   
+  <span id=t_kwd>if</span> (<span id=t_idt>resumeIntIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resumeInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrResInReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resumeInt</span> &lt;= <span id=t_cns>1'b0</span>;  
+
+  <span id=t_kwd>if</span> (<span id=t_idt>transDoneIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transDoneInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrTransDoneReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transDoneInt</span> &lt;= <span id=t_cns>1'b0</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//mask interrupts</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>interruptMaskReg</span> <span id=t_kwd>or</span> <span id=t_idt>transDoneInt</span> <span id=t_kwd>or</span> <span id=t_idt>resumeInt</span> <span id=t_kwd>or</span> <span id=t_idt>resetEventInt</span> <span id=t_kwd>or</span> <span id=t_idt>SOFRxedInt</span> <span id=t_kwd>or</span> <span id=t_idt>NAKSentInt</span>) <span id=t_kwd>begin</span>
+  <span id=t_idt>transDoneIntOut</span> &lt;= <span id=t_idt>transDoneInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>TRANS_DONE_BIT</span>];
+  <span id=t_idt>resumeIntOut</span> &lt;= <span id=t_idt>resumeInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>RESUME_INT_BIT</span>];
+  <span id=t_idt>resetEventIntOut</span> &lt;= <span id=t_idt>resetEventInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>RESET_EVENT_BIT</span>];
+  <span id=t_idt>SOFRxedIntOut</span> &lt;= <span id=t_idt>SOFRxedInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>SOF_RECEIVED_BIT</span>];
+  <span id=t_idt>NAKSentIntOut</span> &lt;= <span id=t_idt>NAKSentInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>NAK_SENT_INT_BIT</span>];
+<span id=t_kwd>end</span>  
+
+<span id=t_com>//end point ready, set/clear</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>EP0SetReady</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP0Ready</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrEP0Ready</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP0Ready</span> &lt;= <span id=t_cns>1'b0</span>;
+    
+  <span id=t_kwd>if</span> (<span id=t_idt>EP1SetReady</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP1Ready</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrEP1Ready</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP1Ready</span> &lt;= <span id=t_cns>1'b0</span>;
+    
+  <span id=t_kwd>if</span> (<span id=t_idt>EP2SetReady</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP2Ready</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrEP2Ready</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP2Ready</span> &lt;= <span id=t_cns>1'b0</span>;
+    
+  <span id=t_kwd>if</span> (<span id=t_idt>EP3SetReady</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP3Ready</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrEP3Ready</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>EP3Ready</span> &lt;= <span id=t_cns>1'b0</span>;
+<span id=t_kwd>end</span>  
+  
+<span id=t_com>//break out control signals</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>SCControlReg</span>) <span id=t_kwd>begin</span>
+  <span id=t_idt>SCGlobalEn</span> &lt;= <span id=t_idt>SCControlReg</span>[`<span id=t_idt>SC_GLOBAL_ENABLE_BIT</span>];
+  <span id=t_idt>TxLineState</span> &lt;= <span id=t_idt>SCControlReg</span>[`<span id=t_idt>SC_TX_LINE_STATE_MSBIT</span>:`<span id=t_idt>SC_TX_LINE_STATE_LSBIT</span>];
+  <span id=t_idt>LineDirectControlEn</span> &lt;= <span id=t_idt>SCControlReg</span>[`<span id=t_idt>SC_DIRECT_CONTROL_BIT</span>];
+  <span id=t_idt>fullSpeedPol</span> &lt;= <span id=t_idt>SCControlReg</span>[`<span id=t_idt>SC_FULL_SPEED_LINE_POLARITY_BIT</span>]; 
+  <span id=t_idt>fullSpeedRate</span> &lt;= <span id=t_idt>SCControlReg</span>[`<span id=t_idt>SC_FULL_SPEED_LINE_RATE_BIT</span>];
+<span id=t_kwd>end</span>
+
+<span id=t_com>//combine endpoint control signals </span>
+<span id=t_kwd>always</span> @(<span id=t_idt>EP0SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP0Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP0DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP0Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP1SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP1Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP1DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP1Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP2SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP2Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP2DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP2Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP3SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP3Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP3DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP3Enable</span>) 
+<span id=t_kwd>begin</span>
+  <span id=t_idt>endP0ControlReg</span> &lt;= {<span id=t_idt>EP0SendStall</span>, <span id=t_idt>EP0DataSequence</span>, <span id=t_idt>EP0Ready</span>, <span id=t_idt>EP0Enable</span>};
+  <span id=t_idt>endP1ControlReg</span> &lt;= {<span id=t_idt>EP1SendStall</span>, <span id=t_idt>EP1DataSequence</span>, <span id=t_idt>EP1Ready</span>, <span id=t_idt>EP1Enable</span>};
+  <span id=t_idt>endP2ControlReg</span> &lt;= {<span id=t_idt>EP2SendStall</span>, <span id=t_idt>EP2DataSequence</span>, <span id=t_idt>EP2Ready</span>, <span id=t_idt>EP2Enable</span>};
+  <span id=t_idt>endP3ControlReg</span> &lt;= {<span id=t_idt>EP3SendStall</span>, <span id=t_idt>EP3DataSequence</span>, <span id=t_idt>EP3Ready</span>, <span id=t_idt>EP3Enable</span>};
+<span id=t_kwd>end</span>
+      
+      
+      <span id=t_com>// async read mux</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>address</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP0SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP0Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP0DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP0Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP1SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP1Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP1DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP1Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP2SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP2Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP2DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP2Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP3SendStall</span> <span id=t_kwd>or</span> <span id=t_idt>EP3Ready</span> <span id=t_kwd>or</span> <span id=t_idt>EP3DataSequence</span> <span id=t_kwd>or</span> <span id=t_idt>EP3Enable</span> <span id=t_kwd>or</span>
+  <span id=t_idt>EP0StatusReg</span> <span id=t_kwd>or</span> <span id=t_idt>EP1StatusReg</span> <span id=t_kwd>or</span> <span id=t_idt>EP2StatusReg</span> <span id=t_kwd>or</span> <span id=t_idt>EP3StatusReg</span> <span id=t_kwd>or</span>
+  <span id=t_idt>endP0ControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP1ControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP2ControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP3ControlReg</span> <span id=t_kwd>or</span>
+  <span id=t_idt>endP0NAKTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP1NAKTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP2NAKTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP3NAKTransTypeReg</span> <span id=t_kwd>or</span> 
+  <span id=t_idt>endP0TransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP1TransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP2TransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>endP3TransTypeReg</span> <span id=t_kwd>or</span>
+  <span id=t_idt>SCControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>connectStateIn</span> <span id=t_kwd>or</span>
+  <span id=t_idt>NAKSentInt</span> <span id=t_kwd>or</span> <span id=t_idt>SOFRxedInt</span> <span id=t_kwd>or</span> <span id=t_idt>resetEventInt</span> <span id=t_kwd>or</span> <span id=t_idt>resumeInt</span> <span id=t_kwd>or</span> <span id=t_idt>transDoneInt</span> <span id=t_kwd>or</span>
+  <span id=t_idt>interruptMaskReg</span> <span id=t_kwd>or</span> <span id=t_idt>SCAddrReg</span> <span id=t_kwd>or</span> <span id=t_idt>frameNum</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>case</span> (<span id=t_idt>address</span>)
+      `<span id=t_idt>EP0_CTRL_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP0ControlReg</span>;
+      `<span id=t_idt>EP0_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>EP0StatusReg</span>;
+      `<span id=t_idt>EP0_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP0TransTypeReg</span>;
+      `<span id=t_idt>EP0_NAK_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP0NAKTransTypeReg</span>;
+      `<span id=t_idt>EP1_CTRL_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP1ControlReg</span>;
+      `<span id=t_idt>EP1_STS_REG</span> :  <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>EP1StatusReg</span>;
+      `<span id=t_idt>EP1_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP1TransTypeReg</span>;
+      `<span id=t_idt>EP1_NAK_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP1NAKTransTypeReg</span>;
+      `<span id=t_idt>EP2_CTRL_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP2ControlReg</span>;
+      `<span id=t_idt>EP2_STS_REG</span> :  <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>EP2StatusReg</span>;
+      `<span id=t_idt>EP2_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP2TransTypeReg</span>;
+      `<span id=t_idt>EP2_NAK_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP2NAKTransTypeReg</span>;
+      `<span id=t_idt>EP3_CTRL_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP3ControlReg</span>;
+      `<span id=t_idt>EP3_STS_REG</span> :  <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>EP3StatusReg</span>;
+      `<span id=t_idt>EP3_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP3TransTypeReg</span>;
+      `<span id=t_idt>EP3_NAK_TRAN_TYPE_STS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>endP3NAKTransTypeReg</span>;
+     `<span id=t_idt>SC_CONTROL_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>SCControlReg</span>;
+     `<span id=t_idt>SC_LINE_STATUS_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>6'b000000</span>, <span id=t_idt>connectStateIn</span>}; 
+     `<span id=t_idt>SC_INTERRUPT_STATUS_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>3'b000</span>, <span id=t_idt>NAKSentInt</span>, <span id=t_idt>SOFRxedInt</span>, <span id=t_idt>resetEventInt</span>, <span id=t_idt>resumeInt</span>, <span id=t_idt>transDoneInt</span>};
+     `<span id=t_idt>SC_INTERRUPT_MASK_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>3'b000</span>, <span id=t_idt>interruptMaskReg</span>};
+     `<span id=t_idt>SC_ADDRESS</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>1'b0</span>, <span id=t_idt>SCAddrReg</span>};
+     `<span id=t_idt>SC_FRAME_NUM_MSP</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>frameNum</span>[<span id=t_cns>10</span>:<span id=t_cns>3</span>];
+     `<span id=t_idt>SC_FRAME_NUM_LSP</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>5'b00000</span>, <span id=t_idt>frameNum</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]};
+      <span id=t_kwd>default</span>: <span id=t_idt>dataOut</span> &lt;= <span id=t_cns>8'h00</span>;
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<html>
+<head>
+<title>siereceiver.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// SIEReceiver</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:47 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+
+
+<span id=t_kwd>module</span> <span id=t_idt>SIEReceiver</span> (<span id=t_idt>RxBitsOut</span>, <span id=t_idt>RxWireDataIn</span>, <span id=t_idt>RxWireDataWEn</span>, <span id=t_idt>SIERxRdyOut</span>, <span id=t_idt>clk</span>, <span id=t_idt>connectState</span>, <span id=t_idt>processRxBitRdyIn</span>, <span id=t_idt>processRxBitsWEn</span>, <span id=t_idt>rst</span>);
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxWireDataIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>RxWireDataWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>processRxBitRdyIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxBitsOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>SIERxRdyOut</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectState</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>processRxBitsWEn</span>;
+
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxBitsOut</span>, <span id=t_idt>next_RxBitsOut</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>RxWireDataIn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>RxWireDataWEn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>SIERxRdyOut</span>, <span id=t_idt>next_SIERxRdyOut</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectState</span>, <span id=t_idt>next_connectState</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>processRxBitRdyIn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>processRxBitsWEn</span>, <span id=t_idt>next_processRxBitsWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+
+<span id=t_com>// diagram signals declarations</span>
+<span id=t_kwd>reg</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>]<span id=t_idt>RXStMachCurrState</span>, <span id=t_idt>next_RXStMachCurrState</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>7</span>:<span id=t_cns>0</span>]<span id=t_idt>RXWaitCount</span>, <span id=t_idt>next_RXWaitCount</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>RxBits</span>, <span id=t_idt>next_RxBits</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: rcvr</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_FS_CONN_CHK_RX_BITS</span> <span id=t_cns>4'b0000</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LS_CONN_CHK_RX_BITS</span> <span id=t_cns>4'b0001</span>
+<span id=t_dir>`define</span> <span id=t_idt>LS_CONN_CHK_RX_BITS</span> <span id=t_cns>4'b0010</span>
+<span id=t_dir>`define</span> <span id=t_idt>DISCNCT_CHK_RXBITS</span> <span id=t_cns>4'b0011</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_BIT</span> <span id=t_cns>4'b0100</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_SRX</span> <span id=t_cns>4'b0101</span>
+<span id=t_dir>`define</span> <span id=t_idt>LS_CONN_PROC_RX_BITS</span> <span id=t_cns>4'b0110</span>
+<span id=t_dir>`define</span> <span id=t_idt>FS_CONN_CHK_RX_BITS1</span> <span id=t_cns>4'b0111</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LS_DIS_CHK_RX_BITS</span> <span id=t_cns>4'b1000</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LS_DIS_PROC_RX_BITS</span> <span id=t_cns>4'b1001</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_FS_DIS_PROC_RX_BITS2</span> <span id=t_cns>4'b1010</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_FS_DIS_CHK_RX_BITS2</span> <span id=t_cns>4'b1011</span>
+<span id=t_dir>`define</span> <span id=t_idt>FS_CONN_PROC_RX_BITS1</span> <span id=t_cns>4'b1100</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_rcvr</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_rcvr</span>;
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: rcvr</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>RxWireDataIn</span> <span id=t_kwd>or</span> <span id=t_idt>RxBits</span> <span id=t_kwd>or</span> <span id=t_idt>RXWaitCount</span> <span id=t_kwd>or</span> <span id=t_idt>RxWireDataWEn</span> <span id=t_kwd>or</span> <span id=t_idt>RXStMachCurrState</span> <span id=t_kwd>or</span> <span id=t_idt>processRxBitRdyIn</span> <span id=t_kwd>or</span> <span id=t_idt>SIERxRdyOut</span> <span id=t_kwd>or</span> <span id=t_idt>connectState</span> <span id=t_kwd>or</span> <span id=t_idt>RxBitsOut</span> <span id=t_kwd>or</span> <span id=t_idt>processRxBitsWEn</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_rcvr</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>rcvr_NextState</span>
+  <span id=t_idt>NextState_rcvr</span> &lt;= <span id=t_idt>CurrState_rcvr</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxBits</span>;
+  <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_idt>SIERxRdyOut</span>;
+  <span id=t_idt>next_RXStMachCurrState</span> &lt;= <span id=t_idt>RXStMachCurrState</span>;
+  <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_idt>RXWaitCount</span>;
+  <span id=t_idt>next_connectState</span> &lt;= <span id=t_idt>connectState</span>;
+  <span id=t_idt>next_RxBitsOut</span> &lt;= <span id=t_idt>RxBitsOut</span>;
+  <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_idt>processRxBitsWEn</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_rcvr</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>WAIT_BIT</span>:
+     <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>WAIT_LOW_SPEED_CONN_ST</span>)) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_LS_CONN_CHK_RX_BITS</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>CONNECT_LOW_SPEED_ST</span>))  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>LS_CONN_CHK_RX_BITS</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>CONNECT_FULL_SPEED_ST</span>)) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>FS_CONN_CHK_RX_BITS1</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>WAIT_LOW_SP_DISCONNECT_ST</span>)) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_LS_DIS_CHK_RX_BITS</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>WAIT_FULL_SP_DISCONNECT_ST</span>))  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_FS_DIS_CHK_RX_BITS2</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>DISCONNECT_ST</span>)) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>DISCNCT_CHK_RXBITS</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> ((<span id=t_idt>RxWireDataWEn</span> == <span id=t_cns>1'b1</span>) &amp;&amp; (<span id=t_idt>RXStMachCurrState</span> == `<span id=t_idt>WAIT_FULL_SPEED_CONN_ST</span>)) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_FS_CONN_CHK_RX_BITS</span>;
+      <span id=t_idt>next_RxBits</span> &lt;= <span id=t_idt>RxWireDataIn</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>START_SRX</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>DISCONNECT_ST</span>;
+     <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_cns>8'h00</span>;
+     <span id=t_idt>next_connectState</span> &lt;= `<span id=t_idt>DISCONNECT</span>;
+     <span id=t_idt>next_RxBits</span> &lt;= <span id=t_cns>2'b00</span>;
+     <span id=t_idt>next_RxBitsOut</span> &lt;= <span id=t_cns>2'b00</span>;
+     <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>DISCNCT_CHK_RXBITS</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>ZERO_ONE</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+      <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_LOW_SPEED_CONN_ST</span>;
+      <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_cns>8'h00</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>ONE_ZERO</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+      <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_FULL_SPEED_CONN_ST</span>;
+      <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_cns>8'h00</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_FS_CONN_CHK_RX_BITS</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>ONE_ZERO</span>)
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_idt>RXWaitCount</span> + <span id=t_cns>1'b1</span>;
+         <span id=t_kwd>if</span> (<span id=t_idt>RXWaitCount</span> == `<span id=t_idt>CONNECT_WAIT_TIME</span>)
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_connectState</span> &lt;= `<span id=t_idt>FULL_SPEED_CONNECT</span>;
+         <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>CONNECT_FULL_SPEED_ST</span>;
+         <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>next_RXStMachCurrState</span> = `<span id=t_idt>DISCONNECT_ST</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_LS_CONN_CHK_RX_BITS</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>ZERO_ONE</span>)
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_idt>RXWaitCount</span> + <span id=t_cns>1'b1</span>;
+         <span id=t_kwd>if</span> (<span id=t_idt>RXWaitCount</span> == `<span id=t_idt>CONNECT_WAIT_TIME</span>)
+         <span id=t_kwd>begin</span>
+         <span id=t_idt>next_connectState</span> &lt;= `<span id=t_idt>LOW_SPEED_CONNECT</span>;
+         <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>CONNECT_LOW_SPEED_ST</span>;
+         <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+     <span id=t_kwd>else</span>
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>next_RXStMachCurrState</span> = `<span id=t_idt>DISCONNECT_ST</span>;
+     <span id=t_kwd>end</span>
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>LS_CONN_CHK_RX_BITS</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processRxBitRdyIn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>LS_CONN_PROC_RX_BITS</span>;
+      <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>SE0</span>)
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_LOW_SP_DISCONNECT_ST</span>;
+        <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_cns>0</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_RxBitsOut</span> &lt;= <span id=t_idt>RxBits</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>LS_CONN_PROC_RX_BITS</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>FS_CONN_CHK_RX_BITS1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processRxBitRdyIn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>FS_CONN_PROC_RX_BITS1</span>;
+      <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>SE0</span>)
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_FULL_SP_DISCONNECT_ST</span>;
+        <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_cns>0</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_RxBitsOut</span> &lt;= <span id=t_idt>RxBits</span>;
+      <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_com>//early indication of ready</span>
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>FS_CONN_PROC_RX_BITS1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_LS_DIS_CHK_RX_BITS</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processRxBitRdyIn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_LS_DIS_PROC_RX_BITS</span>;
+      <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>SE0</span>)
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_idt>RXWaitCount</span> + <span id=t_cns>1'b1</span>;
+          <span id=t_kwd>if</span> (<span id=t_idt>RXWaitCount</span> == `<span id=t_idt>DISCONNECT_WAIT_TIME</span>)
+          <span id=t_kwd>begin</span>
+          <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>DISCONNECT_ST</span>;
+          <span id=t_idt>next_connectState</span> = `<span id=t_idt>DISCONNECT</span>;
+          <span id=t_kwd>end</span>
+      <span id=t_kwd>end</span>
+      <span id=t_kwd>else</span>
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXStMachCurrState</span> = `<span id=t_idt>CONNECT_LOW_SPEED_ST</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_LS_DIS_PROC_RX_BITS</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_FS_DIS_PROC_RX_BITS2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_BIT</span>;
+     <span id=t_idt>next_SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_FS_DIS_CHK_RX_BITS2</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>processRxBitRdyIn</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_rcvr</span> &lt;= `<span id=t_idt>WAIT_FS_DIS_PROC_RX_BITS2</span>;
+      <span id=t_kwd>if</span> (<span id=t_idt>RxBits</span> == `<span id=t_idt>SE0</span>)
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXWaitCount</span> &lt;= <span id=t_idt>RXWaitCount</span> + <span id=t_cns>1'b1</span>;
+          <span id=t_kwd>if</span> (<span id=t_idt>RXWaitCount</span> == `<span id=t_idt>DISCONNECT_WAIT_TIME</span>)
+          <span id=t_kwd>begin</span>
+          <span id=t_idt>next_RXStMachCurrState</span> &lt;= `<span id=t_idt>DISCONNECT_ST</span>;
+          <span id=t_idt>next_connectState</span> = `<span id=t_idt>DISCONNECT</span>;
+          <span id=t_kwd>end</span>
+      <span id=t_kwd>end</span>
+      <span id=t_kwd>else</span>
+      <span id=t_kwd>begin</span>
+        <span id=t_idt>next_RXStMachCurrState</span> = `<span id=t_idt>CONNECT_FULL_SPEED_ST</span>;
+      <span id=t_kwd>end</span>
+      <span id=t_idt>next_processRxBitsWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>rcvr_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_rcvr</span> &lt;= `<span id=t_idt>START_SRX</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_rcvr</span> &lt;= <span id=t_idt>NextState_rcvr</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>rcvr_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>RXStMachCurrState</span> &lt;= `<span id=t_idt>DISCONNECT_ST</span>;
+   <span id=t_idt>RXWaitCount</span> &lt;= <span id=t_cns>8'h00</span>;
+   <span id=t_idt>RxBits</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>connectState</span> &lt;= `<span id=t_idt>DISCONNECT</span>;
+   <span id=t_idt>RxBitsOut</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>processRxBitsWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>SIERxRdyOut</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>RXStMachCurrState</span> &lt;= <span id=t_idt>next_RXStMachCurrState</span>;
+   <span id=t_idt>RXWaitCount</span> &lt;= <span id=t_idt>next_RXWaitCount</span>;
+   <span id=t_idt>RxBits</span> &lt;= <span id=t_idt>next_RxBits</span>;
+   <span id=t_idt>connectState</span> &lt;= <span id=t_idt>next_connectState</span>;
+   <span id=t_idt>RxBitsOut</span> &lt;= <span id=t_idt>next_RxBitsOut</span>;
+   <span id=t_idt>processRxBitsWEn</span> &lt;= <span id=t_idt>next_processRxBitsWEn</span>;
+   <span id=t_idt>SIERxRdyOut</span> &lt;= <span id=t_idt>next_SIERxRdyOut</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<html>
+<head>
+<title>writeUSBWireData.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// writeUSBWireData.v                                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 04:00:08 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbSerialInterfaceEngine_h.v"</span>
+
+<span id=t_dir>`define</span> <span id=t_idt>BUFFER_FULL</span>  <span id=t_cns>3'b100</span>
+
+<span id=t_kwd>module</span> <span id=t_idt>writeUSBWireData</span> (
+  <span id=t_idt>TxBitsIn</span>, 
+  <span id=t_idt>TxBitsOut</span>,
+  <span id=t_idt>TxDataOutTick</span>,
+  <span id=t_idt>TxCtrlIn</span>, 
+  <span id=t_idt>TxCtrlOut</span>, 
+  <span id=t_idt>USBWireRdy</span>,
+  <span id=t_idt>USBWireWEn</span>, 
+  <span id=t_idt>disableWireReadOut</span>, 
+  <span id=t_idt>fullSpeedRate</span>, 
+  <span id=t_idt>clk</span>, 
+  <span id=t_idt>rst</span>,
+  <span id=t_idt>noActivityTimeOut</span> );
+  
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBitsIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>TxCtrlIn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>USBWireWEn</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBitsOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>TxDataOutTick</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>TxCtrlOut</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>USBWireRdy</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>disableWireReadOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>noActivityTimeOut</span>;
+
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBitsIn</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxBitsOut</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>TxDataOutTick</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>TxCtrlIn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>TxCtrlOut</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>USBWireRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>USBWireWEn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span>  <span id=t_idt>disableWireReadOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>noActivityTimeOut</span>;
+
+<span id=t_com>// local registers</span>
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>buffer0</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>buffer1</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>buffer2</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>buffer3</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>2</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferCnt</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferInIndex</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>1</span>:<span id=t_cns>0</span>]<span id=t_idt>bufferOutIndex</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>decBufferCnt</span>;
+<span id=t_kwd>reg</span>  [<span id=t_cns>4</span>:<span id=t_cns>0</span>]<span id=t_idt>i</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>incBufferCnt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>fullSpeedTick</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>lowSpeedTick</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>15</span>:<span id=t_cns>0</span>] <span id=t_idt>timeOutCnt</span>;
+
+<span id=t_com>// buffer in state machine state codes:</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_BUFFER_NOT_FULL</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_WRITE_REQ</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>CLR_INC_BUFFER_CNT</span> <span id=t_cns>2'b10</span>
+
+<span id=t_com>// buffer output state machine state codes:</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_BUFFER_FULL</span> <span id=t_cns>2'b00</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_LINE_WRITE</span> <span id=t_cns>2'b01</span>
+<span id=t_dir>`define</span> <span id=t_idt>LINE_WRITE</span> <span id=t_cns>2'b10</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>bufferInStMachCurrState</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>bufferOutStMachCurrState</span>;
+
+<span id=t_com>// buffer control</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+    <span id=t_idt>bufferCnt</span> &lt;= <span id=t_cns>3'b000</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span>
+  <span id=t_kwd>begin</span>
+    <span id=t_kwd>if</span> (<span id=t_idt>incBufferCnt</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>decBufferCnt</span> == <span id=t_cns>1'b0</span>)
+      <span id=t_idt>bufferCnt</span> &lt;= <span id=t_idt>bufferCnt</span> + <span id=t_cns>1'b1</span>;
+    <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>incBufferCnt</span> == <span id=t_cns>1'b0</span> &amp;&amp; <span id=t_idt>decBufferCnt</span> == <span id=t_cns>1'b1</span>)
+      <span id=t_idt>bufferCnt</span> &lt;= <span id=t_idt>bufferCnt</span> - <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+
+<span id=t_com>//buffer input state machine </span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>) <span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span> == <span id=t_cns>1'b1</span>) <span id=t_kwd>begin</span>
+    <span id=t_idt>incBufferCnt</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>bufferInIndex</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>buffer0</span> &lt;= <span id=t_cns>3'b000</span>;
+   <span id=t_idt>buffer1</span> &lt;= <span id=t_cns>3'b000</span>;
+   <span id=t_idt>buffer2</span> &lt;= <span id=t_cns>3'b000</span>;
+   <span id=t_idt>buffer3</span> &lt;= <span id=t_cns>3'b000</span>;
+   <span id=t_idt>USBWireRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>bufferInStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_BUFFER_NOT_FULL</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> <span id=t_kwd>begin</span>
+    <span id=t_kwd>case</span> (<span id=t_idt>bufferInStMachCurrState</span>)
+     `<span id=t_idt>WAIT_BUFFER_NOT_FULL</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_kwd>if</span> (<span id=t_idt>bufferCnt</span> != `<span id=t_idt>BUFFER_FULL</span>) 
+       <span id=t_kwd>begin</span>
+        <span id=t_idt>bufferInStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_WRITE_REQ</span>;
+        <span id=t_idt>USBWireRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+       <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+     `<span id=t_idt>WAIT_WRITE_REQ</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_kwd>if</span> (<span id=t_idt>USBWireWEn</span> == <span id=t_cns>1'b1</span>)
+       <span id=t_kwd>begin</span>
+        <span id=t_idt>incBufferCnt</span> &lt;= <span id=t_cns>1'b1</span>;
+        <span id=t_idt>USBWireRdy</span> &lt;= <span id=t_cns>1'b0</span>;
+        <span id=t_idt>bufferInIndex</span> &lt;= <span id=t_idt>bufferInIndex</span> + <span id=t_cns>1'b1</span>;
+        <span id=t_kwd>case</span> (<span id=t_idt>bufferInIndex</span>)
+          <span id=t_cns>2'b00</span> : <span id=t_idt>buffer0</span> &lt;= {<span id=t_idt>TxBitsIn</span>, <span id=t_idt>TxCtrlIn</span>};
+          <span id=t_cns>2'b01</span> : <span id=t_idt>buffer1</span> &lt;= {<span id=t_idt>TxBitsIn</span>, <span id=t_idt>TxCtrlIn</span>};
+          <span id=t_cns>2'b10</span> : <span id=t_idt>buffer2</span> &lt;= {<span id=t_idt>TxBitsIn</span>, <span id=t_idt>TxCtrlIn</span>};
+          <span id=t_cns>2'b11</span> : <span id=t_idt>buffer3</span> &lt;= {<span id=t_idt>TxBitsIn</span>, <span id=t_idt>TxCtrlIn</span>};
+        <span id=t_kwd>endcase</span>
+        <span id=t_idt>bufferInStMachCurrState</span> &lt;= `<span id=t_idt>CLR_INC_BUFFER_CNT</span>;
+       <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+     `<span id=t_idt>CLR_INC_BUFFER_CNT</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>incBufferCnt</span> &lt;= <span id=t_cns>1'b0</span>;
+       <span id=t_kwd>if</span> (<span id=t_idt>bufferCnt</span> != (`<span id=t_idt>BUFFER_FULL</span> - <span id=t_cns>1'b1</span>) ) 
+       <span id=t_kwd>begin</span>
+        <span id=t_idt>bufferInStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_WRITE_REQ</span>;
+        <span id=t_idt>USBWireRdy</span> &lt;= <span id=t_cns>1'b1</span>;
+       <span id=t_kwd>end</span>
+        <span id=t_kwd>else</span> <span id=t_kwd>begin</span>
+         <span id=t_idt>bufferInStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_BUFFER_NOT_FULL</span>;
+        <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+    <span id=t_kwd>endcase</span>
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+      
+<span id=t_com>//increment counter used to generate USB bit rate</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>) <span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+    <span id=t_idt>i</span> &lt;= <span id=t_cns>5'b00000</span>;
+    <span id=t_idt>fullSpeedTick</span> &lt;= <span id=t_cns>1'b0</span>;
+    <span id=t_idt>lowSpeedTick</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span>
+  <span id=t_kwd>begin</span>
+    <span id=t_idt>i</span> &lt;= <span id=t_idt>i</span> + <span id=t_cns>1'b1</span>;
+    <span id=t_kwd>if</span> (<span id=t_idt>i</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>] == <span id=t_cns>2'b00</span>)
+      <span id=t_idt>fullSpeedTick</span> &lt;= <span id=t_cns>1'b1</span>;
+    <span id=t_kwd>else</span>
+      <span id=t_idt>fullSpeedTick</span> &lt;= <span id=t_cns>1'b0</span>; 
+    <span id=t_kwd>if</span> (<span id=t_idt>i</span> == <span id=t_cns>5'b00000</span>)
+      <span id=t_idt>lowSpeedTick</span> &lt;= <span id=t_cns>1'b1</span>;
+    <span id=t_kwd>else</span>
+      <span id=t_idt>lowSpeedTick</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//buffer output state machine</span>
+<span id=t_com>//After reset, waits for the output buffer to become full.</span>
+<span id=t_com>//Once the buffer is full then it is constantly emptied at either</span>
+<span id=t_com>//the full or low speed rate with no under run protection</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>) <span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>bufferOutIndex</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>decBufferCnt</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>TxBitsOut</span> &lt;= <span id=t_cns>2'b00</span>;
+   <span id=t_idt>TxCtrlOut</span> &lt;= `<span id=t_idt>TRI_STATE</span>;
+    <span id=t_idt>TxDataOutTick</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>bufferOutStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_BUFFER_FULL</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span>
+  <span id=t_kwd>begin</span>
+    <span id=t_kwd>case</span> (<span id=t_idt>bufferOutStMachCurrState</span>)
+     `<span id=t_idt>WAIT_BUFFER_FULL</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_kwd>if</span> (<span id=t_idt>bufferCnt</span> == `<span id=t_idt>BUFFER_FULL</span>)
+        <span id=t_idt>bufferOutStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_LINE_WRITE</span>;
+     <span id=t_kwd>end</span>
+     `<span id=t_idt>WAIT_LINE_WRITE</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_kwd>if</span> ((<span id=t_idt>fullSpeedRate</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>fullSpeedTick</span> == <span id=t_cns>1'b1</span>) || (<span id=t_idt>fullSpeedRate</span> == <span id=t_cns>1'b0</span> &amp;&amp; <span id=t_idt>lowSpeedTick</span> == <span id=t_cns>1'b1</span>) )
+       <span id=t_kwd>begin</span>
+          <span id=t_idt>TxDataOutTick</span> &lt;= !<span id=t_idt>TxDataOutTick</span>;
+        <span id=t_idt>bufferOutStMachCurrState</span> &lt;= `<span id=t_idt>LINE_WRITE</span>;
+        <span id=t_idt>decBufferCnt</span> &lt;= <span id=t_cns>1'b1</span>;
+        <span id=t_idt>bufferOutIndex</span> &lt;= <span id=t_idt>bufferOutIndex</span> + <span id=t_cns>1'b1</span>;
+        <span id=t_kwd>case</span> (<span id=t_idt>bufferOutIndex</span>)
+          <span id=t_cns>2'b00</span> :
+        <span id=t_kwd>begin</span> 
+          <span id=t_idt>TxBitsOut</span> &lt;= <span id=t_idt>buffer0</span>[<span id=t_cns>2</span>:<span id=t_cns>1</span>];
+          <span id=t_idt>TxCtrlOut</span> &lt;= <span id=t_idt>buffer0</span>[<span id=t_cns>0</span>];
+        <span id=t_kwd>end</span>
+        <span id=t_cns>2'b01</span> : 
+        <span id=t_kwd>begin</span>
+          <span id=t_idt>TxBitsOut</span> &lt;= <span id=t_idt>buffer1</span>[<span id=t_cns>2</span>:<span id=t_cns>1</span>];
+          <span id=t_idt>TxCtrlOut</span> &lt;= <span id=t_idt>buffer1</span>[<span id=t_cns>0</span>];
+        <span id=t_kwd>end</span>
+        <span id=t_cns>2'b10</span> : 
+        <span id=t_kwd>begin</span> 
+          <span id=t_idt>TxBitsOut</span> &lt;= <span id=t_idt>buffer2</span>[<span id=t_cns>2</span>:<span id=t_cns>1</span>];
+          <span id=t_idt>TxCtrlOut</span> &lt;= <span id=t_idt>buffer2</span>[<span id=t_cns>0</span>];
+        <span id=t_kwd>end</span>
+        <span id=t_cns>2'b11</span> : 
+        <span id=t_kwd>begin</span>
+          <span id=t_idt>TxBitsOut</span> &lt;= <span id=t_idt>buffer3</span>[<span id=t_cns>2</span>:<span id=t_cns>1</span>];
+          <span id=t_idt>TxCtrlOut</span> &lt;= <span id=t_idt>buffer3</span>[<span id=t_cns>0</span>];
+        <span id=t_kwd>end</span>
+        <span id=t_kwd>endcase</span>
+       <span id=t_kwd>end</span>
+     <span id=t_kwd>end</span>
+     `<span id=t_idt>LINE_WRITE</span>:
+     <span id=t_kwd>begin</span>
+       <span id=t_idt>decBufferCnt</span> &lt;= <span id=t_cns>1'b0</span>;
+       <span id=t_idt>bufferOutStMachCurrState</span> &lt;= `<span id=t_idt>WAIT_LINE_WRITE</span>;
+     <span id=t_kwd>end</span>
+    <span id=t_kwd>endcase</span>
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>// control 'disableWireReadOut' </span>
+<span id=t_kwd>always</span> @(<span id=t_idt>TxCtrlOut</span>)
+<span id=t_kwd>begin</span> 
+  <span id=t_kwd>if</span> (<span id=t_idt>TxCtrlOut</span> == `<span id=t_idt>DRIVE</span>)
+   <span id=t_idt>disableWireReadOut</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>disableWireReadOut</span> &lt;= <span id=t_cns>1'b0</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//generate time out flag if no tx activity for (RX_PACKET_TOUT * OVER_SAMPLE_RATE) ticks</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>) <span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) <span id=t_kwd>begin</span>
+    <span id=t_idt>timeOutCnt</span> &lt;= <span id=t_cns>16'h0000</span>;
+    <span id=t_idt>noActivityTimeOut</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> <span id=t_kwd>begin</span>
+    <span id=t_kwd>if</span> (<span id=t_idt>TxCtrlOut</span> == `<span id=t_idt>DRIVE</span>)
+      <span id=t_idt>timeOutCnt</span> &lt;= <span id=t_cns>16'h0000</span>;
+    <span id=t_kwd>else</span> 
+      <span id=t_idt>timeOutCnt</span> &lt;= <span id=t_idt>timeOutCnt</span> + <span id=t_cns>1'b1</span>;
+    <span id=t_com>//if (timeOutCnt == `RX_PACKET_TOUT * `OVER_SAMPLE_RATE)</span>
+    <span id=t_kwd>if</span> (<span id=t_idt>timeOutCnt</span> == <span id=t_cns>16'h200</span>)  <span id=t_com>//temporary fix</span>
+      <span id=t_idt>noActivityTimeOut</span> &lt;= <span id=t_cns>1'b1</span>;
+    <span id=t_kwd>else</span>
+      <span id=t_idt>noActivityTimeOut</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

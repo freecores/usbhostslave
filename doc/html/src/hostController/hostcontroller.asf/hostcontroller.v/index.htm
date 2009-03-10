@@ -1,0 +1,391 @@
+<html>
+<head>
+<title>hostcontroller.v</title>
+<link rel="stylesheet" href="./../../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// hostController</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// http://www.opencores.org/cores/????/                         ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from http://www.opencores.org/lgpl.shtml                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:58:52 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+
+<span id=t_dir>`timescale</span> <span id=t_cns>1</span><span id=t_idt>ns</span> / <span id=t_cns>1</span><span id=t_idt>ps</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbHostControl_h.v"</span>
+<span id=t_dir>`include</span> <span id=t_cns>"usbConstants_h.v"</span>
+
+
+<span id=t_kwd>module</span> <span id=t_idt>hostcontroller</span> (<span id=t_idt>RXStatus</span>, <span id=t_idt>clearTXReq</span>, <span id=t_idt>clk</span>, <span id=t_idt>getPacketREn</span>, <span id=t_idt>getPacketRdy</span>, <span id=t_idt>rst</span>, <span id=t_idt>sendPacketArbiterGnt</span>, <span id=t_idt>sendPacketArbiterReq</span>, <span id=t_idt>sendPacketPID</span>, <span id=t_idt>sendPacketRdy</span>, <span id=t_idt>sendPacketWEn</span>, <span id=t_idt>transDone</span>, <span id=t_idt>transReq</span>, <span id=t_idt>transType</span>);
+<span id=t_kwd>input</span>   [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RXStatus</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>getPacketRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>rst</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>sendPacketArbiterGnt</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>sendPacketRdy</span>;
+<span id=t_kwd>input</span>   <span id=t_idt>transReq</span>;
+<span id=t_kwd>input</span>   [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>transType</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>clearTXReq</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>getPacketREn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>sendPacketArbiterReq</span>;
+<span id=t_kwd>output</span>  [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>sendPacketWEn</span>;
+<span id=t_kwd>output</span>  <span id=t_idt>transDone</span>;
+
+<span id=t_kwd>wire</span>    [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RXStatus</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>clearTXReq</span>, <span id=t_idt>next_clearTXReq</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>clk</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>getPacketREn</span>, <span id=t_idt>next_getPacketREn</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>getPacketRdy</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>rst</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>sendPacketArbiterGnt</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>sendPacketArbiterReq</span>, <span id=t_idt>next_sendPacketArbiterReq</span>;
+<span id=t_kwd>reg</span>     [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>sendPacketPID</span>, <span id=t_idt>next_sendPacketPID</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>sendPacketRdy</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>sendPacketWEn</span>, <span id=t_idt>next_sendPacketWEn</span>;
+<span id=t_kwd>reg</span>     <span id=t_idt>transDone</span>, <span id=t_idt>next_transDone</span>;
+<span id=t_kwd>wire</span>    <span id=t_idt>transReq</span>;
+<span id=t_kwd>wire</span>    [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>transType</span>;
+
+<span id=t_com>// BINARY ENCODED state machine: hstCntrl</span>
+<span id=t_com>// State codes definitions:</span>
+<span id=t_dir>`define</span> <span id=t_idt>START_HC</span> <span id=t_cns>5'b00000</span>
+<span id=t_dir>`define</span> <span id=t_idt>TX_REQ</span> <span id=t_cns>5'b00001</span>
+<span id=t_dir>`define</span> <span id=t_idt>CHK_TYPE</span> <span id=t_cns>5'b00010</span>
+<span id=t_dir>`define</span> <span id=t_idt>FLAG</span> <span id=t_cns>5'b00011</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_WAIT_DATA_RXED</span> <span id=t_cns>5'b00100</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_CHK_FOR_ERROR</span> <span id=t_cns>5'b00101</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_CLR_SP_WEN2</span> <span id=t_cns>5'b00110</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_CLR_SP_WEN1</span> <span id=t_cns>5'b00111</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_CLR_SP_WEN2</span> <span id=t_cns>5'b01000</span>
+<span id=t_dir>`define</span> <span id=t_idt>FIN</span> <span id=t_cns>5'b01001</span>
+<span id=t_dir>`define</span> <span id=t_idt>WAIT_GNT</span> <span id=t_cns>5'b01010</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_WAIT_PKT_RXED</span> <span id=t_cns>5'b01011</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_WAIT_IN_SENT</span> <span id=t_cns>5'b01100</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_WAIT_RX_DATA</span> <span id=t_cns>5'b01101</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_WAIT_DATA0_SENT</span> <span id=t_cns>5'b01110</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_WAIT_OUT_SENT</span> <span id=t_cns>5'b01111</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_HC_WAIT_RDY</span> <span id=t_cns>5'b10000</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_WAIT_SP_RDY1</span> <span id=t_cns>5'b10001</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_WAIT_SP_RDY2</span> <span id=t_cns>5'b10010</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_WAIT_SP_RDY1</span> <span id=t_cns>5'b10011</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_WAIT_SETUP_SENT</span> <span id=t_cns>5'b10100</span>
+<span id=t_dir>`define</span> <span id=t_idt>SETUP_WAIT_DATA_SENT</span> <span id=t_cns>5'b10101</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_CLR_SP_WEN1</span> <span id=t_cns>5'b10110</span>
+<span id=t_dir>`define</span> <span id=t_idt>IN_WAIT_ACK_SENT</span> <span id=t_cns>5'b10111</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_CLR_WEN1</span> <span id=t_cns>5'b11000</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT0_CLR_WEN2</span> <span id=t_cns>5'b11001</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_WAIT_RX_DATA</span> <span id=t_cns>5'b11010</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_WAIT_OUT_SENT</span> <span id=t_cns>5'b11011</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_WAIT_DATA1_SENT</span> <span id=t_cns>5'b11100</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_WAIT_SP_RDY1</span> <span id=t_cns>5'b11101</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_CLR_WEN1</span> <span id=t_cns>5'b11110</span>
+<span id=t_dir>`define</span> <span id=t_idt>OUT1_CLR_WEN2</span> <span id=t_cns>5'b11111</span>
+
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>CurrState_hstCntrl</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>NextState_hstCntrl</span>;
+
+
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>// Machine: hstCntrl</span>
+<span id=t_com>//--------------------------------------------------------------------</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// NextState logic (combinatorial)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_idt>transReq</span> <span id=t_kwd>or</span> <span id=t_idt>transType</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketArbiterGnt</span> <span id=t_kwd>or</span> <span id=t_idt>getPacketRdy</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketRdy</span> <span id=t_kwd>or</span> <span id=t_idt>RXStatus</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketArbiterReq</span> <span id=t_kwd>or</span> <span id=t_idt>transDone</span> <span id=t_kwd>or</span> <span id=t_idt>clearTXReq</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketWEn</span> <span id=t_kwd>or</span> <span id=t_idt>getPacketREn</span> <span id=t_kwd>or</span> <span id=t_idt>sendPacketPID</span> <span id=t_kwd>or</span> <span id=t_idt>CurrState_hstCntrl</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>hstCntrl_NextState</span>
+  <span id=t_idt>NextState_hstCntrl</span> &lt;= <span id=t_idt>CurrState_hstCntrl</span>;
+  <span id=t_com>// Set default values for outputs and signals</span>
+  <span id=t_idt>next_sendPacketArbiterReq</span> &lt;= <span id=t_idt>sendPacketArbiterReq</span>;
+  <span id=t_idt>next_transDone</span> &lt;= <span id=t_idt>transDone</span>;
+  <span id=t_idt>next_clearTXReq</span> &lt;= <span id=t_idt>clearTXReq</span>;
+  <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_idt>sendPacketWEn</span>;
+  <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_idt>getPacketREn</span>;
+  <span id=t_idt>next_sendPacketPID</span> &lt;= <span id=t_idt>sendPacketPID</span>;
+  <span id=t_kwd>case</span> (<span id=t_idt>CurrState_hstCntrl</span>) <span id=t_com>// synopsys parallel_case full_case</span>
+   `<span id=t_idt>START_HC</span>:
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>TX_REQ</span>;
+   `<span id=t_idt>TX_REQ</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>transReq</span> == <span id=t_cns>1'b1</span>)  
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>WAIT_GNT</span>;
+      <span id=t_idt>next_sendPacketArbiterReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>CHK_TYPE</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>transType</span> == `<span id=t_idt>OUTDATA0_TRANS</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_WAIT_SP_RDY1</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>transType</span> == `<span id=t_idt>IN_TRANS</span>) 
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_WAIT_SP_RDY1</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>transType</span> == `<span id=t_idt>SETUP_TRANS</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_HC_WAIT_RDY</span>;
+     <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>transType</span> == `<span id=t_idt>OUTDATA1_TRANS</span>) 
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_WAIT_SP_RDY1</span>;
+   `<span id=t_idt>FLAG</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_transDone</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_clearTXReq</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_idt>next_sendPacketArbiterReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FIN</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>FIN</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_transDone</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>next_clearTXReq</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>TX_REQ</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>WAIT_GNT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketArbiterGnt</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>CHK_TYPE</span>;
+   `<span id=t_idt>SETUP_CLR_SP_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_WAIT_SETUP_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_CLR_SP_WEN2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_WAIT_DATA_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_WAIT_PKT_RXED</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FLAG</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_HC_WAIT_RDY</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_CLR_SP_WEN1</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>SETUP</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_WAIT_SETUP_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_CLR_SP_WEN2</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>DATA0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>SETUP_WAIT_DATA_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>SETUP_WAIT_PKT_RXED</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_WAIT_DATA_RXED</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_CHK_FOR_ERROR</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_CHK_FOR_ERROR</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_CRC_ERROR_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_BIT_STUFF_ERROR_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_RX_OVERFLOW_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_NAK_RXED_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_STALL_RXED_BIT</span>] == <span id=t_cns>1'b0</span> &amp;&amp;
+      <span id=t_idt>RXStatus</span> [`<span id=t_idt>HC_RX_TIME_OUT_BIT</span>] == <span id=t_cns>1'b0</span>) 
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_WAIT_SP_RDY2</span>;
+     <span id=t_kwd>else</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FLAG</span>;
+   `<span id=t_idt>IN_CLR_SP_WEN2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_WAIT_ACK_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_WAIT_IN_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_WAIT_DATA_RXED</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_WAIT_SP_RDY1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_CLR_SP_WEN1</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>IN</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_WAIT_SP_RDY2</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_CLR_SP_WEN2</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>ACK</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_CLR_SP_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>IN_WAIT_IN_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>IN_WAIT_ACK_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FLAG</span>;
+   `<span id=t_idt>OUT0_WAIT_RX_DATA</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FLAG</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT0_WAIT_DATA0_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_WAIT_RX_DATA</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT0_WAIT_OUT_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_CLR_WEN2</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>DATA0</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT0_WAIT_SP_RDY1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_CLR_WEN1</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>OUT</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT0_CLR_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_WAIT_OUT_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT0_CLR_WEN2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT0_WAIT_DATA0_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_WAIT_RX_DATA</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>getPacketRdy</span> == <span id=t_cns>1'b1</span>)  
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>FLAG</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_WAIT_OUT_SENT</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_CLR_WEN2</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>DATA1</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_WAIT_DATA1_SENT</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_WAIT_RX_DATA</span>;
+      <span id=t_idt>next_getPacketREn</span> &lt;= <span id=t_cns>1'b1</span>;
+     <span id=t_kwd>end</span>
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_WAIT_SP_RDY1</span>:
+     <span id=t_kwd>if</span> (<span id=t_idt>sendPacketRdy</span> == <span id=t_cns>1'b1</span>) 
+     <span id=t_kwd>begin</span>
+      <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_CLR_WEN1</span>;
+      <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b1</span>;
+      <span id=t_idt>next_sendPacketPID</span> &lt;= `<span id=t_idt>OUT</span>;
+     <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_CLR_WEN1</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_WAIT_OUT_SENT</span>;
+   <span id=t_kwd>end</span>
+   `<span id=t_idt>OUT1_CLR_WEN2</span>:
+   <span id=t_kwd>begin</span>
+     <span id=t_idt>next_sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+     <span id=t_idt>NextState_hstCntrl</span> &lt;= `<span id=t_idt>OUT1_WAIT_DATA1_SENT</span>;
+   <span id=t_kwd>end</span>
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Current State Logic (sequential)</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>hstCntrl_CurrentState</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+   <span id=t_idt>CurrState_hstCntrl</span> &lt;= `<span id=t_idt>START_HC</span>;
+  <span id=t_kwd>else</span>
+   <span id=t_idt>CurrState_hstCntrl</span> &lt;= <span id=t_idt>NextState_hstCntrl</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//----------------------------------</span>
+<span id=t_com>// Registered outputs logic</span>
+<span id=t_com>//----------------------------------</span>
+<span id=t_kwd>always</span> @ (<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span> : <span id=t_idt>hstCntrl_RegOutput</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>rst</span>) 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>transDone</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>clearTXReq</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>getPacketREn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>sendPacketArbiterReq</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>sendPacketWEn</span> &lt;= <span id=t_cns>1'b0</span>;
+   <span id=t_idt>sendPacketPID</span> &lt;= <span id=t_cns>4'b0</span>;
+  <span id=t_kwd>end</span>
+  <span id=t_kwd>else</span> 
+  <span id=t_kwd>begin</span>
+   <span id=t_idt>transDone</span> &lt;= <span id=t_idt>next_transDone</span>;
+   <span id=t_idt>clearTXReq</span> &lt;= <span id=t_idt>next_clearTXReq</span>;
+   <span id=t_idt>getPacketREn</span> &lt;= <span id=t_idt>next_getPacketREn</span>;
+   <span id=t_idt>sendPacketArbiterReq</span> &lt;= <span id=t_idt>next_sendPacketArbiterReq</span>;
+   <span id=t_idt>sendPacketWEn</span> &lt;= <span id=t_idt>next_sendPacketWEn</span>;
+   <span id=t_idt>sendPacketPID</span> &lt;= <span id=t_idt>next_sendPacketPID</span>;
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

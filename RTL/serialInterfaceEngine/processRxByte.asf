@@ -1,0 +1,305 @@
+VERSION=1.15
+HEADER
+FILE="processRxByte.asf"
+FID=4094ffa4
+LANGUAGE=VERILOG
+ENTITY="processRxByte"
+FRAMES=ON
+FREEOID=384
+"LIBRARIES=//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// processRxByte\n////                                                              ////\n//// This file is part of the usbhostslave opencores effort.\n//// http://www.opencores.org/cores/usbhostslave/                 ////\n////                                                              ////\n//// Module Description:                                          ////\n//// \n////                                                              ////\n//// To Do:                                                       ////\n//// \n////                                                              ////\n//// Author(s):                                                   ////\n//// - Steve Fielding, sfielding@base2designs.com                 ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////\n////                                                              ////\n//// This source file may be used and distributed without         ////\n//// restriction provided that this copyright statement is not    ////\n//// removed from the file and that any derivative work contains  ////\n//// the original copyright notice and the associated disclaimer. ////\n////                                                              ////\n//// This source file is free software; you can redistribute it   ////\n//// and/or modify it under the terms of the GNU Lesser General   ////\n//// Public License as published by the Free Software Foundation; ////\n//// either version 2.1 of the License, or (at your option) any   ////\n//// later version.                                               ////\n////                                                              ////\n//// This source is distributed in the hope that it will be       ////\n//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////\n//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////\n//// PURPOSE. See the GNU Lesser General Public License for more  ////\n//// details.                                                     ////\n////                                                              ////\n//// You should have received a copy of the GNU Lesser General    ////\n//// Public License along with this source; if not, download it   ////\n//// from http://www.opencores.org/lgpl.shtml                     ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n//\n// $Id: processRxByte.asf,v 1.3 2004-12-31 14:40:43 sfielding Exp $\n//\n// CVS Revision History\n//\n// $Log: not supported by cvs2svn $\n//\n`timescale 1ns / 1ps\n`include \"usbSerialInterfaceEngine_h.v\"\n`include \"usbConstants_h.v\"\n"
+END
+BUNDLES
+B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Conditions" 0,0,0 0 0 0 255,255,255 0 3333 0 0110 1  "Arial" 0
+B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Actions" 0,0,0 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 0
+B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0  "Arial" 0
+B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B T "State Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 4
+B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Comments" 157,157,157 0 0 1 255,255,255 0 3333 0 0000 0  "Arial" 0
+B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0  "Arial" 0
+END
+INSTHEADER 1
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 5000,5000 10000,10000
+END
+INSTHEADER 16
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 24
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 33
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 42
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 216
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 213
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 18
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 357
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+OBJECTS
+A 287 286 4 TEXT "Actions" | 73518,95877 1 0 0 "CRC16En <= 1'b0;\nRxDataOutWEn <= 1'b0;"
+S 286 50 73728 ELLIPSE "States" | 54701,94283 6500 6500
+W 285 50 0 286 291 BEZIER "Transitions" | 59473,89872 67701,83552 79123,69242 87351,62922
+W 284 41 0 280 37 BEZIER "Transitions" | 54276,125525 62504,119205 73926,104895 82154,98575
+A 282 280 4 TEXT "Actions" | 68321,131530 1 0 0 "CRC5En <= 1'b0;\nRxDataOutWEn <= 1'b0;"
+W 281 41 0 40 280 BEZIER "Transitions" | 71655,187272 66885,174036 56388,149316 51618,136080
+S 280 41 69632 ELLIPSE "States" | 49504,129936 6500 6500
+L 279 280 0 TEXT "State Labels" | 49504,129936 1 0 0 "FIN\n/10/"
+A 278 257 4 TEXT "Actions" | 130366,127109 1 0 0 "RxDataOutWEn <= 1'b0;\nRXByteStMachCurrState <= `IDLE_BYTE_ST;"
+L 7 6 0 TEXT "Labels" | 57079,207538 1 0 0 "prRxByte"
+F 6 0 671089152 185 0 RECT 0,0,0 0 0 1 255,255,255 0 | 14988,15700 199488,210298
+G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0  "Arial" 0 | 93869,266185 1 0 0 "Module: processRxByte"
+L 8 9 0 TEXT "State Labels" | 41526,197822 1 0 0 "START_PRBY\n/1/"
+S 9 6 4096 ELLIPSE "States" | 41526,197822 6500 6500
+L 10 11 0 TEXT "State Labels" | 41526,175604 1 0 0 "CHK_ST\n/0/"
+S 11 6 0 ELLIPSE "States" | 41526,175604 6500 6500
+I 12 6 0 Builtin Reset | 22016,204762
+W 13 6 0 12 9 BEZIER "Transitions" | 22016,204762 26512,204498 31110,200468 35074,198608
+L 15 16 0 TEXT "State Labels" | 115714,125064 1 0 0 "CHK_PID"
+A 295 293 4 TEXT "Actions" | 114075,218259 1 0 0 "RXDataByteCnt <= RXDataByteCnt + 1'b1;\ncase (RxCtrl)\n  `DATA_STOP:\n  begin\n    if (CRC16Result != 16'hb001)\n      CRCError <= 1'b1;\n    RxDataOut <= RxStatus;\n    RxCtrlOut <= `RX_PACKET_STOP;\n    RXByteStMachCurrState <= `IDLE_BYTE_ST;\n  end\n  `DATA_BIT_STUFF_ERROR:\n  begin\n    bitStuffError <= 1'b1;\n    RxDataOut <= RxStatus;\n    RxCtrlOut <= `RX_PACKET_STOP;\n    RXByteStMachCurrState <= `IDLE_BYTE_ST;\n  end\n  `DATA_STREAM:\n  begin\n    RxDataOut <= RxByte;\n    RxCtrlOut <= `RX_PACKET_STREAM;\n    CRCData <= RxByte;\n    CRC16En <= 1'b1;\n  end\nendcase\nRxDataOutWEn <= 1'b1;"
+L 294 293 0 TEXT "State Labels" | 79792,157415 1 0 0 "CHK_STRM\n/12/"
+S 293 50 77824 ELLIPSE "States" | 79792,157415 6500 6500
+I 292 50 0 Builtin Entry | 33692,252435
+I 291 50 0 Builtin Exit | 90483,62922
+L 289 286 0 TEXT "State Labels" | 54701,94283 1 0 0 "FIN\n/11/"
+W 288 50 0 293 286 BEZIER "Transitions" | 76852,151619 72082,138383 61585,113663 56815,100427
+S 16 6 12292 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 115714,123462 6500 6500
+H 17 16 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 18 17 49156 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 109233,155402 6500 6500
+L 19 18 0 TEXT "State Labels" | 109233,155402 1 0 0 "FIRST_BYTE"
+I 20 17 0 Builtin Entry | 45216,248076
+I 21 17 0 Builtin Exit | 89220,92674
+S 24 6 8196 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 115892,94696 6500 6500
+L 25 24 0 TEXT "State Labels" | 115892,94696 1 0 0 "HSHAKE"
+A 296 0 1 TEXT "Actions" | 13933,264927 1 0 0 "always @\n(next_CRCError or next_bitStuffError or\n next_RxOverflow or next_NAKRxed or \n next_stallRxed or next_ACKRxed or \n next_dataSequence)\nbegin	\n  RxStatus <= \n  {1'b0, next_dataSequence, \n  next_ACKRxed, \n  next_stallRxed, next_NAKRxed, \n  next_RxOverflow, \n  next_bitStuffError, next_CRCError };\nend"
+L 297 298 0 TEXT "Labels" | 82848,260279 1 0 0 "RxDataOut[7:0]"
+I 298 0 130 Builtin OutPort | 76848,260279 "" ""
+L 299 300 0 TEXT "Labels" | 82848,255265 1 0 0 "RxCtrlOut[7:0]"
+I 300 0 130 Builtin OutPort | 76848,255265 "" ""
+L 301 302 0 TEXT "Labels" | 82139,250245 1 0 0 "RxDataOutWEn"
+I 302 0 2 Builtin OutPort | 76139,250245 "" ""
+L 303 304 0 TEXT "Labels" | 84462,243195 1 0 0 "RxByteIn[7:0]"
+H 32 24 0 RECT 0,0,0 0 0 1 255,255,255 0 | 17144,15700 201644,263700
+H 41 33 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 33 6 20484 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 117500,64680 6500 6500
+L 34 33 0 TEXT "State Labels" | 117500,64680 1 0 0 "TOKEN"
+W 36 41 0 38 371 BEZIER "Transitions" | 34704,258592 38731,254357 47806,246433 31745,235718
+I 37 41 0 Builtin Exit | 85286,98575
+I 38 41 0 Builtin Entry | 30541,258592
+L 39 40 0 TEXT "State Labels" | 74595,193068 1 0 0 "CHK_STRM\n/9/"
+S 40 41 65536 ELLIPSE "States" | 74595,193068 6500 6500
+S 42 6 16388 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 118750,36808 6500 6500
+L 43 42 0 TEXT "State Labels" | 118750,36808 1 0 0 "DATA"
+I 304 0 130 Builtin InPort | 78462,243195 "" ""
+L 305 306 0 TEXT "Labels" | 84465,238172 1 0 0 "RxCtrlIn[7:0]"
+I 306 0 130 Builtin InPort | 78465,238172 "" ""
+L 307 308 0 TEXT "Labels" | 85176,232428 1 0 0 "processRxDataInWEn"
+I 308 0 2 Builtin InPort | 78462,232428 "" ""
+L 309 310 0 TEXT "Labels" | 129515,260188 1 0 0 "rstCRC"
+I 310 0 2 Builtin OutPort | 123515,260188 "" ""
+L 311 312 0 TEXT "Labels" | 129156,255220 1 0 0 "CRCData[7:0]"
+I 312 0 130 Builtin OutPort | 123156,255220 "" ""
+L 313 314 0 TEXT "Labels" | 131655,250603 1 0 0 "CRC5Result[4:0]"
+I 314 0 130 Builtin InPort | 125655,250603 "" ""
+L 315 316 0 TEXT "Labels" | 129509,245629 1 0 0 "CRC5En"
+I 316 0 2 Builtin OutPort | 123509,245629 "" ""
+L 317 318 0 TEXT "Labels" | 129866,241010 1 0 0 "CRC5_8Bit"
+I 318 0 2 Builtin OutPort | 123866,241010 "" ""
+L 319 320 0 TEXT "Labels" | 130127,231343 1 0 0 "CRC16En"
+H 50 42 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+W 51 6 0 11 16 BEZIER "Transitions" | 41219,169119 41353,163357 41254,137442 41790,133556\
+                                      42326,129670 44202,125650 52711,124511 61220,123372\
+                                      93136,123615 109216,123347
+W 52 6 0 11 24 BEZIER "Transitions" | 41273,169115 41809,155581 41924,114126 42929,106354\
+                                      43934,98582 46882,94562 55190,93624 63498,92686\
+                                      93782,92954 101420,93021 109058,93088 109445,93150\
+                                      109579,93150
+W 53 6 0 11 33 BEZIER "Transitions" | 41642,169108 42044,146596 42058,88800 43264,77142\
+                                      44470,65484 48490,63876 56999,63474 65508,63072\
+                                      95524,63072 103095,63072 110666,63072 111053,63134\
+                                      111187,63134
+W 54 6 0 11 42 BEZIER "Transitions" | 41669,169131 42607,140455 43130,70308 44403,54764\
+                                      45676,39220 48892,34396 57535,33391 66178,32386\
+                                      96662,35330 112340,35732
+C 55 51 0 TEXT "Conditions" | 43455,121392 1 0 0 "RXByteStMachCurrState == `CHECK_PID_ST"
+C 56 52 0 TEXT "Conditions" | 45596,90880 1 0 0 "RXByteStMachCurrState == `HS_BYTE_ST"
+C 57 53 0 TEXT "Conditions" | 45420,58426 1 0 0 "RXByteStMachCurrState == `TOKEN_BYTE_ST"
+C 58 54 0 TEXT "Conditions" | 46403,31524 1 0 0 "RXByteStMachCurrState == `DATA_BYTE_ST"
+L 62 63 0 TEXT "State Labels" | 113731,172352 1 0 0 "WAIT_BYTE\n/2/"
+S 63 6 24576 ELLIPSE "States" | 112744,173179 6500 6500
+I 320 0 2 Builtin OutPort | 124127,231343 "" ""
+L 323 324 0 TEXT "Labels" | 132267,236303 1 0 0 "CRC16Result[15:0]"
+I 324 0 130 Builtin InPort | 126267,236303 "" ""
+L 325 326 0 TEXT "Labels" | 175074,265120 1 0 0 "bitStuffError"
+I 326 0 2 Builtin Signal | 172074,265120 "" ""
+L 327 328 0 TEXT "Labels" | 175074,260836 1 0 0 "RxOverflow"
+I 328 0 2 Builtin Signal | 172074,260836 "" ""
+L 329 330 0 TEXT "Labels" | 175074,256552 1 0 0 "RxTimeOut"
+I 330 0 2 Builtin Signal | 172074,256552 "" ""
+L 331 332 0 TEXT "Labels" | 174717,252268 1 0 0 "NAKRxed"
+I 332 0 2 Builtin Signal | 171717,252268 "" ""
+L 333 334 0 TEXT "Labels" | 175074,247627 1 0 0 "stallRxed"
+I 334 0 2 Builtin Signal | 172074,247627 "" ""
+L 335 336 0 TEXT "Labels" | 175074,243343 1 0 0 "ACKRxed"
+W 64 6 0 9 63 BEZIER "Transitions" | 48012,197411 59579,195797 95649,181504 106856,175930
+W 65 6 0 63 11 BEZIER "Transitions" | 106255,172815 94419,170798 59763,178747 47927,176730
+C 66 65 0 TEXT "Conditions" | 62843,168563 1 0 0 "processRxDataInWEn == 1'b1"
+W 68 6 0 16 357 BEZIER "Transitions" | 120926,119581 130781,111751 152663,94796 162518,86966
+W 69 6 0 24 357 BEZIER "Transitions" | 122281,93503 131596,91478 152599,87697 161914,85672
+W 71 6 0 33 357 BEZIER "Transitions" | 123360,67490 132540,71405 152828,79824 162008,83739
+W 72 6 0 42 357 BEZIER "Transitions" | 123133,41607 132448,51732 153635,72170 162950,82295
+L 74 75 0 TEXT "State Labels" | 65748,212778 1 0 0 "DO_CHK\n/5/"
+S 75 17 45056 ELLIPSE "States" | 65748,212778 6500 6500
+W 76 17 8194 75 18 BEZIER "Transitions" | 69849,207737 75657,200807 99461,167483 105269,160553
+A 78 65 16 TEXT "Actions" | 51039,182627 1 0 0 "RxByte <= RxByteIn;\nRxCtrl <= RxCtrlIn;\nprocessRxByteRdy <= 1'b0;"
+I 336 0 2 Builtin Signal | 172074,243343 "" ""
+L 337 338 0 TEXT "Labels" | 175074,238702 1 0 0 "dataSequence"
+I 338 0 2 Builtin Signal | 172074,238702 "" ""
+L 341 342 0 TEXT "Labels" | 174929,216623 1 0 0 "RxByte[7:0]"
+I 342 0 130 Builtin Signal | 171929,216623 "" ""
+L 343 344 0 TEXT "Labels" | 175286,221621 1 0 0 "RxCtrl[7:0]"
+I 344 0 130 Builtin Signal | 172286,221621 "" ""
+L 345 346 0 TEXT "Labels" | 119382,216211 1 0 0 "RXByteStMachCurrState[2:0]"
+I 346 0 130 Builtin Signal | 116382,216211 "" ""
+A 349 9 4 TEXT "Actions" | 143783,207627 1 0 0 "RxByte <= 8'h00;\nRxCtrl <= 8'h00;\nRXByteStMachCurrState <= `IDLE_BYTE_ST;\nCRCError <= 1'b0;\nbitStuffError <= 1'b0;\nRxOverflow <= 1'b0;\nRxTimeOut <= 1'b0;\nNAKRxed <= 1'b0;\nstallRxed <= 1'b0;\nACKRxed <= 1'b0;\ndataSequence <= 1'b0;\nRxDataOut <= 8'h00;\nRxCtrlOut <= 8'h00;\nRxDataOutWEn <= 1'b0;\nrstCRC <= 1'b0;\nCRCData <= 8'h00;\nCRC5En <= 1'b0;\nCRC5_8Bit <= 1'b0;\nCRC16En <= 1'b0;\nRXDataByteCnt <= 10'h00;\nprocessRxByteRdy <= 1'b1;"
+W 351 6 0 357 63 BEZIER "Transitions" | 165899,88318 165621,91424 166582,101426 164321,105232\
+                                        162060,109038 152965,112617 149770,115182 146575,117747\
+                                        142560,124240 140625,130720 138690,137200 135270,157360\
+                                        132480,162850 129690,168340 122852,170455 118982,171355
+L 339 340 0 TEXT "Labels" | 175498,229252 1 0 0 "RxStatus[7:0]"
+I 340 0 128 Builtin Signal | 172498,229252 "" ""
+W 361 358 0 359 360 BEZIER "Transitions" | 90523,167640 102693,150317 114474,129084 126644,111760
+I 360 358 0 Builtin Exit | 129540,111760
+I 359 358 0 Builtin Entry | 86360,167640
+H 358 357 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 357 6 81940 ELLIPSE "Junction" | 165320,84870 3500 3500
+L 356 357 0 TEXT "State Labels" | 165320,84870 1 0 0 "J1"
+W 82 17 4097 75 21 BEZIER "Transitions" | 63199,206800 60009,197085 40708,156469 41288,147696\
+                                          41868,138924 51896,113272 59871,108777 67846,104282\
+                                          74724,97474 86324,92674
+W 81 17 0 20 75 BEZIER "Transitions" | 49379,248076 53439,241189 58262,225186 62322,218299
+L 352 353 0 TEXT "Labels" | 175356,234668 1 0 0 "CRCError"
+I 353 0 2 Builtin Signal | 172356,234668 "" ""
+L 354 355 0 TEXT "Labels" | 80612,216204 1 0 0 "RXDataByteCnt[9:0]"
+I 355 0 130 Builtin Signal | 77612,216204 "" ""
+L 366 367 0 TEXT "Labels" | 80453,221558 1 0 0 "Signal1"
+I 367 0 2 Builtin Signal | 77453,221558 "" ""
+A 383 351 16 TEXT "Actions" | 154286,108204 1 0 0 "processRxByteRdy <= 1'b1;"
+I 382 0 2 Builtin OutPort | 78990,227664 "" ""
+L 381 382 0 TEXT "Labels" | 84990,227664 1 0 0 "processRxByteRdy"
+L 368 369 0 TEXT "Labels" | 132404,226868 1 0 0 "CRC5UpdateRdy"
+I 369 0 2 Builtin InPort | 126404,226868 "" ""
+L 370 371 0 TEXT "State Labels" | 30702,229308 1 0 0 "WAIT_CRC\n/13/"
+S 371 41 86016 ELLIPSE "States" | 30702,229308 6500 6500
+W 372 41 0 371 40 BEZIER "Transitions" | 35330,224745 46935,215765 58540,206785 70145,197805
+C 373 372 0 TEXT "Conditions" | 40381,225556 1 0 0 "CRC5UpdateRdy == 1'b1"
+L 374 375 0 TEXT "Labels" | 132404,222116 1 0 0 "CRC16UpdateRdy"
+I 375 0 2 Builtin InPort | 126404,222116 "" ""
+L 376 377 0 TEXT "State Labels" | 76540,228660 1 0 0 "WAIT_CRC\n/14/"
+S 377 50 90112 ELLIPSE "States" | 76540,228660 6500 6500
+W 378 50 0 292 377 BEZIER "Transitions" | 37855,252435 46562,247168 62458,237581 71165,232314
+W 379 50 0 377 293 BEZIER "Transitions" | 76802,222169 77769,207119 78297,178932 79264,163882
+C 380 379 0 TEXT "Conditions" | 39560,213610 1 0 0 "CRC16UpdateRdy == 1'b1"
+A 162 40 4 TEXT "Actions" | 108520,254835 1 0 0 "RXDataByteCnt <= RXDataByteCnt + 1'b1;\ncase (RxCtrl)\n  `DATA_STOP:\n  begin\n    if (CRC5Result != 5'h6)\n      CRCError <= 1'b1;\n    RxDataOut <= RxStatus;\n    RxCtrlOut <= `RX_PACKET_STOP;\n    RXByteStMachCurrState <= `IDLE_BYTE_ST;\n  end\n  `DATA_BIT_STUFF_ERROR:\n  begin\n    bitStuffError <= 1'b1;\n    RxDataOut <= RxStatus;\n    RxCtrlOut <= `RX_PACKET_STOP;\n    RXByteStMachCurrState <= `IDLE_BYTE_ST;\n  end\n  `DATA_STREAM:\n  begin\n    if (RXDataByteCnt > 10'h2) \n    begin\n      RxOverflow <= 1'b1;\n      RxDataOut <= RxStatus;\n      RxCtrlOut <= `RX_PACKET_STOP;\n      RXByteStMachCurrState <= `IDLE_BYTE_ST;\n    end\n    else \n    begin\n      RxDataOut <= RxByte;\n      RxCtrlOut <= `RX_PACKET_STREAM;\n      CRCData <= RxByte;\n      CRC5_8Bit <= 1'b1;\n      CRC5En <= 1'b1;\n    end\n  end\nendcase\nRxDataOutWEn <= 1'b1;"
+C 188 13 0 TEXT "Conditions" | 25531,201445 1 0 0 "rst"
+I 187 0 2 Builtin InPort | 154691,260362 "" ""
+L 186 187 0 TEXT "Labels" | 160691,260362 1 0 0 "rst"
+I 185 0 3 Builtin InPort | 155048,265416 "" ""
+L 184 185 0 TEXT "Labels" | 161048,265416 1 0 0 "clk"
+L 212 213 0 TEXT "State Labels" | 113934,142150 1 0 0 "CHK_SYNC"
+S 213 6 28676 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 113934,140548 6500 6500
+L 215 216 0 TEXT "State Labels" | 113402,157040 1 0 0 "IDLE"
+S 216 6 32772 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 113402,157040 6500 6500
+H 217 216 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 218 217 36864 ELLIPSE "States" | 107950,139700 6500 6500
+L 219 218 0 TEXT "State Labels" | 107950,139700 1 0 0 "CHK_START\n/3/"
+I 220 217 0 Builtin Entry | 86360,167640
+I 221 217 0 Builtin Exit | 136710,89055
+W 222 217 0 220 218 BEZIER "Transitions" | 90523,167640 95262,160652 99562,152068 104302,145079
+W 223 217 4096 218 221 BEZIER "Transitions" | 111743,134422 116788,127400 128768,96077 133814,89055
+H 224 213 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 225 224 40960 ELLIPSE "States" | 107950,139700 6500 6500
+L 226 225 0 TEXT "State Labels" | 107950,139700 1 0 0 "DO\n/4/"
+I 227 224 0 Builtin Entry | 86360,167640
+I 228 224 0 Builtin Exit | 129540,111760
+W 229 224 0 227 225 BEZIER "Transitions" | 90523,167640 95262,160652 99562,152068 104302,145079
+W 230 224 0 225 228 BEZIER "Transitions" | 111743,134422 116788,127400 121598,118782 126644,111760
+W 231 6 0 11 216 BEZIER "Transitions" | 41320,169131 41386,166461 41370,161119 41770,159283\
+                                        42170,157448 43639,155445 51849,155011 60059,154577\
+                                        91249,156261 106935,156394
+W 232 6 0 11 213 BEZIER "Transitions" | 41377,169111 41443,162637 41370,149971 41770,146133\
+                                        42170,142296 43639,139892 51882,139324 60126,138757\
+                                        91699,140001 107452,140067
+C 233 232 0 TEXT "Conditions" | 41970,135220 1 0 0 "RXByteStMachCurrState == `CHECK_SYNC_ST"
+C 234 231 0 TEXT "Conditions" | 42504,153376 1 0 0 "RXByteStMachCurrState == `IDLE_BYTE_ST"
+W 235 6 0 216 357 BEZIER "Transitions" | 117419,151931 129033,135644 151793,104087 163407,87800
+W 236 6 0 213 357 BEZIER "Transitions" | 118353,135782 128966,124034 152340,99194 162953,87446
+A 240 225 4 TEXT "Actions" | 124532,142082 1 0 0 "if (RxByte == `SYNC_BYTE)\n  RXByteStMachCurrState = `CHECK_PID_ST;\nelse\n  RXByteStMachCurrState = `IDLE_BYTE_ST;"
+A 242 218 4 TEXT "Actions" | 127244,141208 1 0 0 "if (RxCtrl == `DATA_START)\n  RXByteStMachCurrState <= `CHECK_SYNC_ST;"
+C 243 82 0 TEXT "Conditions" | 20905,184375 1 0 0 "(RxByte[7:4] ^ RxByte[3:0] ) != 4'hf"
+A 244 82 16 TEXT "Actions" | 20263,162000 1 0 0 "RXByteStMachCurrState <= `IDLE_BYTE_ST"
+A 245 76 16 TEXT "Actions" | 83312,221127 1 0 0 "CRCError <= 1'b0;\nbitStuffError <= 1'b0;\nRxOverflow <= 1'b0;\nNAKRxed <= 1'b0;\nstallRxed <= 1'b0;\nACKRxed <= 1'b0;\ndataSequence <= 1'b0;\nRxTimeOut <= 1'b0;\nRXDataByteCnt <= 0;\nRxDataOut <= RxByte;\nRxCtrlOut <= `RX_PACKET_START;\nRxDataOutWEn <= 1'b1;\nrstCRC <= 1'b1;"
+H 248 18 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 249 248 53248 ELLIPSE "States" | 56974,201060 6500 6500
+L 250 249 0 TEXT "State Labels" | 56974,201060 1 0 0 "PROC\n/6/"
+A 251 249 4 TEXT "Actions" | 92522,232212 1 0 0 "rstCRC <= 1'b0;\nRxDataOutWEn <= 1'b0;\ncase (RxByte[1:0] )\n  `SPECIAL:                              //Special PID.\n    RXByteStMachCurrState <= `IDLE_BYTE_ST;\n  `TOKEN:                                //Token PID\n  begin\n    RXByteStMachCurrState <= `TOKEN_BYTE_ST;\n    RXDataByteCnt <= 0;\n  end\n  `HANDSHAKE:                            //Handshake PID\n  begin\n    case (RxByte[3:2] )\n      2'b00:\n        ACKRxed <= 1'b1;\n      2'b10:\n        NAKRxed <= 1'b1;\n      2'b11:\n        stallRxed <= 1'b1;\n      default:\n      begin\n        $display (\"Invalid Handshake PID detected in ProcessRXByte\\n\");\n      end\n    endcase\n    RXByteStMachCurrState <= `HS_BYTE_ST;\n  end\n  `DATA:                                  //Data PID\n  begin\n    case (RxByte[3:2] )\n      2'b00:\n        dataSequence <= 1'b0;\n      2'b10:\n        dataSequence <= 1'b1;\n      default:\n        $display (\"Invalid DATA PID detected in ProcessRXByte\\n\");\n    endcase\n    RXByteStMachCurrState <= `DATA_BYTE_ST;\n    RXDataByteCnt <= 0;\n  end\nendcase"
+I 252 248 0 Builtin Entry | 35384,229000
+I 253 248 0 Builtin Exit | 78564,173120
+W 254 248 0 252 249 BEZIER "Transitions" | 39547,229000 44083,222216 48824,213248 53361,206463
+W 255 248 0 249 253 BEZIER "Transitions" | 60789,195800 65743,188968 70713,179952 75668,173120
+W 269 32 0 257 260 BEZIER "Transitions" | 128387,136115 128570,122756 118958,98074 114728,93035\
+                                          110499,87996 110355,80840 110355,80474
+A 268 263 16 TEXT "Actions" | 100115,177875 1 0 0 "if (RxCtrl != `DATA_STOP) //If more than PID rxed, then report error\n  RxOverflow <= 1'b1;\nRxDataOut <= RxStatus;\nRxCtrlOut <= `RX_PACKET_STOP;\nRxDataOutWEn <= 1'b1;"
+W 265 32 0 259 261 BEZIER "Transitions" | 70514,233704 74574,226817 79397,210814 83457,203927
+W 263 32 4096 261 257 BEZIER "Transitions" | 90984,193365 96792,186435 120426,153343 126234,146413
+L 262 261 0 TEXT "State Labels" | 86883,198406 1 0 0 "CHK\n/8/"
+S 261 32 61440 ELLIPSE "States" | 86883,198406 6500 6500
+I 260 32 0 Builtin Exit | 110355,78302
+I 259 32 0 Builtin Entry | 66351,233704
+L 258 257 0 TEXT "State Labels" | 129668,142146 1 0 0 "FIN\n/7/"
+S 257 32 57344 ELLIPSE "States" | 129646,141752 5778 5778
+W 256 17 0 18 21 BEZIER "Transitions" | 106988,149304 107171,135945 97823,112446 93593,107407\
+                                        89364,102368 89220,95212 89220,94846
+END

@@ -1,0 +1,276 @@
+<html>
+<head>
+<title>USBHostControlBI.v</title>
+<link rel="stylesheet" href="./../../../css/hde.css">
+<meta name="Author" content="Steve, Base2Designs">
+<meta name="Generator" content="Active-HDL, Version 6.3.1444, Expiration Date: September 30, 2004\n\nCopyright © ALDEC, Inc. All rights reserved.">
+</head>
+<body>
+<pre>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// USBHostControlBI.v                                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This file is part of the usbhostslave opencores effort.</span>
+<span id=t_com>//// &lt;http://www.opencores.org/cores//&gt;                           ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Module Description:                                          ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// To Do:                                                       ////</span>
+<span id=t_com>//// </span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Author(s):                                                   ////</span>
+<span id=t_com>//// - Steve Fielding, sfielding@base2designs.com                 ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file may be used and distributed without         ////</span>
+<span id=t_com>//// restriction provided that this copyright statement is not    ////</span>
+<span id=t_com>//// removed from the file and that any derivative work contains  ////</span>
+<span id=t_com>//// the original copyright notice and the associated disclaimer. ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source file is free software; you can redistribute it   ////</span>
+<span id=t_com>//// and/or modify it under the terms of the GNU Lesser General   ////</span>
+<span id=t_com>//// Public License as published by the Free Software Foundation; ////</span>
+<span id=t_com>//// either version 2.1 of the License, or (at your option) any   ////</span>
+<span id=t_com>//// later version.                                               ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// This source is distributed in the hope that it will be       ////</span>
+<span id=t_com>//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////</span>
+<span id=t_com>//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////</span>
+<span id=t_com>//// PURPOSE. See the GNU Lesser General Public License for more  ////</span>
+<span id=t_com>//// details.                                                     ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//// You should have received a copy of the GNU Lesser General    ////</span>
+<span id=t_com>//// Public License along with this source; if not, download it   ////</span>
+<span id=t_com>//// from &lt;http://www.opencores.org/lgpl.shtml&gt;                   ////</span>
+<span id=t_com>////                                                              ////</span>
+<span id=t_com>//////////////////////////////////////////////////////////////////////</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Id: index.htm,v 1.1.1.1 2004-10-11 03:59:11 sfielding Exp $</span>
+<span id=t_com>//</span>
+<span id=t_com>// CVS Revision History</span>
+<span id=t_com>//</span>
+<span id=t_com>// $Log: not supported by cvs2svn $</span>
+<span id=t_com>//</span>
+
+<span id=t_dir>`include</span> <span id=t_cns>"usbHostControl_h.v"</span>
+ 
+<span id=t_kwd>module</span> <span id=t_idt>USBHostControlBI</span> (<span id=t_idt>address</span>, <span id=t_idt>dataIn</span>, <span id=t_idt>dataOut</span>, <span id=t_idt>writeEn</span>,
+  <span id=t_idt>strobe_i</span>,
+  <span id=t_idt>clk</span>, <span id=t_idt>rst</span>,
+  <span id=t_idt>SOFSentIntOut</span>, <span id=t_idt>connEventIntOut</span>, <span id=t_idt>resumeIntOut</span>, <span id=t_idt>transDoneIntOut</span>,
+  <span id=t_idt>TxTransTypeReg</span>, <span id=t_idt>TxSOFEnableReg</span>,
+  <span id=t_idt>TxAddrReg</span>, <span id=t_idt>TxEndPReg</span>, <span id=t_idt>frameNumIn</span>, 
+  <span id=t_idt>RxPktStatusIn</span>, <span id=t_idt>RxPIDIn</span>,
+  <span id=t_idt>connectStateIn</span>,
+  <span id=t_idt>SOFSentIn</span>, <span id=t_idt>connEventIn</span>, <span id=t_idt>resumeIntIn</span>, <span id=t_idt>transDoneIn</span>,
+  <span id=t_idt>hostControlSelect</span>,
+  <span id=t_idt>clrTransReq</span>,
+  <span id=t_idt>preambleEn</span>,
+  <span id=t_idt>SOFSync</span>,
+  <span id=t_idt>TxLineState</span>,
+  <span id=t_idt>LineDirectControlEn</span>,
+  <span id=t_idt>fullSpeedPol</span>, 
+  <span id=t_idt>fullSpeedRate</span>,
+  <span id=t_idt>transReq</span>
+  );
+<span id=t_kwd>input</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>address</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>writeEn</span>; 
+<span id=t_kwd>input</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>input</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SOFSentIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>connEventIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>resumeIntOut</span>;
+<span id=t_kwd>output</span> <span id=t_idt>transDoneIntOut</span>;
+
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxTransTypeReg</span>;
+<span id=t_kwd>output</span> <span id=t_idt>TxSOFEnableReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>TxAddrReg</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>TxEndPReg</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNumIn</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxPktStatusIn</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>RxPIDIn</span>;
+<span id=t_kwd>input</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>SOFSentIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>connEventIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>resumeIntIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>transDoneIn</span>;
+<span id=t_kwd>input</span> <span id=t_idt>hostControlSelect</span>;
+<span id=t_kwd>input</span> <span id=t_idt>clrTransReq</span>;
+<span id=t_kwd>output</span> <span id=t_idt>preambleEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>SOFSync</span>;
+<span id=t_kwd>output</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxLineState</span>;
+<span id=t_kwd>output</span> <span id=t_idt>LineDirectControlEn</span>;
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedPol</span>; 
+<span id=t_kwd>output</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>output</span> <span id=t_idt>transReq</span>;
+
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>address</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>writeEn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>strobe_i</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clk</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>rst</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>dataOut</span>;
+
+<span id=t_kwd>reg</span> <span id=t_idt>SOFSentIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>connEventIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resumeIntOut</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>transDoneIntOut</span>;
+
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxTransTypeReg</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>TxSOFEnableReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>6</span>:<span id=t_cns>0</span>] <span id=t_idt>TxAddrReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>TxEndPReg</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>10</span>:<span id=t_cns>0</span>] <span id=t_idt>frameNumIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>7</span>:<span id=t_cns>0</span>] <span id=t_idt>RxPktStatusIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>RxPIDIn</span>;
+<span id=t_kwd>wire</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>connectStateIn</span>;
+
+<span id=t_kwd>wire</span> <span id=t_idt>SOFSentIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>connEventIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>resumeIntIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>transDoneIn</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>hostControlSelect</span>;
+<span id=t_kwd>wire</span> <span id=t_idt>clrTransReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>preambleEn</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>SOFSync</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxLineState</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>LineDirectControlEn</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>fullSpeedPol</span>; 
+<span id=t_kwd>reg</span> <span id=t_idt>fullSpeedRate</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>transReq</span>;
+
+<span id=t_com>//internal wire and regs</span>
+<span id=t_kwd>reg</span> [<span id=t_cns>1</span>:<span id=t_cns>0</span>] <span id=t_idt>TxControlReg</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>4</span>:<span id=t_cns>0</span>] <span id=t_idt>TxLineControlReg</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrSOFReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrConnEvtReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrResInReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>clrTransDoneReq</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>SOFSentInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>connEventInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>resumeInt</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>transDoneInt</span>;
+<span id=t_kwd>reg</span> [<span id=t_cns>3</span>:<span id=t_cns>0</span>] <span id=t_idt>interruptMaskReg</span>;
+<span id=t_kwd>reg</span> <span id=t_idt>setTransReq</span>;
+
+<span id=t_com>//sync write demux</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_idt>clrSOFReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrConnEvtReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrResInReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>clrTransDoneReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_idt>setTransReq</span> &lt;= <span id=t_cns>1'b0</span>;
+  <span id=t_kwd>if</span> (<span id=t_idt>writeEn</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>strobe_i</span> == <span id=t_cns>1'b1</span> &amp;&amp; <span id=t_idt>hostControlSelect</span> == <span id=t_cns>1'b1</span>)
+  <span id=t_kwd>begin</span>
+   <span id=t_kwd>case</span> (<span id=t_idt>address</span>)
+     `<span id=t_idt>TX_CONTROL_REG</span> : <span id=t_kwd>begin</span>
+        <span id=t_idt>preambleEn</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>SOFSync</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>setTransReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+     `<span id=t_idt>TX_TRANS_TYPE_REG</span> : <span id=t_idt>TxTransTypeReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>TX_LINE_CONTROL_REG</span> : <span id=t_idt>TxLineControlReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>4</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>TX_SOF_ENABLE_REG</span> : <span id=t_idt>TxSOFEnableReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+     `<span id=t_idt>TX_ADDR_REG</span> : <span id=t_idt>TxAddrReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>6</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>TX_ENDP_REG</span> : <span id=t_idt>TxEndPReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>];
+     `<span id=t_idt>INTERRUPT_STATUS_REG</span> :  <span id=t_kwd>begin</span>
+        <span id=t_idt>clrSOFReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>];
+        <span id=t_idt>clrConnEvtReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>2</span>];
+        <span id=t_idt>clrResInReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>1</span>];
+        <span id=t_idt>clrTransDoneReq</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>0</span>];
+      <span id=t_kwd>end</span>
+     `<span id=t_idt>INTERRUPT_MASK_REG</span>  : <span id=t_idt>interruptMaskReg</span> &lt;= <span id=t_idt>dataIn</span>[<span id=t_cns>3</span>:<span id=t_cns>0</span>];
+   <span id=t_kwd>endcase</span>
+  <span id=t_kwd>end</span>
+<span id=t_kwd>end</span>
+
+<span id=t_com>//interrupt control</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>SOFSentIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>SOFSentInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrSOFReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>SOFSentInt</span> &lt;= <span id=t_cns>1'b0</span>;
+   
+  <span id=t_kwd>if</span> (<span id=t_idt>connEventIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>connEventInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrConnEvtReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>connEventInt</span> &lt;= <span id=t_cns>1'b0</span>;
+   
+  <span id=t_kwd>if</span> (<span id=t_idt>resumeIntIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resumeInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrResInReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>resumeInt</span> &lt;= <span id=t_cns>1'b0</span>;  
+
+  <span id=t_kwd>if</span> (<span id=t_idt>transDoneIn</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transDoneInt</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrTransDoneReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transDoneInt</span> &lt;= <span id=t_cns>1'b0</span>;
+<span id=t_kwd>end</span>
+
+<span id=t_com>//mask interrupts</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>interruptMaskReg</span> <span id=t_kwd>or</span> <span id=t_idt>transDoneInt</span> <span id=t_kwd>or</span> <span id=t_idt>resumeInt</span> <span id=t_kwd>or</span> <span id=t_idt>connEventInt</span> <span id=t_kwd>or</span> <span id=t_idt>SOFSentInt</span>) <span id=t_kwd>begin</span>
+  <span id=t_idt>transDoneIntOut</span> &lt;= <span id=t_idt>transDoneInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>TRANS_DONE_BIT</span>];
+  <span id=t_idt>resumeIntOut</span> &lt;= <span id=t_idt>resumeInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>RESUME_INT_BIT</span>];
+  <span id=t_idt>connEventIntOut</span> &lt;= <span id=t_idt>connEventInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>CONNECTION_EVENT_BIT</span>];
+  <span id=t_idt>SOFSentIntOut</span> &lt;= <span id=t_idt>SOFSentInt</span> &amp; <span id=t_idt>interruptMaskReg</span>[`<span id=t_idt>SOF_SENT_BIT</span>];
+<span id=t_kwd>end</span>  
+  
+<span id=t_com>//transaction request set/clear</span>
+<span id=t_kwd>always</span> @(<span id=t_kwd>posedge</span> <span id=t_idt>clk</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>if</span> (<span id=t_idt>setTransReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transReq</span> &lt;= <span id=t_cns>1'b1</span>;
+  <span id=t_kwd>else</span> <span id=t_kwd>if</span> (<span id=t_idt>clrTransReq</span> == <span id=t_cns>1'b1</span>)
+   <span id=t_idt>transReq</span> &lt;= <span id=t_cns>1'b0</span>;
+<span id=t_kwd>end</span>  
+  
+<span id=t_com>//break out control signals</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>TxControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>TxLineControlReg</span>) <span id=t_kwd>begin</span>
+  <span id=t_idt>TxLineState</span> &lt;= <span id=t_idt>TxLineControlReg</span>[`<span id=t_idt>TX_LINE_STATE_MSBIT</span>:`<span id=t_idt>TX_LINE_STATE_LSBIT</span>];
+  <span id=t_idt>LineDirectControlEn</span> &lt;= <span id=t_idt>TxLineControlReg</span>[`<span id=t_idt>DIRECT_CONTROL_BIT</span>];
+  <span id=t_idt>fullSpeedPol</span> &lt;= <span id=t_idt>TxLineControlReg</span>[`<span id=t_idt>FULL_SPEED_LINE_POLARITY_BIT</span>]; 
+  <span id=t_idt>fullSpeedRate</span> &lt;= <span id=t_idt>TxLineControlReg</span>[`<span id=t_idt>FULL_SPEED_LINE_RATE_BIT</span>];
+<span id=t_kwd>end</span>
+  
+<span id=t_com>// async read mux</span>
+<span id=t_kwd>always</span> @(<span id=t_idt>address</span> <span id=t_kwd>or</span>
+  <span id=t_idt>TxControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>TxTransTypeReg</span> <span id=t_kwd>or</span> <span id=t_idt>TxLineControlReg</span> <span id=t_kwd>or</span> <span id=t_idt>TxSOFEnableReg</span> <span id=t_kwd>or</span>
+  <span id=t_idt>TxAddrReg</span> <span id=t_kwd>or</span> <span id=t_idt>TxEndPReg</span> <span id=t_kwd>or</span> <span id=t_idt>frameNumIn</span> <span id=t_kwd>or</span> 
+  <span id=t_idt>SOFSentInt</span> <span id=t_kwd>or</span> <span id=t_idt>connEventInt</span> <span id=t_kwd>or</span> <span id=t_idt>resumeInt</span> <span id=t_kwd>or</span> <span id=t_idt>transDoneInt</span> <span id=t_kwd>or</span>
+  <span id=t_idt>interruptMaskReg</span> <span id=t_kwd>or</span> <span id=t_idt>RxPktStatusIn</span> <span id=t_kwd>or</span> <span id=t_idt>RxPIDIn</span> <span id=t_kwd>or</span> <span id=t_idt>connectStateIn</span> <span id=t_kwd>or</span>
+  <span id=t_idt>preambleEn</span> <span id=t_kwd>or</span> <span id=t_idt>SOFSync</span> <span id=t_kwd>or</span> <span id=t_idt>transReq</span>)
+<span id=t_kwd>begin</span>
+  <span id=t_kwd>case</span> (<span id=t_idt>address</span>)
+     `<span id=t_idt>TX_CONTROL_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>5'b00000</span>, <span id=t_idt>preambleEn</span>, <span id=t_idt>SOFSync</span>, <span id=t_idt>transReq</span>} ;
+     `<span id=t_idt>TX_TRANS_TYPE_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>6'b000000</span>, <span id=t_idt>TxTransTypeReg</span>};
+     `<span id=t_idt>TX_LINE_CONTROL_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>3'b000</span>, <span id=t_idt>TxLineControlReg</span>};
+     `<span id=t_idt>TX_SOF_ENABLE_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>7'b0000000</span>, <span id=t_idt>TxSOFEnableReg</span>};
+     `<span id=t_idt>TX_ADDR_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>1'b0</span>, <span id=t_idt>TxAddrReg</span>};
+     `<span id=t_idt>TX_ENDP_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>4'h0</span>, <span id=t_idt>TxEndPReg</span>};
+     `<span id=t_idt>FRAME_NUM_MSB_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>frameNumIn</span>[<span id=t_cns>10</span>:<span id=t_cns>3</span>];
+     `<span id=t_idt>FRAME_NUM_LSB_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>5'b00000</span>, <span id=t_idt>frameNumIn</span>[<span id=t_cns>2</span>:<span id=t_cns>0</span>]};
+     `<span id=t_idt>INTERRUPT_STATUS_REG</span> :  <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>4'h0</span>, <span id=t_idt>SOFSentInt</span>, <span id=t_idt>connEventInt</span>, <span id=t_idt>resumeInt</span>, <span id=t_idt>transDoneInt</span>};
+     `<span id=t_idt>INTERRUPT_MASK_REG</span>  : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>4'h0</span>, <span id=t_idt>interruptMaskReg</span>};
+     `<span id=t_idt>RX_STATUS_REG</span> : <span id=t_idt>dataOut</span> &lt;= <span id=t_idt>RxPktStatusIn</span>;
+     `<span id=t_idt>RX_PID_REG</span>  : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>4'b0000</span>, <span id=t_idt>RxPIDIn</span>};
+     `<span id=t_idt>RX_CONNECT_STATE_REG</span> : <span id=t_idt>dataOut</span> &lt;= {<span id=t_cns>6'b000000</span>, <span id=t_idt>connectStateIn</span>};
+      <span id=t_kwd>default</span>: <span id=t_idt>dataOut</span> &lt;= <span id=t_cns>8'h00</span>;
+  <span id=t_kwd>endcase</span>
+<span id=t_kwd>end</span>
+
+
+<span id=t_kwd>endmodule</span>
+</pre>
+</body>
+</html>

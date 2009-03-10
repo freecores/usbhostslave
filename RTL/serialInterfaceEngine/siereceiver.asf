@@ -1,0 +1,280 @@
+VERSION=1.15
+HEADER
+FILE="siereceiver.asf"
+FID=408ab644
+LANGUAGE=VERILOG
+ENTITY="SIEReceiver"
+FRAMES=ON
+FREEOID=262
+"LIBRARIES=//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// SIEReceiver\n////                                                              ////\n//// This file is part of the usbhostslave opencores effort.\n//// http://www.opencores.org/cores/usbhostslave/                 ////\n////                                                              ////\n//// Module Description:                                          ////\n//// \n////                                                              ////\n//// To Do:                                                       ////\n//// \n////                                                              ////\n//// Author(s):                                                   ////\n//// - Steve Fielding, sfielding@base2designs.com                 ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////\n////                                                              ////\n//// This source file may be used and distributed without         ////\n//// restriction provided that this copyright statement is not    ////\n//// removed from the file and that any derivative work contains  ////\n//// the original copyright notice and the associated disclaimer. ////\n////                                                              ////\n//// This source file is free software; you can redistribute it   ////\n//// and/or modify it under the terms of the GNU Lesser General   ////\n//// Public License as published by the Free Software Foundation; ////\n//// either version 2.1 of the License, or (at your option) any   ////\n//// later version.                                               ////\n////                                                              ////\n//// This source is distributed in the hope that it will be       ////\n//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////\n//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////\n//// PURPOSE. See the GNU Lesser General Public License for more  ////\n//// details.                                                     ////\n////                                                              ////\n//// You should have received a copy of the GNU Lesser General    ////\n//// Public License along with this source; if not, download it   ////\n//// from http://www.opencores.org/lgpl.shtml                     ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n//\n// $Id: siereceiver.asf,v 1.3 2004-12-31 14:40:43 sfielding Exp $\n//\n// CVS Revision History\n//\n// $Log: not supported by cvs2svn $\n//\n`timescale 1ns / 1ps\n`include \"usbSerialInterfaceEngine_h.v\"\n\n"
+END
+BUNDLES
+B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Conditions" 0,0,0 0 0 0 255,255,255 0 3333 0 0110 1  "Arial" 0
+B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Actions" 0,0,0 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 0
+B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0  "Arial" 0
+B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B T "State Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 4
+B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Comments" 157,157,157 0 0 1 255,255,255 0 3333 0 0000 0  "Arial" 0
+B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0  "Arial" 0
+END
+INSTHEADER 1
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 5000,5000 10000,10000
+END
+INSTHEADER 23
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 46
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 55
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 64
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 73
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 82
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 91
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 235
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+INSTHEADER 241
+PAGE 12700,12700 215900,279400
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 0,0 10000,10000
+END
+OBJECTS
+W 15 6 0 11 241 BEZIER "Transitions" | 54697,186192 54895,182331 55070,163352 55268,159491
+W 14 6 0 9 11 BEZIER "Transitions" | 53793,212320 54090,208657 54044,202830 54341,199167
+S 11 6 16384 ELLIPSE "States" | 54795,192690 6500 6500
+L 10 11 0 TEXT "State Labels" | 54795,192690 1 0 0 "WAIT_BIT\n/4/"
+S 9 6 20480 ELLIPSE "States" | 54004,218793 6500 6500
+L 8 9 0 TEXT "State Labels" | 54004,218793 1 0 0 "START_SRX\n/5/"
+G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0  "Arial" 0 | 97950,263700 1 0 0 "Module: SIEReceiver"
+F 6 0 671089152 228 0 RECT 0,0,0 0 0 1 255,255,255 0 | 14253,12655 205887,234211
+L 7 6 0 TEXT "Labels" | 17253,231211 1 0 0 "rcvr"
+S 23 6 24580 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 143681,32406 6500 6500
+L 22 23 0 TEXT "State Labels" | 143681,32406 1 0 0 "DISCNCT"
+A 21 15 16 TEXT "Actions" | 50061,176470 1 0 0 "RxBits <= RxWireDataIn;\nSIERxRdyOut <= 1'b0;"
+C 19 15 0 TEXT "Conditions" | 55867,186045 1 0 0 "RxWireDataWEn == 1'b1"
+W 17 6 0 16 9 BEZIER "Transitions" | 25106,221421 30781,219421 43306,224917 48981,222917
+I 16 6 0 Builtin Reset | 25106,221421
+H 39 23 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 40 39 12288 ELLIPSE "States" | 64508,213851 6500 6500
+L 41 40 0 TEXT "State Labels" | 64508,213851 1 0 0 "CHK_RXBITS\n/3/"
+I 42 39 0 Builtin Entry | 42918,241791
+I 43 39 0 Builtin Exit | 147281,109121
+W 44 39 0 42 40 BEZIER "Transitions" | 47426,241791 52025,234967 56275,226064 60875,219240
+S 46 6 28676 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 142838,49983 6500 6500
+L 47 46 0 TEXT "State Labels" | 142838,49983 1 0 0 "WAIT_FS_CONN"
+H 54 46 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+W 48 54 4096 53 50 BEZIER "Transitions" | 111761,134435 116730,128048 137142,101490 142112,94624
+W 49 54 0 51 53 BEZIER "Transitions" | 90868,167640 95467,160816 99717,151913 104317,145089
+I 50 54 0 Builtin Exit | 145248,94624
+I 51 54 0 Builtin Entry | 86360,167640
+L 52 53 0 TEXT "State Labels" | 107950,139700 1 0 0 "CHK_RX_BITS\n/0/"
+S 53 54 0 ELLIPSE "States" | 107950,139700 6500 6500
+H 63 55 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 55 6 32772 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 141452,68793 6500 6500
+L 56 55 0 TEXT "State Labels" | 141452,68793 1 0 0 "WAIT_LS_CONN"
+W 57 63 0 62 59 BEZIER "Transitions" | 111761,134435 116730,127570 121442,118626 126412,111760
+W 58 63 0 60 62 BEZIER "Transitions" | 90868,167640 95467,160816 99717,151913 104317,145089
+I 59 63 0 Builtin Exit | 129540,111760
+I 60 63 0 Builtin Entry | 86360,167640
+L 61 62 0 TEXT "State Labels" | 107950,139700 1 0 0 "CHK_RX_BITS\n/1/"
+S 62 63 4096 ELLIPSE "States" | 107950,139700 6500 6500
+H 72 64 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 64 6 36868 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 140066,86613 6500 6500
+L 65 64 0 TEXT "State Labels" | 140066,86613 1 0 0 "LS_CONN"
+W 67 72 0 69 71 BEZIER "Transitions" | 69044,194920 73643,188096 77893,179193 82493,172369
+I 68 72 0 Builtin Exit | 131860,37310
+I 69 72 0 Builtin Entry | 64536,194920
+L 70 71 0 TEXT "State Labels" | 86126,166980 1 0 0 "CHK_RX_BITS\n/2/"
+S 71 72 8192 ELLIPSE "States" | 86126,166980 6500 6500
+S 73 6 40964 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 139274,106215 6500 6500
+L 74 73 0 TEXT "State Labels" | 139274,106215 1 0 0 "FS_CONN"
+H 81 73 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+H 90 82 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+S 82 6 45060 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 137888,126411 6500 6500
+L 83 82 0 TEXT "State Labels" | 137888,126411 1 0 0 "WAIT_LS_DIS"
+S 91 6 49156 ELLIPSE 0,0,0 0 0 1 0,255,255 1 | 136700,148244 6500 6500
+L 92 91 0 TEXT "State Labels" | 136700,148244 1 0 0 "WAIT_FS_DIS"
+H 99 91 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+W 129 39 8194 40 43 BEZIER "Transitions" | 67288,207977 90867,158271 120574,158827 144153,109121
+W 130 39 8193 40 43 BEZIER "Transitions" | 69252,218293 110985,257468 165540,129446 150409,109121
+C 131 129 0 TEXT "Conditions" | 55856,199298 1 0 0 "RxBits == `ONE_ZERO"
+C 132 130 0 TEXT "Conditions" | 98621,230429 1 0 0 "RxBits == `ZERO_ONE"
+A 133 130 16 TEXT "Actions" | 102033,204788 1 0 0 "RXStMachCurrState <= `WAIT_LOW_SPEED_CONN_ST\nRXWaitCount <= 8'h00;"
+A 134 129 16 TEXT "Actions" | 41551,160050 1 0 0 "RXStMachCurrState <= `WAIT_FULL_SPEED_CONN_ST\nRXWaitCount <= 8'h00;"
+W 138 6 0 241 91 BEZIER "Transitions" | 55726,152526 55825,150740 55689,148412 56830,147271\
+                                        57971,146130 62339,145137 65812,144988 69286,144839\
+                                        125497,147159 130261,147357
+W 139 6 0 241 82 BEZIER "Transitions" | 54775,152569 53765,144812 51800,131524 53198,127807\
+                                        54597,124090 58369,121813 62636,121465 66904,121118\
+                                        125138,124972 131490,125269
+W 140 6 0 241 73 BEZIER "Transitions" | 54816,152562 53725,141843 49733,121615 49138,115313\
+                                        48543,109011 48344,105238 49038,103700 49733,102162\
+                                        52773,100254 56507,99743 60241,99232 74292,101683\
+                                        79033,101771 83774,101859 131499,104027 132998,104525
+W 141 6 0 241 64 BEZIER "Transitions" | 54966,152543 53478,134579 47748,100673 48939,91443\
+                                        50130,82213 57873,81220 62984,81170 68095,81121\
+                                        127305,85134 133657,85531
+W 142 6 0 241 55 BEZIER "Transitions" | 55084,152531 53397,129108 47947,83900 50081,72287\
+                                        52215,60675 60863,63077 65955,63276 71048,63475\
+                                        83004,63522 85042,64000 87080,64479 134402,67217\
+                                        135100,67416
+W 143 6 0 241 46 BEZIER "Transitions" | 54918,152546 51842,126940 43778,76555 43182,62859\
+                                        42587,49163 46360,45589 52513,44944 58666,44299\
+                                        125961,48736 136382,49232
+W 159 6 0 23 235 BEZIER "Transitions" | 148132,37141 151647,41428 158891,48733 161548,55421\
+                                        164206,62109 167707,83613 169507,92702
+W 158 6 0 46 235 BEZIER "Transitions" | 146210,55537 151355,64540 163238,84117 168383,93120
+W 157 6 0 55 235 BEZIER "Transitions" | 145872,73557 150759,78444 162584,89003 167471,93890
+W 155 6 0 64 235 BEZIER "Transitions" | 146100,89028 150732,91430 162771,94113 166713,95483
+W 154 6 0 73 235 BEZIER "Transitions" | 145399,104041 150201,102669 162025,98607 166827,97235
+W 153 6 0 82 235 BEZIER "Transitions" | 142566,121900 148139,116412 162016,104012 167589,98524
+W 152 6 0 91 235 BEZIER "Transitions" | 140515,142982 147718,132349 161212,109811 168415,99178
+C 151 138 0 TEXT "Conditions" | 53061,140339 1 0 0 "RXStMachCurrState == `WAIT_FULL_SP_DISCONNECT_ST"
+C 150 139 0 TEXT "Conditions" | 52495,119006 1 0 0 "RXStMachCurrState == `WAIT_LOW_SP_DISCONNECT_ST"
+C 149 140 0 TEXT "Conditions" | 50344,99146 1 0 0 "RXStMachCurrState == `CONNECT_FULL_SPEED_ST"
+C 148 141 0 TEXT "Conditions" | 51096,80093 1 0 0 "RXStMachCurrState == `CONNECT_LOW_SPEED_ST"
+C 147 142 0 TEXT "Conditions" | 46355,62337 1 0 0 "RXStMachCurrState == `WAIT_LOW_SPEED_CONN_ST"
+C 146 143 0 TEXT "Conditions" | 46100,43512 1 0 0 "RXStMachCurrState == `WAIT_FULL_SPEED_CONN_ST"
+W 144 6 0 241 23 BEZIER "Transitions" | 54917,152544 50947,121578 41893,61271 41744,45441\
+                                        41595,29611 48940,28220 55540,28071 62140,27923\
+                                        127685,31371 137213,31768
+C 145 144 0 TEXT "Conditions" | 62881,26704 1 0 0 "RXStMachCurrState == `DISCONNECT_ST"
+W 161 39 8195 40 43 BEZIER "Transitions" | 58578,211192 49548,206204 31147,197012 26632,187509\
+                                           22117,178006 22117,149970 33211,139263 44305,128556\
+                                           88681,113764 103817,110238 118953,106712 136069,108777\
+                                           144153,109121
+W 160 6 0 235 11 BEZIER "Transitions" | 171556,99342 175414,111175 187017,133454 187960,147988\
+                                        188903,162522 181196,168609 172535,178212 163875,187816\
+                                        140506,197413 125270,198727 110035,200042 80303,196085\
+                                        61192,193841
+A 165 62 4 TEXT "Actions" | 104545,213104 1 0 0 "if (RxBits == `ZERO_ONE)\nbegin \n  RXWaitCount <= RXWaitCount + 1'b1;\n  if (RXWaitCount == `CONNECT_WAIT_TIME) \n  begin\n    connectState <= `LOW_SPEED_CONNECT;\n    RXStMachCurrState <= `CONNECT_LOW_SPEED_ST;\n  end\nend\nelse\nbegin\n  RXStMachCurrState = `DISCONNECT_ST;\nend"
+A 166 53 4 TEXT "Actions" | 101814,215348 1 0 0 "if (RxBits == `ONE_ZERO)\nbegin \n  RXWaitCount <= RXWaitCount + 1'b1;\n  if (RXWaitCount == `CONNECT_WAIT_TIME) \n  begin\n    connectState <= `FULL_SPEED_CONNECT;\n    RXStMachCurrState <= `CONNECT_FULL_SPEED_ST;\n  end\nend\nelse\nbegin\n  RXStMachCurrState = `DISCONNECT_ST;\nend"
+L 167 168 0 TEXT "State Labels" | 102779,73959 1 0 0 "PROC_RX_BITS\n/6/"
+S 168 72 53248 ELLIPSE "States" | 102779,73959 6500 6500
+W 169 72 0 71 168 BEZIER "Transitions" | 86126,160480 86807,152989 100534,87755 101215,80264
+W 170 72 0 168 68 BEZIER "Transitions" | 106629,68724 112767,60967 122594,45067 128732,37310
+A 173 168 4 TEXT "Actions" | 121345,75637 1 0 0 "processRxBitsWEn <= 1'b0;"
+S 174 81 57344 ELLIPSE "States" | 85374,175380 6500 6500
+L 175 174 0 TEXT "State Labels" | 85374,175380 1 0 0 "CHK_RX_BITS1\n/7/"
+I 176 81 0 Builtin Entry | 63784,203320
+I 177 81 0 Builtin Exit | 137732,35774
+W 178 81 0 176 174 BEZIER "Transitions" | 67935,203320 72534,196496 77141,187593 81741,180769
+S 179 81 81920 ELLIPSE "States" | 108651,72423 6500 6500
+A 180 179 4 TEXT "Actions" | 127217,74101 1 0 0 "processRxBitsWEn <= 1'b0;"
+W 182 81 0 179 177 BEZIER "Transitions" | 112501,67188 118639,59431 128706,43531 134844,35774
+W 183 81 0 174 179 BEZIER "Transitions" | 85374,168880 86055,161389 106112,86141 106793,78650
+L 184 179 0 TEXT "State Labels" | 108651,72423 1 0 0 "PROC_RX_BITS1\n/12/"
+S 185 90 61440 ELLIPSE "States" | 81562,170615 6500 6500
+L 186 185 0 TEXT "State Labels" | 81562,170615 1 0 0 "CHK_RX_BITS\n/8/"
+I 187 90 0 Builtin Entry | 59972,198555
+I 188 90 0 Builtin Exit | 126468,30181
+W 189 90 0 187 185 BEZIER "Transitions" | 63495,198555 68094,191731 73329,182828 77929,176004
+S 190 90 65536 ELLIPSE "States" | 97387,66830 6500 6500
+A 191 190 4 TEXT "Actions" | 115953,68508 1 0 0 "processRxBitsWEn <= 1'b0;"
+W 193 90 0 190 188 BEZIER "Transitions" | 101237,61595 107375,53838 117590,37938 123728,30181
+W 194 90 0 185 190 BEZIER "Transitions" | 81562,164115 82243,156624 95324,80670 96005,73179
+L 195 190 0 TEXT "State Labels" | 97387,66830 1 0 0 "PROC_RX_BITS\n/9/"
+S 196 99 69632 ELLIPSE "States" | 91399,59215 6500 6500
+A 197 196 4 TEXT "Actions" | 109965,60893 1 0 0 "processRxBitsWEn <= 1'b0;"
+W 198 99 0 200 201 BEZIER "Transitions" | 57914,190526 62513,183702 67134,174799 71734,167975
+I 199 99 0 Builtin Exit | 120480,22566
+I 200 99 0 Builtin Entry | 53777,190526
+S 201 99 73728 ELLIPSE "States" | 75367,162586 6500 6500
+L 202 201 0 TEXT "State Labels" | 75367,162586 1 0 0 "CHK_RX_BITS2\n/11/"
+L 203 196 0 TEXT "State Labels" | 91399,59215 1 0 0 "PROC_RX_BITS2\n/10/"
+W 204 99 0 201 196 BEZIER "Transitions" | 75367,156086 76048,148595 89316,73050 89997,65559
+W 205 99 0 196 199 BEZIER "Transitions" | 95249,53980 101387,46223 111486,30323 117624,22566
+I 221 0 2 Builtin OutPort | 129743,241655 "" ""
+L 220 221 0 TEXT "Labels" | 135743,241655 1 0 0 "processRxBitsWEn"
+I 219 0 130 Builtin Signal | 20132,253454 "" ""
+L 218 219 0 TEXT "Labels" | 23132,253454 1 0 0 "RXWaitCount[7:0]"
+I 215 0 130 Builtin Signal | 20439,258880 "" ""
+L 214 215 0 TEXT "Labels" | 23439,258880 1 0 0 "RXStMachCurrState[3:0]"
+L 208 209 0 TEXT "Labels" | 83032,244882 1 0 0 "RxWireDataIn[1:0]"
+I 209 0 130 Builtin InPort | 77032,244882 "" ""
+L 212 213 0 TEXT "Labels" | 82921,240492 1 0 0 "RxWireDataWEn"
+I 213 0 2 Builtin InPort | 76921,240492 "" ""
+I 233 0 130 Builtin Signal | 19714,243194 "" ""
+L 232 233 0 TEXT "Labels" | 22714,243194 1 0 0 "RxBits[1:0]"
+C 231 17 0 TEXT "Conditions" | 33631,221484 1 0 0 "rst"
+L 230 229 0 TEXT "Labels" | 184517,256651 1 0 0 "rst"
+I 229 0 2 Builtin InPort | 178517,256651 "" ""
+I 228 0 3 Builtin InPort | 178182,263543 "" ""
+L 227 228 0 TEXT "Labels" | 184182,263543 1 0 0 "clk"
+A 226 9 4 TEXT "Actions" | 91342,231317 1 0 0 "RXStMachCurrState <= `DISCONNECT_ST;\nRXWaitCount <= 8'h00;\nconnectState <= `DISCONNECT;\nRxBits <= 2'b00;\nRxBitsOut <= 2'b00;\nprocessRxBitsWEn <= 1'b0;\nSIERxRdyOut <= 1'b1;"
+I 225 0 130 Builtin OutPort | 129743,246614 "" ""
+L 224 225 0 TEXT "Labels" | 135743,246614 1 0 0 "RxBitsOut[1:0]"
+L 234 235 0 TEXT "State Labels" | 170150,96140 1 0 0 "J1"
+S 235 6 77844 ELLIPSE "Junction" | 170150,96140 3500 3500
+H 236 235 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+I 237 236 0 Builtin Entry | 86360,167640
+I 238 236 0 Builtin Exit | 129540,111760
+W 239 236 0 237 238 BEZIER "Transitions" | 90868,167640 103038,150317 114242,129084 126412,111760
+A 255 194 16 TEXT "Actions" | 61406,142366 1 0 0 "if (RxBits == `SE0)\nbegin\n  RXWaitCount <= RXWaitCount + 1'b1;\n  if (RXWaitCount == `DISCONNECT_WAIT_TIME)  \n  begin\n    RXStMachCurrState <= `DISCONNECT_ST;\n    connectState = `DISCONNECT;\n  end\nend\nelse\nbegin\n  RXStMachCurrState = `CONNECT_LOW_SPEED_ST;\nend\nprocessRxBitsWEn <= 1'b1;"
+C 254 194 0 TEXT "Conditions" | 81005,160052 1 0 0 "processRxBitRdyIn == 1'b1"
+C 253 204 0 TEXT "Conditions" | 76690,153596 1 0 0 "processRxBitRdyIn == 1'b1"
+A 252 204 16 TEXT "Actions" | 57026,138798 1 0 0 "if (RxBits == `SE0)\nbegin\n  RXWaitCount <= RXWaitCount + 1'b1;\n  if (RXWaitCount == `DISCONNECT_WAIT_TIME)  \n  begin\n    RXStMachCurrState <= `DISCONNECT_ST;\n    connectState = `DISCONNECT;\n  end\nend\nelse\nbegin\n  RXStMachCurrState = `CONNECT_FULL_SPEED_ST;\nend\nprocessRxBitsWEn <= 1'b1;"
+A 250 160 16 TEXT "Actions" | 151210,187452 1 0 0 "SIERxRdyOut <= 1'b1;"
+I 249 0 2 Builtin OutPort | 74763,249425 "" ""
+L 248 249 0 TEXT "Labels" | 80763,249425 1 0 0 "SIERxRdyOut"
+I 247 0 2 Builtin InPort | 132223,251370 "" ""
+L 246 247 0 TEXT "Labels" | 138223,251370 1 0 0 "processRxBitRdyIn"
+L 240 241 0 TEXT "State Labels" | 55410,156008 1 0 0 "J2"
+S 241 6 81940 ELLIPSE "Junction" | 55410,156008 3500 3500
+H 242 241 0 RECT 0,0,0 0 0 1 255,255,255 0 | 15700,15700 200200,263700
+I 243 242 0 Builtin Entry | 86360,167640
+I 244 242 0 Builtin Exit | 129540,111760
+W 245 242 0 243 244 BEZIER "Transitions" | 90868,167640 103009,150334 114271,129067 126412,111760
+A 259 169 16 TEXT "Actions" | 64097,138640 1 0 0 "if (RxBits == `SE0)\nbegin\n  RXStMachCurrState <= `WAIT_LOW_SP_DISCONNECT_ST;\n  RXWaitCount <= 0;\nend\nprocessRxBitsWEn <= 1'b1;\nRxBitsOut <= RxBits;"
+A 258 183 16 TEXT "Actions" | 78587,143608 1 0 0 "if (RxBits == `SE0)\nbegin\n  RXStMachCurrState <= `WAIT_FULL_SP_DISCONNECT_ST;\n  RXWaitCount <= 0;\nend\nprocessRxBitsWEn <= 1'b1;\nRxBitsOut <= RxBits;\nSIERxRdyOut <= 1'b1; //early indication of ready"
+C 257 169 0 TEXT "Conditions" | 57276,154345 1 0 0 "processRxBitRdyIn == 1'b1"
+C 256 183 0 TEXT "Conditions" | 63784,161795 1 0 0 "processRxBitRdyIn == 1'b1"
+L 260 261 0 TEXT "Labels" | 80654,253805 1 0 0 "connectState[1:0]"
+I 261 0 130 Builtin OutPort | 74654,253805 "" ""
+END

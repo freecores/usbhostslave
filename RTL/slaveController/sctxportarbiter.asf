@@ -1,0 +1,107 @@
+VERSION=1.15
+HEADER
+FILE="sctxportarbiter.asf"
+FID=405ea588
+LANGUAGE=VERILOG
+ENTITY="SCTxPortArbiter"
+FRAMES=ON
+FREEOID=101
+"LIBRARIES=//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// SCTxPortArbiter\n////                                                              ////\n//// This file is part of the usbhostslave opencores effort.\n//// http://www.opencores.org/cores/usbhostslave/                 ////\n////                                                              ////\n//// Module Description:                                          ////\n//// \n////                                                              ////\n//// To Do:                                                       ////\n//// \n////                                                              ////\n//// Author(s):                                                   ////\n//// - Steve Fielding, sfielding@base2designs.com                 ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n////                                                              ////\n//// Copyright (C) 2004 Steve Fielding and OPENCORES.ORG          ////\n////                                                              ////\n//// This source file may be used and distributed without         ////\n//// restriction provided that this copyright statement is not    ////\n//// removed from the file and that any derivative work contains  ////\n//// the original copyright notice and the associated disclaimer. ////\n////                                                              ////\n//// This source file is free software; you can redistribute it   ////\n//// and/or modify it under the terms of the GNU Lesser General   ////\n//// Public License as published by the Free Software Foundation; ////\n//// either version 2.1 of the License, or (at your option) any   ////\n//// later version.                                               ////\n////                                                              ////\n//// This source is distributed in the hope that it will be       ////\n//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////\n//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////\n//// PURPOSE. See the GNU Lesser General Public License for more  ////\n//// details.                                                     ////\n////                                                              ////\n//// You should have received a copy of the GNU Lesser General    ////\n//// Public License along with this source; if not, download it   ////\n//// from http://www.opencores.org/lgpl.shtml                     ////\n////                                                              ////\n//////////////////////////////////////////////////////////////////////\n//\n`timescale 1ns / 1ps\n"
+END
+BUNDLES
+B T "Declarations" 0,0,255 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Conditions" 0,0,0 0 0 0 255,255,255 0 3333 0 0110 1  "Arial" 0
+B F "States" 0,0,0 0 0 1 0,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Actions" 0,0,0 0 0 1 255,255,255 0 3333 0 0000 1  "Arial" 0
+B T "Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 0
+B L "Transitions" 0,0,0 0 0 1 0,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Ports" 0,0,0 0 0 1 0,255,255 1 3527 1480 0000 0  "Arial" 0
+B L "Errors" 255,0,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B T "State Labels" 0,0,0 0 0 0 0,0,0 0 3333 0 0000 1  "Arial" 4
+B F "Current State" 255,255,0 0 0 1 255,255,0 1 3527 1480 0000 0  "Arial" 0
+B T "Comments" 157,157,157 0 0 1 255,255,255 0 3333 0 0000 0  "Arial" 0
+B L "Info" 0,255,0 0 3 1 255,255,255 1 3527 1480 0000 0  "Arial" 0
+B F "Junction" 0,0,0 0 0 1 255,0,0 1 3527 1480 0000 0  "Arial" 0
+B F "Initial State Indicator" 0,0,0 0 0 1 240,140,40 1 3527 1480 0000 0  "Arial" 0
+END
+INSTHEADER 1
+PAGE 12700,12700 431800,558800
+UPPERLEFT 0,0
+GRID=OFF
+GRIDSIZE 5000,5000 10000,10000
+END
+OBJECTS
+L 15 14 0 TEXT "State Labels" | 269063,296392 1 0 0 "SARB_SEND_PACKET\n/1/"
+S 14 6 4096 ELLIPSE "States" | 269063,296392 6500 6500
+L 11 10 0 TEXT "State Labels" | 224972,363653 1 0 0 "SARB1_WAIT_REQ\n/0/"
+S 10 6 0 ELLIPSE "States" | 224972,365039 6500 6500
+L 9 8 0 TEXT "State Labels" | 225591,395370 1 0 0 "START_SARB\n/3/"
+S 8 6 12288 ELLIPSE "States" | 225591,395370 6500 6500
+L 7 6 0 TEXT "Labels" | 153720,399520 1 0 0 "SCTxArb"
+F 6 0 671089152 41 0 RECT 0,0,0 0 0 1 255,255,255 0 | 138680,277900 323180,412945
+G 1 0 0 TEXT 0,0,0 0 0 0 255,255,255 0 3527 1480 0000 0  "Arial" 0 | 97950,543100 1 0 0 "Module: SCTxPortArbiter"
+C 31 27 0 TEXT "Conditions" | 272024,315171 1 0 0 "sendPacketReq == 1'b0"
+W 27 6 0 14 10 BEZIER "Transitions" | 272129,302121 294143,322021 288020,346232 288403,352802\
+                                      288786,359372 287077,371461 282417,376909 277757,382357\
+                                      274547,381487 268775,381564 263003,381642 254872,381366\
+                                      248267,378971 241663,376577 234289,371557 230118,369008
+C 26 17 0 TEXT "Conditions" | 202073,391408 1 0 0 "rst"
+A 25 8 2 TEXT "Actions" | 234434,411387 1 0 0 "sendPacketGnt <= 1'b0;\ndirectCntlGnt <= 1'b0;\nmuxDCEn <= 1'b0;"
+A 23 19 16 TEXT "Actions" | 233291,339940 1 0 0 "sendPacketGnt <= 1'b1;\nmuxDCEn <= 1'b0;"
+C 22 19 0 TEXT "Conditions" | 235353,358515 1 0 0 "sendPacketReq == 1'b1"
+W 19 6 4097 10 14 BEZIER "Transitions" | 229757,360641 236477,355079 258220,315910 265438,301787
+W 18 6 0 8 10 BEZIER "Transitions" | 225224,388894 225070,384414 224938,376011 224784,371531
+W 17 6 0 16 8 BEZIER "Transitions" | 178237,395710 187522,391937 210185,391478 219470,393186
+I 16 6 0 Builtin Reset | 178237,395710
+L 45 44 0 TEXT "Labels" | 172169,499499 1 0 0 "sendPacketData[7:0]"
+I 44 0 130 Builtin InPort | 166169,499499 "" ""
+L 43 42 0 TEXT "Labels" | 172566,462781 1 0 0 "SCTxPortRdyIn"
+I 42 0 2 Builtin InPort | 166566,462781 "" ""
+I 41 0 3 Builtin InPort | 190061,536582 "" ""
+L 40 39 0 TEXT "Labels" | 195447,542126 1 0 0 "rst"
+I 39 0 2 Builtin InPort | 189447,542126 "" ""
+L 38 37 0 TEXT "Labels" | 170033,485851 1 0 0 "sendPacketGnt"
+I 37 0 2 Builtin OutPort | 164033,485851 "" ""
+L 36 35 0 TEXT "Labels" | 170373,457796 1 0 0 "SCTxPortWEnable"
+I 35 0 2 Builtin OutPort | 164373,457796 "" ""
+A 32 27 16 TEXT "Actions" | 268756,371179 1 0 0 "sendPacketGnt <= 1'b0;"
+L 63 62 0 TEXT "Labels" | 172256,495120 1 0 0 "sendPacketCntl[7:0]"
+I 62 0 130 Builtin InPort | 166256,495120 "" ""
+L 61 41 0 TEXT "Labels" | 196061,536582 1 0 0 "clk"
+L 59 58 0 TEXT "Labels" | 170296,453278 1 0 0 "SCTxPortData[7:0]"
+I 58 0 130 Builtin OutPort | 164296,453278 "" ""
+L 57 56 0 TEXT "Labels" | 172286,481063 1 0 0 "sendPacketReq"
+I 56 0 2 Builtin InPort | 166286,481063 "" ""
+A 54 0 1 TEXT "Actions" | 21871,418957 1 0 0 "// SOFController/directContol/sendPacket mux\nalways @(SCTxPortRdyIn)\nbegin\n  SCTxPortRdyOut = SCTxPortRdyIn;\nend\n	  \nalways @(muxDCEn or\n		 directCntlWEn or directCntlData or directCntlCntl or\n         directCntlWEn or directCntlData or directCntlCntl or\n 		 sendPacketWEn or sendPacketData or sendPacketCntl)\nbegin\nif (muxDCEn == 1'b1)\n  begin  \n    SCTxPortWEnable <= directCntlWEn;\n    SCTxPortData <= directCntlData;\n    SCTxPortCntl <= directCntlCntl;\n  end\nelse\n  begin  \n    SCTxPortWEnable <= sendPacketWEn;\n    SCTxPortData <= sendPacketData;\n    SCTxPortCntl <= sendPacketCntl;\n  end\nend"
+L 53 52 0 TEXT "Labels" | 171981,490639 1 0 0 "sendPacketWEn"
+I 52 0 2 Builtin InPort | 165981,490639 "" ""
+L 79 78 0 TEXT "Labels" | 123944,457060 1 0 0 "directCntlGnt"
+I 78 0 2 Builtin OutPort | 117944,457060 "" ""
+L 67 66 0 TEXT "Labels" | 170124,471556 1 0 0 "SCTxPortCntl[7:0]"
+I 66 0 130 Builtin OutPort | 164124,471556 "" ""
+L 65 64 0 TEXT "Labels" | 170048,467134 1 0 0 "SCTxPortRdyOut"
+I 64 0 2 Builtin OutPort | 164048,467134 "" ""
+A 95 92 16 TEXT "Actions" | 205993,310852 1 0 0 "directCntlGnt <= 1'b1;\nmuxDCEn <= 1'b1;"
+C 94 92 0 TEXT "Conditions" | 216646,319294 1 0 0 "directCntlReq == 1'b1"
+W 92 6 4098 10 91 BEZIER "Transitions" | 225187,358573 226192,342895 228547,312073 229552,296395
+S 91 6 8192 ELLIPSE "States" | 230314,289948 6500 6500
+L 90 91 0 TEXT "State Labels" | 230314,289948 1 0 0 "SARB_DC\n/2/"
+I 89 0 2 Builtin Signal | 141050,528812 "" ""
+L 88 89 0 TEXT "Labels" | 144050,528812 1 0 0 "muxDCEn"
+L 87 86 0 TEXT "Labels" | 126356,466726 1 0 0 "directCntlCntl[7:0]"
+I 86 0 130 Builtin InPort | 120356,466726 "" ""
+L 85 84 0 TEXT "Labels" | 126256,471349 1 0 0 "directCntlData[7:0]"
+I 84 0 130 Builtin InPort | 120256,471349 "" ""
+L 83 82 0 TEXT "Labels" | 126527,461941 1 0 0 "directCntlWEn"
+I 82 0 2 Builtin InPort | 120527,461941 "" ""
+L 81 80 0 TEXT "Labels" | 126331,452467 1 0 0 "directCntlReq"
+I 80 0 2 Builtin InPort | 120331,452467 "" ""
+A 98 96 16 TEXT "Actions" | 290172,290128 1 0 0 "directCntlGnt <= 1'b0;"
+C 97 96 0 TEXT "Conditions" | 246245,286904 1 0 0 "directCntlReq == 1'b0"
+W 96 6 0 91 10 BEZIER "Transitions" | 235538,286081 238258,285074 242316,283075 251081,282571\
+                                      259846,282068 289467,282068 298484,284234 307501,286400\
+                                      313949,295065 315460,307759 316972,320453 316568,362568\
+                                      311430,375060 306292,387553 286142,395412 275462,395110\
+                                      264783,394808 242215,385739 236069,382112 229924,378486\
+                                      228216,373858 227209,371138
+END

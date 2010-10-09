@@ -225,7 +225,14 @@ wire noActivityTimeOutEnableFromHost;
 wire noActivityTimeOutEnableFromSlave;
 wire connectSlaveToHost;
 
-assign USBFullSpeed = fullSpeedBitRateToSIE;  
+// This is not a bug.
+// USBFullSpeed controls the PHY edge speed.
+// The only time that the PHY needs to operate with low speed edge rate is
+// when the host is directly connected to a low speed device. And when this is true, fullSpeedPolarity
+// will be low. When the host is connected to a low speed device via a hub, then speed can be full or low
+// but according to spec edge speed must be full rate edge speed. 
+assign USBFullSpeed = fullSpeedPolarityToSIE;
+//assign USBFullSpeed = fullSpeedBitRateToSIE;  
 assign USBDPlusPullup = (USBFullSpeed & connectSlaveToHost);
 assign USBDMinusPullup = (~USBFullSpeed & connectSlaveToHost);
 

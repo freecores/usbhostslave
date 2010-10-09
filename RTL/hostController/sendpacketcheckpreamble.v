@@ -115,7 +115,7 @@ begin : sendPktCP_NextState
     `START_SPC:
       NextState_sendPktCP <= `SPC_WAIT_EN;
     `CHK_PREAM:
-      if (preAmbleEnable == 1'b1)	
+      if (preAmbleEnable == 1'b1 && sendPacketCPPID != `SOF)	
         NextState_sendPktCP <= `PREAM_PKT_WAIT_RDY1;
       else
         NextState_sendPktCP <= `REG_PKT_WAIT_RDY1;

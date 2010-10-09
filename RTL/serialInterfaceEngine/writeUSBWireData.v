@@ -85,10 +85,10 @@ wire    rst;
 reg     TxWireActiveDrive;
 
 // local registers
-reg  [2:0]buffer0;
-reg  [2:0]buffer1;
-reg  [2:0]buffer2;
-reg  [2:0]buffer3;
+reg  [3:0]buffer0;
+reg  [3:0]buffer1;
+reg  [3:0]buffer2;
+reg  [3:0]buffer3;
 reg  [2:0]bufferCnt;
 reg  [1:0]bufferInIndex;
 reg  [1:0]bufferOutIndex;
@@ -97,6 +97,7 @@ reg  [4:0]i;
 reg incBufferCnt;
 reg fullSpeedTick;
 reg lowSpeedTick;
+reg fullSpeedRate_reg;
 
 // buffer in state machine state codes:
 `define WAIT_BUFFER_NOT_FULL 2'b00
@@ -133,10 +134,10 @@ always @(posedge clk) begin
   if (rst == 1'b1) begin
      incBufferCnt <= 1'b0;
     bufferInIndex <= 2'b00;
-    buffer0 <= 3'b000;
-    buffer1 <= 3'b000;
-    buffer2 <= 3'b000;
-    buffer3 <= 3'b000;
+    buffer0 <= 4'b0000;
+    buffer1 <= 4'b0000;
+    buffer2 <= 4'b0000;
+    buffer3 <= 4'b0000;
     USBWireRdy <= 1'b0;
     bufferInStMachCurrState <= `WAIT_BUFFER_NOT_FULL;
   end
@@ -158,10 +159,10 @@ always @(posedge clk) begin
           USBWireRdy <= 1'b0;
           bufferInIndex <= bufferInIndex + 1'b1;
           case (bufferInIndex)
-            2'b00 : buffer0 <= {TxBitsIn, TxCtrlIn};
-            2'b01 : buffer1 <= {TxBitsIn, TxCtrlIn};
-            2'b10 : buffer2 <= {TxBitsIn, TxCtrlIn};
-            2'b11 : buffer3 <= {TxBitsIn, TxCtrlIn};
+            2'b00 : buffer0 <= {fullSpeedRate, TxBitsIn, TxCtrlIn};
+            2'b01 : buffer1 <= {fullSpeedRate, TxBitsIn, TxCtrlIn};
+            2'b10 : buffer2 <= {fullSpeedRate, TxBitsIn, TxCtrlIn};
+            2'b11 : buffer3 <= {fullSpeedRate, TxBitsIn, TxCtrlIn};
           endcase
           bufferInStMachCurrState <= `CLR_INC_BUFFER_CNT;
         end
@@ -217,13 +218,20 @@ always @(posedge clk) begin
     TxCtrlOut <= `TRI_STATE;
     TxDataOutTick <= 1'b0;
     bufferOutStMachCurrState <= `WAIT_LINE_WRITE;
+    fullSpeedRate_reg <= 1'b0;
   end
   else
   begin
+    case (bufferOutIndex)
+      2'b00: fullSpeedRate_reg <= buffer0[3];
+      2'b01: fullSpeedRate_reg <= buffer1[3];
+      2'b10: fullSpeedRate_reg <= buffer2[3];
+      2'b11: fullSpeedRate_reg <= buffer3[3];
+    endcase
     case (bufferOutStMachCurrState)
       `WAIT_LINE_WRITE:
       begin
-        if ((fullSpeedRate == 1'b1 && fullSpeedTick == 1'b1) || (fullSpeedRate == 1'b0 && lowSpeedTick == 1'b1) )
+        if ((fullSpeedRate_reg == 1'b1 && fullSpeedTick == 1'b1) || (fullSpeedRate_reg == 1'b0 && lowSpeedTick == 1'b1) )
         begin
           TxDataOutTick <= !TxDataOutTick;
           if (bufferCnt == 0) begin

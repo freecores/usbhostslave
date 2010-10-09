@@ -79,6 +79,7 @@
 `define DATA_STOP 8'h01
 `define DATA_STREAM 8'h02
 `define DATA_BIT_STUFF_ERROR 8'h03
+`define DATA_STOP_PRE 8'h04
 
 //RXStMach states
 `define DISCONNECT_ST 4'h0

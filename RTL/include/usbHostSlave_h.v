@@ -66,11 +66,18 @@
 //             Modified cross-clock synchronisation of fifo resets
 //             Added usbDevice, a standalone usb device implementation of usbhostslave
 //             no additional hardware or software required
-
+// Version 2.1 - October 8th 2010. Fixed issues related to accessing low speed device via hub.
+//             Changed USB PHY 'USBFullSpeed' edge rate control pin so that it is wired to
+//             'fullSpeedPolarityToSIE', rather than 'fullSpeedBitRateToSIE'.
+//             Introduced delay into 'fullSpeedRate' in module writeUSBWireData.v. Thus matching
+//             data delay with control delay.
+//             Created new control flow constant DATA_STOP_PRE. This allows PREAMBLE PID to completed
+//             without SEO (EOP), and ensures line state is left at state J. 
+//             Prevented PREAMBLE PID from preceding SOF when PREAMBLE is enabled.
 
 // Most significant nibble corresponds to major revision.
 // Least significant nibble corresponds to minor revision.
-`define USBHOSTSLAVE_VERSION_NUM 8'h20   
+`define USBHOSTSLAVE_VERSION_NUM 8'h21   
 
 //Host slave common registers
 `define HOST_SLAVE_CONTROL_REG 1'b0

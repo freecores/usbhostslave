@@ -436,7 +436,10 @@ begin : SIETx_NextState
         NextState_SIETx <= `PKT_ST_SPCL_PKT_SENT;
         next_processTxByteWEn <= 1'b1;
         next_TxByteOut <= SIEPortData;
-        next_TxByteOutCtrl <= `DATA_STOP;
+        if (SIEPortData[3:0] == `PREAMBLE)
+          next_TxByteOutCtrl <= `DATA_STOP_PRE;
+        else
+          next_TxByteOutCtrl <= `DATA_STOP;
       end
     `PKT_ST_TKN_BYTE1_PKT_SENT1:
     begin

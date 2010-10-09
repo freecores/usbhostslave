@@ -289,6 +289,8 @@ begin : prcTxB_NextState
     `STOP_CHK:
       if (TxByteCtrl == `DATA_STOP)	
         NextState_prcTxB <= `STOP_SND_SE0_1;
+      else if (TxByteCtrl == `DATA_STOP_PRE)	
+        NextState_prcTxB <= `STOP_SND_J;
       else
         NextState_prcTxB <= `PTBY_WAIT_EN;
     `STOP_SND_J:

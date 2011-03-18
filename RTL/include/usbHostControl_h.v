@@ -56,8 +56,8 @@
 `define SOF_EN_BIT 0
 
 //SOFTimeConstants 
-//Note that 'SOF_TX_TIME' is 48000 - 3. This is to account for the delay in resetting the SOF timer 
-`define SOF_TX_TIME 16'hbb7d     //Correct SOF interval for 48MHz clock.
+//Note that 'SOF_TX_TIME' is 48000 - 7. This is to account for the delay in resetting the SOF timer 
+`define SOF_TX_TIME 16'hbb79     //Correct SOF interval for 48MHz clock.
 `define SOF_TX_MARGIN 16'h0c80 //This is the transmission time for 100 bytes at full speed
 `define SOF_TX_MARGIN_LOW_SPEED 16'h6400 //100 bytes at low speed
        

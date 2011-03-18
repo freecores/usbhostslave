@@ -51,7 +51,7 @@
 `include "usbSerialInterfaceEngine_h.v"
 
 
-module processRxBit (JBit, KBit, RxBitsIn, RxCtrlOut, RxDataOut, RxWireActive, clk, processRxBitRdy, processRxBitsWEn, processRxByteRdy, processRxByteWEn, resumeDetected, rst);
+module processRxBit (JBit, KBit, RxBitsIn, RxCtrlOut, RxDataOut, RxWireActive, clk, processRxBitRdy, processRxBitsWEn, processRxByteRdy, processRxByteWEn, resumeDetected, rst, fullSpeedBitRate);
 input   [1:0] JBit;
 input   [1:0] KBit;
 input   [1:0] RxBitsIn;
@@ -65,6 +65,7 @@ output  [7:0] RxDataOut;
 output  processRxBitRdy;
 output  processRxByteWEn;
 output  resumeDetected;
+input fullSpeedBitRate;
 
 wire    [1:0] JBit;
 wire    [1:0] KBit;
@@ -89,6 +90,7 @@ reg  [1:0]RxBits, next_RxBits;
 reg  bitStuffError, next_bitStuffError;
 reg  [1:0]oldRXBits, next_oldRXBits;
 reg  [4:0]resumeWaitCnt, next_resumeWaitCnt;
+reg  [7:0]delayCnt, next_delayCnt;
 
 // BINARY ENCODED state machine: prRxBit
 // State codes definitions:
@@ -107,6 +109,7 @@ reg  [4:0]resumeWaitCnt, next_resumeWaitCnt;
 `define IDLE_WAIT_PRB_RDY 4'b1100
 `define DATA_RX_WAIT_PRB_RDY 4'b1101
 `define DATA_RX_ERROR_WAIT_RDY 4'b1110
+`define LOW_SPEED_EOP_DELAY 4'b1111
 
 reg [3:0] CurrState_prRxBit;
 reg [3:0] NextState_prRxBit;
@@ -118,7 +121,7 @@ reg [3:0] NextState_prRxBit;
 //----------------------------------
 // Next State Logic (combinatorial)
 //----------------------------------
-always @ (RxBitsIn or RxBits or oldRXBits or RXSameBitCount or RXBitCount or RXByte or JBit or KBit or resumeWaitCnt or processRxBitsWEn or RXBitStMachCurrState or RxWireActive or processRxByteRdy or bitStuffError or processRxByteWEn or RxCtrlOut or RxDataOut or resumeDetected or processRxBitRdy or CurrState_prRxBit)
+always @ (*)
 begin : prRxBit_NextState
   NextState_prRxBit <= CurrState_prRxBit;
   // Set default values for outputs and signals
@@ -134,6 +137,7 @@ begin : prRxBit_NextState
   next_RXByte <= RXByte;
   next_bitStuffError <= bitStuffError;
   next_resumeWaitCnt <= resumeWaitCnt;
+  next_delayCnt <= delayCnt;
   next_processRxBitRdy <= processRxBitRdy;
   case (CurrState_prRxBit)
     `START:
@@ -218,8 +222,14 @@ begin : prRxBit_NextState
     `DATA_RX_CHK_SE0:
     begin
       next_bitStuffError <= 1'b0;
-      if (RxBits == `SE0)	
-        NextState_prRxBit <= `DATA_RX_WAIT_PRB_RDY;
+      if (RxBits == `SE0) begin
+        if (fullSpeedBitRate == 1'b0) begin
+          NextState_prRxBit <= `LOW_SPEED_EOP_DELAY;
+          next_delayCnt <= 8'h00;
+        end
+        else
+          NextState_prRxBit <= `DATA_RX_WAIT_PRB_RDY;
+      end
       else
       begin
         NextState_prRxBit <= `DATA_RX_DATA_DESTUFF;
@@ -347,6 +357,13 @@ begin : prRxBit_NextState
       NextState_prRxBit <= `WAIT_BITS;
       next_processRxBitRdy <= 1'b1;
     end
+    `LOW_SPEED_EOP_DELAY:
+    begin
+      //turn around time must be at least 2 low speed bit periods
+      next_delayCnt <= delayCnt + 1'b1;
+      if (delayCnt == `LS_OVER_SAMPLE_RATE * 2)
+        NextState_prRxBit <= `DATA_RX_WAIT_PRB_RDY;
+    end
   endcase
 end
 
@@ -376,6 +393,7 @@ begin : prRxBit_RegOutput
     RXByte <= 8'h00;
     bitStuffError <= 1'b0;
     resumeWaitCnt <= 5'h0;
+    delayCnt <= 8'h00;
     processRxByteWEn <= 1'b0;
     RxCtrlOut <= 8'h00;
     RxDataOut <= 8'h00;
@@ -392,6 +410,7 @@ begin : prRxBit_RegOutput
     RXByte <= next_RXByte;
     bitStuffError <= next_bitStuffError;
     resumeWaitCnt <= next_resumeWaitCnt;
+    delayCnt <= next_delayCnt;
     processRxByteWEn <= next_processRxByteWEn;
     RxCtrlOut <= next_RxCtrlOut;
     RxDataOut <= next_RxDataOut;

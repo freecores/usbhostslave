@@ -281,7 +281,8 @@ SOFTransmit u_SOFTransmit
   .sendPacketArbiterGnt(SOFTxGnt),
   .sendPacketArbiterReq(SOFTxReq),
   .sendPacketRdy(sendPacketCPReadyOut),
-  .sendPacketWEn(SOF_SP_WEn) );  
+  .sendPacketWEn(SOF_SP_WEn),
+  .fullSpeedRate(fullSpeedRate) );  
 
 
 sendPacketArbiter u_sendPacketArbiter

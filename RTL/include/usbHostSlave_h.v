@@ -74,10 +74,15 @@
 //             Created new control flow constant DATA_STOP_PRE. This allows PREAMBLE PID to completed
 //             without SEO (EOP), and ensures line state is left at state J. 
 //             Prevented PREAMBLE PID from preceding SOF when PREAMBLE is enabled.
+// Version 2.2 - March 18th 2011. Fixed more issues related to accessing low speed device via hub.
+//             Added 2 bit delay time from detection of low speed SEO (ie end of packet) to notification of
+//             higher level modules. This satisfies USB spec requirement of 2 bit times min turn around time
+//             Fixed SOF transmission to avoid collision with incoming ACK response in low speed mode.
+//             Fixed possible problem for full speed too.
 
 // Most significant nibble corresponds to major revision.
 // Least significant nibble corresponds to minor revision.
-`define USBHOSTSLAVE_VERSION_NUM 8'h21   
+`define USBHOSTSLAVE_VERSION_NUM 8'h22  
 
 //Host slave common registers
 `define HOST_SLAVE_CONTROL_REG 1'b0

@@ -215,7 +215,9 @@ processRxBit u_processRxBit
   .resumeDetected(resumeDetected), 
   .rst(rst),
   .processRxByteRdy(processRxByteRdy),
-  .RxWireActive(RxWireActive)
+  .RxWireActive(RxWireActive),
+  .fullSpeedBitRate(fullSpeedBitRate)
+
   );
   
 processRxByte u_processRxByte

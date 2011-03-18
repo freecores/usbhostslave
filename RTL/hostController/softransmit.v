@@ -51,7 +51,7 @@
 `include "usbHostControl_h.v"
 
 
-module SOFTransmit (SOFEnable, SOFSent, SOFSyncEn, SOFTimerClr, SOFTimer, clk, rst, sendPacketArbiterGnt, sendPacketArbiterReq, sendPacketRdy, sendPacketWEn);
+module SOFTransmit (SOFEnable, SOFSent, SOFSyncEn, SOFTimerClr, SOFTimer, clk, rst, sendPacketArbiterGnt, sendPacketArbiterReq, sendPacketRdy, sendPacketWEn, fullSpeedRate);
 input   SOFEnable;		// After host software asserts SOFEnable, must wait TBD time before asserting SOFSyncEn
 input   SOFSyncEn;
 input   [15:0] SOFTimer;
@@ -63,6 +63,7 @@ output  SOFSent;		// single cycle pulse
 output  SOFTimerClr;		// Single cycle pulse
 output  sendPacketArbiterReq;
 output  sendPacketWEn;
+input   fullSpeedRate;
 
 wire    SOFEnable;
 reg     SOFSent, next_SOFSent;
@@ -75,6 +76,7 @@ wire    sendPacketArbiterGnt;
 reg     sendPacketArbiterReq, next_sendPacketArbiterReq;
 wire    sendPacketRdy;
 reg     sendPacketWEn, next_sendPacketWEn;
+reg     [15:0] SOFNearTime;
 
 // diagram signals declarations
 reg  [7:0]i, next_i;
@@ -112,7 +114,7 @@ begin : SOFTx_NextState
     `START_STX:
       NextState_SOFTx <= `WAIT_SOF_NEAR;
     `WAIT_SOF_NEAR:
-      if (SOFTimer >= `SOF_TX_TIME - `SOF_TX_MARGIN ||
+      if (SOFTimer >= SOFNearTime  ||
         (SOFSyncEn == 1'b1 &&
         SOFEnable == 1'b1))	
       begin
@@ -188,6 +190,7 @@ begin : SOFTx_RegOutput
     SOFTimerClr <= 1'b0;
     sendPacketArbiterReq <= 1'b0;
     sendPacketWEn <= 1'b0;
+    SOFNearTime <= 16'h0000;
   end
   else 
   begin
@@ -196,6 +199,10 @@ begin : SOFTx_RegOutput
     SOFTimerClr <= next_SOFTimerClr;
     sendPacketArbiterReq <= next_sendPacketArbiterReq;
     sendPacketWEn <= next_sendPacketWEn;
+    if (fullSpeedRate == 1'b1)
+      SOFNearTime <= `SOF_TX_TIME - `SOF_TX_MARGIN;
+    else
+      SOFNearTime <= `SOF_TX_TIME - `SOF_TX_MARGIN_LOW_SPEED;
   end
 end
 
